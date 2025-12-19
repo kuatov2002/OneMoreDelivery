@@ -25,6 +25,7 @@ public class CityGenerator : MonoBehaviour
     private float blockHeight = 0.02f;
 
     [Header("Seed and Size")]
+    public float mapScale = 1;
     public int mapSize = 300;
     public int seed = 13;
     
@@ -150,7 +151,7 @@ public class CityGenerator : MonoBehaviour
 
         mainSw.Stop();
         Debug.Log("City generation time taken: " + mainSw.Elapsed.TotalMilliseconds + " ms");
-
+        
         genReady = true;
     }
 
@@ -174,7 +175,7 @@ public class CityGenerator : MonoBehaviour
 
         Material roadMaterial = Resources.Load<Material>("Material/RoadMaterial");
         roadPlane.GetComponent<MeshRenderer>().material = roadMaterial;
-
+        
         //Make Blocks
         var blockContainer = new GameObject();
         blockContainer.name = "Block Container";
@@ -227,6 +228,10 @@ public class CityGenerator : MonoBehaviour
             if (lotMeshes[i].Block.IsPark) lot.GetComponent<MeshRenderer>().material = parkMaterial;
             else lot.GetComponent<MeshRenderer>().material = lotMaterial;
         }
+        
+        roadPlane.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
+        blockContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
+        lotContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
     }
 
     private void OnDrawGizmos()
