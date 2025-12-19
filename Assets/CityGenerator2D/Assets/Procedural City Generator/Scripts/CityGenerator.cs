@@ -164,7 +164,13 @@ public class CityGenerator : MonoBehaviour
         roadPlane.name = "Road Plane";
         roadPlane.AddComponent<MeshFilter>();
         roadPlane.AddComponent<MeshRenderer>();
-        roadPlane.GetComponent<MeshFilter>().mesh = MeshCreateService.GenerateRoadMesh(mapSize);
+        
+        Mesh roadMesh = MeshCreateService.GenerateRoadMesh(mapSize);
+        roadPlane.GetComponent<MeshFilter>().mesh = roadMesh;
+
+        // Добавляем MeshCollider к дороге
+        var roadCollider = roadPlane.AddComponent<MeshCollider>();
+        roadCollider.sharedMesh = roadMesh;
 
         Material roadMaterial = Resources.Load<Material>("Material/RoadMaterial");
         roadPlane.GetComponent<MeshRenderer>().material = roadMaterial;
@@ -183,7 +189,14 @@ public class CityGenerator : MonoBehaviour
             block.transform.parent = blockContainer.transform;
             block.AddComponent<MeshFilter>();
             block.AddComponent<MeshRenderer>();
-            block.GetComponent<MeshFilter>().mesh = MeshCreateService.GenerateBlockMesh(blockMeshes[i]);
+            
+            Mesh blockMesh = MeshCreateService.GenerateBlockMesh(blockMeshes[i]);
+            block.GetComponent<MeshFilter>().mesh = blockMesh;
+
+            // Добавляем MeshCollider с convex
+            var meshCollider = block.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh = blockMesh;
+            meshCollider.convex = true;
 
             if (blockMeshes[i].Block.IsPark) block.GetComponent<MeshRenderer>().material = parkMaterial;
             else block.GetComponent<MeshRenderer>().material = blockMaterial;
@@ -202,7 +215,14 @@ public class CityGenerator : MonoBehaviour
             lot.transform.parent = lotContainer.transform;
             lot.AddComponent<MeshFilter>();
             lot.AddComponent<MeshRenderer>();
-            lot.GetComponent<MeshFilter>().mesh = MeshCreateService.GenerateBlockMesh(lotMeshes[i]);
+            
+            Mesh lotMesh = MeshCreateService.GenerateBlockMesh(lotMeshes[i]);
+            lot.GetComponent<MeshFilter>().mesh = lotMesh;
+            
+            // Добавляем MeshCollider с convex к лотам
+            var meshCollider = lot.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh = lotMesh;
+            meshCollider.convex = true;
             
             if (lotMeshes[i].Block.IsPark) lot.GetComponent<MeshRenderer>().material = parkMaterial;
             else lot.GetComponent<MeshRenderer>().material = lotMaterial;
