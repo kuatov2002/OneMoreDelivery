@@ -7,6 +7,7 @@ using RoadGeneration;
 using BlockDivision;
 using Services;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CityGenerator : MonoBehaviour
 {
@@ -57,6 +58,11 @@ public class CityGenerator : MonoBehaviour
     public float minBuildHeight = 2;
     public float maxBuildHeight = 15;
 
+    [Header("Minimap")]
+    public Image minimapImage; // UI Image для отображения миникарты
+    [Range(256, 2048)]
+    public int minimapResolution = 512; // Разрешение миникарты
+
     [Header("Gizmos")]
     public bool drawRoadNodes;
     public bool drawRoads = true;
@@ -89,6 +95,7 @@ public class CityGenerator : MonoBehaviour
         {
             genDone = true;
             GenerateGameObjects();
+            GenerateMinimap();
         }
     }
 
@@ -232,6 +239,54 @@ public class CityGenerator : MonoBehaviour
         roadPlane.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         blockContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         lotContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
+    }
+
+    private void GenerateMinimap()
+    {
+        if (minimapImage == null)
+        {
+            Debug.LogWarning("Minimap Image is not assigned!");
+            return;
+        }
+
+        Debug.Log("Generating minimap...");
+        
+        // Генерируем текстуру миникарты
+        Texture2D minimapTexture = MinimapService.GenerateMinimap(
+            roadGraph, 
+            blocks, 
+            lots, 
+            mapSize, 
+            minimapResolution
+        );
+
+        // Создаем спрайт из текстуры
+        Sprite minimapSprite = Sprite.Create(
+            minimapTexture,
+            new Rect(0, 0, minimapTexture.width, minimapTexture.height),
+            new Vector2(0.5f, 0.5f)
+        );
+
+        // Применяем спрайт к Image
+        minimapImage.sprite = minimapSprite;
+        
+        Debug.Log("Minimap generated successfully!");
+    }
+
+    /// <summary>
+    /// Публичный метод для обновления миникарты
+    /// Можно вызвать из других скриптов для регенерации миникарты
+    /// </summary>
+    public void UpdateMinimap()
+    {
+        if (genDone)
+        {
+            GenerateMinimap();
+        }
+        else
+        {
+            Debug.LogWarning("City generation is not complete yet!");
+        }
     }
 
     private void OnDrawGizmos()

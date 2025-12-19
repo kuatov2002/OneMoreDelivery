@@ -4,7 +4,7 @@ using GraphModel;
 
 namespace BlockGeneration
 {
-    class BlockNode
+    public class BlockNode
     {
         public float X { get; private set; }
         public float Y { get; private set; }

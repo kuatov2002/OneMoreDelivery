@@ -2,7 +2,7 @@
 
 namespace GraphModel
 {
-    class Graph
+    public class Graph
     {
         public List<Node> MajorNodes { get; private set; } //For the major roads
         public List<Edge> MajorEdges { get; private set; }

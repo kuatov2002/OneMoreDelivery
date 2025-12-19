@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GraphModel
 {
-    class Node
+    public class Node
     {
         public float X { get; private set; }
         public float Y { get; private set; }
