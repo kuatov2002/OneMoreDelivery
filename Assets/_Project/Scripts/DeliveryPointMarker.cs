@@ -1,68 +1,43 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DeliveryPointMarker : MonoBehaviour
 {
-    [Header("Визуализация")]
-    public Color markerColor = Color.green;
-    public float markerSize = 2f;
-    public bool showLabel = true;
-    
-    [Header("Анимация")]
-    public bool animateHeight = true;
-    public float animationSpeed = 1f;
-    public float animationAmplitude = 0.5f;
-    
-    private Vector3 _initialPosition;
-    
-    private void Start()
+    [Header("Статус доставки")]
+    public bool isPickupPoint = true; // true для точки взятия, false для точки доставки
+
+    [Header("События")]
+    public UnityEvent onDeliveryPickedUp = new UnityEvent();
+    public UnityEvent onDeliveryCompleted = new UnityEvent();
+
+    private void OnTriggerEnter(Collider other)
     {
-        _initialPosition = transform.position;
-    }
-    
-    private void Update()
-    {
-        if (animateHeight)
+        if (other.CompareTag("Player") && isPickupPoint)
         {
-            // Плавная анимация вверх-вниз
-            float newY = _initialPosition.y + Mathf.Sin(Time.time * animationSpeed) * animationAmplitude;
-            transform.position = new Vector3(
-                _initialPosition.x, 
-                newY, 
-                _initialPosition.z
-            );
+            PickupDelivery();
+            Destroy(gameObject);
+        }
+        else if (other.CompareTag("Player") && !isPickupPoint)
+        {
+            CompleteDelivery();
+            Destroy(gameObject);
         }
     }
     
-    private void OnDrawGizmos()
+    /// <summary>
+    /// Вызывается когда курьер взял посылку в точке старта
+    /// </summary>
+    private void PickupDelivery()
     {
-        // Рисуем сферу
-        Gizmos.color = markerColor;
-        Gizmos.DrawSphere(transform.position, markerSize);
-        
-        // Рисуем полупрозрачную область вокруг
-        Color transparentColor = markerColor;
-        transparentColor.a = 0.3f;
-        Gizmos.color = transparentColor;
-        Gizmos.DrawSphere(transform.position, markerSize * 1.5f);
-        
-        // Рисуем вертикальную линию к земле
-        Gizmos.color = markerColor;
-        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, 0, transform.position.z));
-        
-#if UNITY_EDITOR
-        if (showLabel)
-        {
-            UnityEditor.Handles.Label(
-                transform.position + Vector3.up * (markerSize + 1f), 
-                gameObject.name,
-                new GUIStyle() 
-                { 
-                    normal = new GUIStyleState() { textColor = markerColor },
-                    fontSize = 12,
-                    fontStyle = FontStyle.Bold
-                }
-            );
-        }
-#endif
+        onDeliveryPickedUp?.Invoke();
+    }
+    
+    /// <summary>
+    /// Вызывается когда курьер доставил посылку в конечную точку
+    /// </summary>
+    private void CompleteDelivery()
+    {
+        onDeliveryCompleted?.Invoke();
     }
 }
