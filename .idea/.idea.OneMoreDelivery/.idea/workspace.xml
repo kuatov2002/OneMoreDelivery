@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ed89dcfc-b487-4428-9387-0fcbfa819263" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/GameCreator/Installs/GameCreator.Blockout@1.6.12/Materials/Prototype_Color_Blue.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/GameCreator/Installs/GameCreator.Blockout@1.6.12/Materials/Prototype_Color_Blue.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/GameCreator/Installs/GameCreator.Blockout@1.6.12/Materials/Prototype_Color_Green.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/GameCreator/Installs/GameCreator.Blockout@1.6.12/Materials/Prototype_Color_Green.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/_Project/Scripts/CityManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/_Project/Scripts/CityManager.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/_Project/Scripts/CityManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/_Project/Scripts/DeliveryPointMarker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/_Project/Scripts/DeliveryPointVisual.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/_Project/Scripts/GameTimeUI.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "inventory",
+    "node.js.selected.package.tslint": "(autodetect)"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+</project>
