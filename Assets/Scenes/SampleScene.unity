@@ -139,13 +139,21 @@ PrefabInstance:
       propertyPath: managedReferences[5243232769837892272].m_Jump.m_JumpForce
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: managedReferences[5243232769837892272].m_Acceleration.m_Acceleration
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: managedReferences[5243232769837892272].m_Acceleration.m_Deceleration
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6780603008925302200, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6780603008925302200, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.34
       objectReference: {fileID: 0}
     - target: {fileID: 6780603008925302200, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -280,8 +288,6 @@ MonoBehaviour:
   playerMarker: {fileID: 0}
   playerTransform: {fileID: 1731634677}
   cityGenerator: {fileID: 1087277563}
-  mapSize: 150
-  cityScale: 10
   updatePlayerPosition: 1
   markerSmoothness: 0.1
   minimapScale: 1
@@ -425,7 +431,7 @@ MonoBehaviour:
     - rid: 8215184083622297819
       type: {class: GetDecimalDecimal, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
-        m_Value: 0.15
+        m_Value: 0.06
 --- !u!4 &327113954
 Transform:
   m_ObjectHideFlags: 0
@@ -568,37 +574,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &781741185
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 781741186}
-  m_Layer: 0
-  m_Name: CameraController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &781741186
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 781741185}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.9509, y: 5.59189, z: 2.15381}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,6 +636,7 @@ GameObject:
   - component: {fileID: 1087277560}
   - component: {fileID: 1087277559}
   - component: {fileID: 1087277563}
+  - component: {fileID: 1087277564}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -754,7 +730,7 @@ Transform:
   m_GameObject: {fileID: 1087277558}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.771, z: 0}
   m_LocalScale: {x: 20, y: 1, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -774,9 +750,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CityGenerator
   mapScale: 10
   mapSize: 150
-  seed: 13
-  maxDegreeInCurves: 10
-  branchingProbability: 0.075
+  maxDegreeInCurves: 20
+  branchingProbability: 0.1
   crossingDeletionProbability: 0.1
   maxMajorRoad: 2000
   maxMinorRoad: 10000
@@ -797,6 +772,21 @@ MonoBehaviour:
   drawTriangulatedMeshes: 0
   drawBoundingBoxes: 0
   drawLots: 1
+--- !u!114 &1087277564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087277558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad8f8384e83c8b843beba6dcc46d9932, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CityManager
+  cityGenerator: {fileID: 1087277563}
+  character: {fileID: 1731634678}
+  characterHeightOffset: 2
 --- !u!1 &1317695372
 GameObject:
   m_ObjectHideFlags: 0
@@ -983,6 +973,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6780603008925302200, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
   m_PrefabInstance: {fileID: 116821333}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1731634678 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+  m_PrefabInstance: {fileID: 116821333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e4aa7a58d404413af1c9111cdcd3f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2079783957
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,11 +1069,11 @@ MonoBehaviour:
     m_SmoothTimePosition: 0.1
     m_SmoothTimeRotation: 0.1
   m_Clip:
-    rid: 8215184083622297822
+    rid: 8215184107308580976
   references:
     version: 2
     RefIds:
-    - rid: 8215184083622297822
+    - rid: 8215184107308580976
       type: {class: CameraClipZoom, ns: GameCreator.Runtime.Cameras, asm: GameCreator.Runtime.Core}
       data:
         m_LayerMask:
@@ -1179,7 +1180,6 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 116821333}
   - {fileID: 1087277562}
-  - {fileID: 781741186}
   - {fileID: 2079783963}
   - {fileID: 327113954}
   - {fileID: 1390249849}

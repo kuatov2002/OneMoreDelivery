@@ -28,8 +28,7 @@ public class CityGenerator : MonoBehaviour
     [Header("Seed and Size")]
     public float mapScale = 1;
     public int mapSize = 300;
-    public int seed = 13;
-    
+   
     [Header("Major Road generation")]
     [Range(0, 20)]
     public int maxDegreeInCurves = 10;
@@ -79,9 +78,11 @@ public class CityGenerator : MonoBehaviour
     private bool genReady;
     private bool genDone;
     
+    public event System.Action OnCityGenerationComplete;
+    
     void Start()
     { 
-        rand = new System.Random(seed);
+        rand = new System.Random(Random.Range(0, int.MaxValue));
         roadGraph = new Graph();
         lots = new List<Block>();
 
@@ -96,6 +97,7 @@ public class CityGenerator : MonoBehaviour
             genDone = true;
             GenerateGameObjects();
             GenerateMinimap();
+            OnCityGenerationComplete?.Invoke();
         }
     }
 
