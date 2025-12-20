@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a103170f97ba9814e8bc269ea24219bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeliveryPointMarker
-  isPickupPoint: 1
+  isPickupPoint: 0
   onDeliveryPickedUp:
     m_PersistentCalls:
       m_Calls: []
