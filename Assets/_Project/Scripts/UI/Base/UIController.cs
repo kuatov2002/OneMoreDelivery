@@ -67,7 +67,7 @@ public class UIController : MonoBehaviour
     /// Регистрирует UI модуль в системе. Модуль должен быть зарегистрирован
     /// перед использованием через ShowModule.
     /// </summary>
-    public void RegisterModule(IUIModule module)
+    private void RegisterModule(IUIModule module)
     {
         if (module == null)
         {
@@ -163,8 +163,9 @@ public class UIController : MonoBehaviour
     /// <summary>
     /// Получает ссылку на зарегистрированный модуль по имени.
     /// </summary>
-    public T GetModule<T>(string moduleName) where T : class, IUIModule
+    public T GetModule<T>() where T : class, IUIModule
     {
+        string moduleName = typeof(T).Name;
         if (_moduleRegistry.TryGetValue(moduleName, out IUIModule module))
         {
             return module as T;

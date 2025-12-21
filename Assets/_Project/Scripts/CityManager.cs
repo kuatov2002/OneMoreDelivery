@@ -33,7 +33,6 @@ public class CityManager : MonoBehaviour
     [SerializeField] private bool loopTimeAfterEnd = true;
     
     [Header("Buff System")]
-    [SerializeField] private string buffSelectionModuleName = "BuffSelection";
     [SerializeField] private bool pauseTimeOnBuffSelection = true;
     
     [Header("Available Choices")]
@@ -93,11 +92,11 @@ public class CityManager : MonoBehaviour
     
     private void InitializeBuffSystem()
     {
-        _buffSelectionModule = UIController.Instance.GetModule<BuffSelectionModule>(buffSelectionModuleName);
+        _buffSelectionModule = UIController.Instance.GetModule<BuffSelectionModule>();
         
         if (_buffSelectionModule == null)
         {
-            Debug.LogError($"BuffSelectionModule '{buffSelectionModuleName}' not found in UIController");
+            Debug.LogError($"BuffSelectionModule not found in UIController");
             return;
         }
         

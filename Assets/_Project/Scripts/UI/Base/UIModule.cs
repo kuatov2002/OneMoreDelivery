@@ -21,7 +21,6 @@ public interface IUIModule
 public abstract class UIModule : MonoBehaviour, IUIModule
 {
     [Header("Module Configuration")]
-    [SerializeField] protected string moduleName;
     [SerializeField] protected CanvasGroup canvasGroup;
     [SerializeField] protected bool hideOnStart = true;
     
@@ -29,7 +28,7 @@ public abstract class UIModule : MonoBehaviour, IUIModule
     [SerializeField] protected float fadeDuration = 0.3f;
     [SerializeField] protected bool useAnimation = true;
     
-    public string ModuleName => moduleName;
+    public string ModuleName => GetType().Name;
     public bool IsVisible { get; protected set; }
     
     protected bool isInitialized;
