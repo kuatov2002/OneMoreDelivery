@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using GameCreator.Runtime.Characters;
 using UnityEngine;
 using BlockGeneration;
+using GameCreator.Runtime.Common;
 using Block = BlockGeneration.Block;
 
 public class CityManager : MonoBehaviour
@@ -22,7 +24,7 @@ public class CityManager : MonoBehaviour
     [SerializeField] private int maxAttempts = 30;
     
     [Header("Delivery Point Positioning")]
-    [SerializeField] private float offsetFromBuilding = 3f; // Distance from building edge
+    [SerializeField] private float offsetFromBuilding = 3f;
     
     [Header("Game Time System")]
     [SerializeField] private float startHour = 9f;
@@ -30,13 +32,20 @@ public class CityManager : MonoBehaviour
     [SerializeField] private float gameMinutesPerRealSecond = 1f;
     [SerializeField] private bool loopTimeAfterEnd = true;
     
-    // Time tracking properties
+    [Header("Buff System")]
+    [SerializeField] private string buffSelectionModuleName = "BuffSelection";
+    [SerializeField] private bool pauseTimeOnBuffSelection = true;
+    
+    [Header("Available Choices")]
+    [SerializeField] private List<GameCreatorChoice> availableChoices;
+    
     private float _currentTimeInMinutes;
     private bool _isTimePaused = false;
+    private bool _isBuffSelectionActive = false;
     
-    // Active delivery point instances
     private DeliveryPointMarker _activeStartMarker;
     private DeliveryPointMarker _activeEndMarker;
+    private BuffSelectionModule _buffSelectionModule;
 
     public GameObject StartDeliveryPoint => _activeStartMarker != null ? _activeStartMarker.gameObject : null;
     public GameObject EndDeliveryPoint  => _activeEndMarker != null ? _activeEndMarker.gameObject : null;
@@ -51,12 +60,13 @@ public class CityManager : MonoBehaviour
     {
         _currentTimeInMinutes = startHour * 60f;
         
-        // Validate that delivery markers are assigned
         if (startDeliveryMarker == null || endDeliveryMarker == null)
         {
             Debug.LogError("CityManager: Delivery point markers are not assigned in the inspector!");
             return;
         }
+        
+        InitializeBuffSystem();
         
         if (cityGenerator != null)
         {
@@ -76,13 +86,36 @@ public class CityManager : MonoBehaviour
             cityGenerator.OnCityGenerationComplete -= OnCityReady;
         }
         
-        // Unsubscribe from delivery point events to prevent memory leaks
         UnsubscribeFromDeliveryEvents();
+        UnsubscribeFromBuffEvents();
+    }
+    
+    private void InitializeBuffSystem()
+    {
+        _buffSelectionModule = UIController.Instance.GetModule<BuffSelectionModule>(buffSelectionModuleName);
+        
+        if (_buffSelectionModule == null)
+        {
+            Debug.LogError($"BuffSelectionModule '{buffSelectionModuleName}' not found in UIController");
+            return;
+        }
+        
+        _buffSelectionModule.OnChoiceSelected += OnChoiceSelected;
+        _buffSelectionModule.OnSelectionCompleted += OnSelectionCompleted;
+    }
+    
+    private void UnsubscribeFromBuffEvents()
+    {
+        if (_buffSelectionModule != null)
+        {
+            _buffSelectionModule.OnChoiceSelected -= OnChoiceSelected;
+            _buffSelectionModule.OnSelectionCompleted -= OnSelectionCompleted;
+        }
     }
     
     private void UpdateGameTime()
     {
-        if (_isTimePaused) return;
+        if (_isTimePaused || _isBuffSelectionActive) return;
         
         _currentTimeInMinutes += gameMinutesPerRealSecond * Time.deltaTime;
         
@@ -127,9 +160,6 @@ public class CityManager : MonoBehaviour
         Debug.Log($"Character speed set to: {characterSpeed}");
     }
     
-    /// <summary>
-    /// Unsubscribe from delivery point events to prevent memory leaks.
-    /// </summary>
     private void UnsubscribeFromDeliveryEvents()
     {
         if (_activeStartMarker != null)
@@ -146,32 +176,123 @@ public class CityManager : MonoBehaviour
     private void OnDeliveryPickedUp()
     {
         Debug.Log("CityManager: Delivery picked up!");
-        
-        // TODO: Implement pickup logic
-        // - Create package GameObject and attach to courier
-        // - Activate delivery info UI
-        // - Start delivery timer
-        // - Show route to end point
-        // - Enable navigation arrow
     }
 
     private void OnDeliveryCompleted()
     {
         Debug.Log("CityManager: Delivery completed!");
+        ShowBuffSelection();
+    }
+    
+    private void ShowBuffSelection()
+    {
+        if (_buffSelectionModule == null)
+        {
+            Debug.LogError("Cannot show buff selection: module not initialized");
+            ContinueAfterSelection();
+            return;
+        }
         
-        // TODO: Implement completion logic
-        // - Award money to player
-        // - Update statistics (deliveries per day, total earnings)
-        // - Show completion UI (delivery time, earnings)
-        // - Check if time remains for new delivery (IsWorkingHours)
-        // - If time available - reposition delivery points for new delivery
-        // - If time expired - show day summary
+        if (availableChoices == null || availableChoices.Count == 0)
+        {
+            Debug.LogWarning("No choices available for selection");
+            ContinueAfterSelection();
+            return;
+        }
+        
+        var choices = GetRandomChoices(3);
+        
+        _isBuffSelectionActive = true;
+        
+        if (pauseTimeOnBuffSelection)
+        {
+            Time.timeScale = 0f;
+        }
+        
+        _buffSelectionModule.ShowWithChoices(choices);
+    }
+    
+    private List<IBuffChoice> GetRandomChoices(int count)
+    {
+        var validChoices = new List<IBuffChoice>();
+        
+        foreach (var choice in availableChoices)
+        {
+            if (choice is IBuffChoice buffChoice)
+            {
+                validChoices.Add(buffChoice);
+            }
+        }
+        
+        if (validChoices.Count == 0)
+        {
+            Debug.LogError("No valid IBuffChoice implementations found in availableChoices");
+            return new List<IBuffChoice>();
+        }
+        
+        var shuffled = new List<IBuffChoice>(validChoices);
+        for (int i = 0; i < shuffled.Count; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(i, shuffled.Count);
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[randomIndex];
+            shuffled[randomIndex] = temp;
+        }
+        
+        return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
+    }
+    
+    private void OnChoiceSelected(int index)
+    {
+        if (index < 0 || index >= availableChoices.Count)
+        {
+            Debug.LogError($"Invalid choice index: {index}");
+            return;
+        }
+    
+        var selectedChoice = availableChoices[index];
+        Debug.Log($"Choice selected: {selectedChoice.name}");
+    
+        if (selectedChoice.instructionToRun != null)
+        {
+            Args args = new Args(character.gameObject, gameObject);
+            _ = selectedChoice.instructionToRun.Run(args);
+        }
+        else
+        {
+            Debug.LogWarning($"No instruction assigned to choice: {selectedChoice.name}");
+        }
+    }
+    
+    private void OnSelectionSkipped()
+    {
+        Debug.Log("Selection skipped");
+    }
+    
+    private void OnSelectionCompleted()
+    {
+        _isBuffSelectionActive = false;
+        
+        if (pauseTimeOnBuffSelection)
+        {
+            Time.timeScale = 1f;
+        }
+        
+        ContinueAfterSelection();
+    }
+    
+    private void ContinueAfterSelection()
+    {
+        if (IsWorkingHours)
+        {
+            StartNewDelivery();
+        }
+        else
+        {
+            Debug.Log("Working hours ended.");
+        }
     }
 
-    /// <summary>
-    /// Start a new delivery by repositioning the existing delivery point markers.
-    /// This method reuses the existing markers rather than destroying and recreating them.
-    /// </summary>
     public void StartNewDelivery()
     {
         if (startDeliveryMarker == null || endDeliveryMarker == null)
@@ -184,10 +305,6 @@ public class CityManager : MonoBehaviour
         Debug.Log("New delivery started - delivery points repositioned");
     }
 
-    /// <summary>
-    /// Position the existing delivery point markers at valid locations near buildings.
-    /// This method finds suitable positions and moves the markers accordingly.
-    /// </summary>
     private void PositionDeliveryPoints()
     {
         if (cityGenerator == null)
@@ -202,7 +319,6 @@ public class CityManager : MonoBehaviour
             return;
         }
         
-        // Destroy old markers if they exist
         if (_activeStartMarker != null)
         {
             Destroy(_activeStartMarker.gameObject);
@@ -212,11 +328,9 @@ public class CityManager : MonoBehaviour
             Destroy(_activeEndMarker.gameObject);
         }
         
-        // Find valid positions for both delivery points
         Vector3 startPos = GetPositionNearBuilding();
         Vector3 endPos = GetPositionNearBuilding();
         
-        // Ensure minimum distance between points
         int attempts = 0;
         while (Vector3.Distance(startPos, endPos) < minDistanceBetweenPoints && attempts < maxAttempts)
         {
@@ -224,21 +338,17 @@ public class CityManager : MonoBehaviour
             attempts++;
         }
         
-        // Instantiate new markers and store references
         _activeStartMarker = Instantiate(startDeliveryMarker, startPos, Quaternion.identity);
         _activeStartMarker.onDeliveryPickedUp.AddListener(OnDeliveryPickedUp);
         
         _activeEndMarker = Instantiate(endDeliveryMarker, endPos, Quaternion.identity);
         _activeEndMarker.onDeliveryCompleted.AddListener(OnDeliveryCompleted);
         
-        // Ensure markers are active and visible
         _activeStartMarker.gameObject.SetActive(true);
         _activeEndMarker.gameObject.SetActive(true);
         
         Debug.Log($"Delivery points positioned: Start at {startPos}, End at {endPos}, Distance: {Vector3.Distance(startPos, endPos):F2}");
     }
-
-    // === POSITION CALCULATION METHODS ===
 
     private bool IsPositionWithinMapBounds(Vector3 position)
     {
@@ -262,7 +372,7 @@ public class CityManager : MonoBehaviour
         return isWithinBounds;
     }
 
-    private bool IsPointInsideBlock(Vector2 point, Block block)
+    private bool IsPointInsideBlock(Vector2 point, BlockGeneration.Block block)
     {
         if (block.Nodes == null || block.Nodes.Count < 3)
             return false;
@@ -272,8 +382,8 @@ public class CityManager : MonoBehaviour
 
         for (int i = 0; i < nodeCount; i++)
         {
-            BlockNode node1 = block.Nodes[i];
-            BlockNode node2 = block.Nodes[(i + 1) % nodeCount];
+            BlockGeneration.BlockNode node1 = block.Nodes[i];
+            BlockGeneration.BlockNode node2 = block.Nodes[(i + 1) % nodeCount];
 
             Vector2 v1 = new Vector2(node1.X, node1.Y);
             Vector2 v2 = new Vector2(node2.X, node2.Y);
@@ -307,13 +417,12 @@ public class CityManager : MonoBehaviour
         
         while (globalAttempts < maxGlobalAttempts)
         {
-            // Select a non-park lot
-            Block selectedLot = null;
+            BlockGeneration.Block selectedLot = null;
             int lotSelectionAttempts = 0;
             
             while ((selectedLot == null || selectedLot.IsPark) && lotSelectionAttempts < 50)
             {
-                int randomLotIndex = Random.Range(0, lots.Count);
+                int randomLotIndex = UnityEngine.Random.Range(0, lots.Count);
                 selectedLot = lots[randomLotIndex];
                 lotSelectionAttempts++;
             }
@@ -324,22 +433,18 @@ public class CityManager : MonoBehaviour
                 continue;
             }
             
-            // Get a random edge of the building
-            int edgeIndex = Random.Range(0, selectedLot.Nodes.Count);
-            BlockNode node1 = selectedLot.Nodes[edgeIndex];
-            BlockNode node2 = selectedLot.Nodes[(edgeIndex + 1) % selectedLot.Nodes.Count];
+            int edgeIndex = UnityEngine.Random.Range(0, selectedLot.Nodes.Count);
+            BlockGeneration.BlockNode node1 = selectedLot.Nodes[edgeIndex];
+            BlockGeneration.BlockNode node2 = selectedLot.Nodes[(edgeIndex + 1) % selectedLot.Nodes.Count];
             
-            // Find midpoint of the edge
             Vector2 edgeMidpoint = new Vector2(
                 (node1.X + node2.X) / 2f,
                 (node1.Y + node2.Y) / 2f
             );
             
-            // Calculate outward normal from building
             Vector2 edgeVector = new Vector2(node2.X - node1.X, node2.Y - node1.Y);
             Vector2 outwardNormal = new Vector2(-edgeVector.y, edgeVector.x).normalized;
             
-            // Calculate building center to ensure we offset in the correct direction
             Vector2 buildingCenter = Vector2.zero;
             foreach (var node in selectedLot.Nodes)
             {
@@ -347,17 +452,14 @@ public class CityManager : MonoBehaviour
             }
             buildingCenter /= selectedLot.Nodes.Count;
             
-            // Make sure normal points away from building center
             Vector2 toCenter = buildingCenter - edgeMidpoint;
             if (Vector2.Dot(outwardNormal, toCenter) > 0)
             {
                 outwardNormal = -outwardNormal;
             }
             
-            // Place delivery point outside the building
             Vector2 deliveryPoint2D = edgeMidpoint + outwardNormal * offsetFromBuilding;
             
-            // Validate position is outside all buildings
             bool isInsideAnyBuilding = false;
             foreach (var lot in lots)
             {
@@ -399,8 +501,8 @@ public class CityManager : MonoBehaviour
         float minBound = -halfMapSize + safetyOffset;
         float maxBound = halfMapSize - safetyOffset;
         
-        float x = Random.Range(minBound, maxBound);
-        float z = Random.Range(minBound, maxBound);
+        float x = UnityEngine.Random.Range(minBound, maxBound);
+        float z = UnityEngine.Random.Range(minBound, maxBound);
         
         Vector3 position = new Vector3(
             x * cityGenerator.mapScale,
