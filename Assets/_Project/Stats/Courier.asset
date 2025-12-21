@@ -30,6 +30,7 @@ MonoBehaviour:
     m_Stats:
     - rid: 8215184114800656614
     - rid: 8215184114800656819
+    - rid: 8215184128373686616
   references:
     version: 2
     RefIds:
@@ -67,6 +68,19 @@ MonoBehaviour:
         m_IsEnabled: 1
         m_IsHidden: 0
         m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
+        m_ChangeBase:
+          m_IsEnabled: 0
+          m_Value: 100
+        m_ChangeFormula:
+          m_IsEnabled: 0
+          m_Value: {fileID: 0}
+    - rid: 8215184128373686616
+      type: {class: StatItem, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Breakpoint: 0
+        m_IsEnabled: 1
+        m_IsHidden: 0
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
         m_ChangeBase:
           m_IsEnabled: 0
           m_Value: 100

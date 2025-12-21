@@ -155,13 +155,10 @@ MonoBehaviour:
       data:
         m_Traits:
           m_Property:
-            rid: 8215184114800656676
+            rid: 8215184128373686569
         m_Stat:
           m_Property:
             rid: 8215184114800656677
-    - rid: 8215184114800656676
-      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
-      data: 
     - rid: 8215184114800656677
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
@@ -230,3 +227,6 @@ MonoBehaviour:
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
         m_Stat: {fileID: 11400000, guid: 632fb7a94fab0e64b8cbabd954214152, type: 2}
+    - rid: 8215184128373686569
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 

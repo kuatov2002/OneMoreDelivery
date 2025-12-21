@@ -202,9 +202,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1869731120}
-    - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1869731121}
   m_SourcePrefab: {fileID: 100100000, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
 --- !u!1 &150656384
 GameObject:
@@ -955,6 +952,7 @@ MonoBehaviour:
   availableChoices:
   - {fileID: 11400000, guid: a7061d5dd67db1c4c9c7e6d338370bcc, type: 2}
   - {fileID: 11400000, guid: 2fcc3e18c0584d14aae229674810b626, type: 2}
+  - {fileID: 11400000, guid: 7af087a976b542d47b7cf9b5ff66d43a, type: 2}
 --- !u!1 &1317695372
 GameObject:
   m_ObjectHideFlags: 0
@@ -1355,6 +1353,7 @@ MonoBehaviour:
     m_Keys:
     - m_String: Speed
     - m_String: JumpForce
+    - m_String: JumpAmount
     m_Values:
     - m_IsExpanded: 0
       m_ChangeBase:
@@ -1364,64 +1363,10 @@ MonoBehaviour:
       m_ChangeBase:
         m_IsEnabled: 0
         m_Value: 1
---- !u!114 &1869731121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1869731119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ecd922218e245e2b85d51f9f08338c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Instructions:
-    m_Instructions:
-    - rid: 8215184114800656678
-  m_TriggerEvent:
-    rid: 4340017060664574565
-  references:
-    version: 2
-    RefIds:
-    - rid: 4340017060664574565
-      type: {class: EventOnInputButton, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
-      data:
-        m_Button:
-          m_Input:
-            rid: 4340017060664574568
-        m_MinDistance:
-          m_MinDistance: 0
-          m_To:
-            m_Property:
-              rid: 4340017060664574567
-          m_Radius: 2
-          m_Offset: {x: 0, y: 0, z: 0}
-    - rid: 4340017060664574567
-      type: {class: GetGameObjectPlayer, ns: GameCreator.Runtime.Characters, asm: GameCreator.Runtime.Core}
-      data: 
-    - rid: 4340017060664574568
-      type: {class: InputButtonKeyboardPress, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
-      data:
-        m_Key: 1
-    - rid: 8215184114800656678
-      type: {class: InstructionStatsAddStatusEffect, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
-      data:
-        m_Breakpoint: 0
-        m_IsEnabled: 1
-        m_Target:
-          m_Property:
-            rid: 8215184114800656681
-        m_StatusEffect:
-          m_Property:
-            rid: 8215184114800656680
-    - rid: 8215184114800656680
-      type: {class: GetStatusEffectInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
-      data:
-        m_StatusEffect: {fileID: 11400000, guid: 1bab52e251b098d48b75919fc356dd14, type: 2}
-    - rid: 8215184114800656681
-      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
-      data: 
+    - m_IsExpanded: 0
+      m_ChangeBase:
+        m_IsEnabled: 0
+        m_Value: 1
 --- !u!1 &2079783957
 GameObject:
   m_ObjectHideFlags: 0

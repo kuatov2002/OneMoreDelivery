@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e203efa43fc9420f97b5e0072ce8db68, type: 3}
-  m_Name: JumpForceBoost
+  m_Name: JumpAmountBoost
   m_EditorClassIdentifier: GameCreator.Runtime.Stats::GameCreator.Runtime.Stats.StatusEffect
   m_Data:
     m_Type: 1
@@ -41,13 +41,13 @@ MonoBehaviour:
       m_Instructions:
       - rid: 8215184114800656738
       - rid: 8215184114800656741
-      - rid: 8215184114800656781
+      - rid: 8215184128373686550
   m_OnEnd:
     m_Instructions:
       m_Instructions:
       - rid: 8215184114800656739
       - rid: 8215184114800656750
-      - rid: 8215184114800656801
+      - rid: 8215184128373686558
   m_WhileActive:
     m_Instructions:
       m_Instructions:
@@ -72,11 +72,11 @@ MonoBehaviour:
     - rid: 8215184114800656734
       type: {class: GetStringString, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
-        m_Value: Jump Force Boost
+        m_Value: Jump Amount Boost
     - rid: 8215184114800656735
       type: {class: GetStringString, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
-        m_Value: JFB
+        m_Value: JAB
     - rid: 8215184114800656736
       type: {class: GetStringString, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
@@ -124,7 +124,7 @@ MonoBehaviour:
     - rid: 8215184114800656743
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
-        m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
     - rid: 8215184114800656744
       type: {class: GetDecimalDecimal, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
@@ -151,82 +151,82 @@ MonoBehaviour:
     - rid: 8215184114800656752
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
-        m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
     - rid: 8215184114800656753
       type: {class: GetDecimalDecimal, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
         m_Value: 1
-    - rid: 8215184114800656781
-      type: {class: InstructionCharacterPropertyJumpForce, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
+    - rid: 8215184128373686550
+      type: {class: InstructionCharacterPropertyAirJumps, ns: GameCreator.Runtime.VisualScripting, asm: Assembly-CSharp}
       data:
         m_Breakpoint: 0
         m_IsEnabled: 1
         m_Character:
           m_Property:
-            rid: 8215184128373686567
-        m_JumpForce:
+            rid: 8215184128373686563
+        m_AirJumps:
           m_Operation: 0
           m_Value:
             m_Property:
-              rid: 8215184114800656797
+              rid: 8215184128373686553
         m_Transition:
           m_Duration: 0
           m_Easing: 3
           m_Time: 0
           m_WaitToComplete: 1
-    - rid: 8215184114800656797
+    - rid: 8215184128373686553
       type: {class: GetDecimalStatValue, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
         m_Traits:
           m_Property:
-            rid: 8215184128373686568
+            rid: 8215184128373686564
         m_Stat:
           m_Property:
-            rid: 8215184114800656799
-    - rid: 8215184114800656799
+            rid: 8215184128373686555
+    - rid: 8215184128373686555
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
-        m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
-    - rid: 8215184114800656801
-      type: {class: InstructionCharacterPropertyJumpForce, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
+    - rid: 8215184128373686558
+      type: {class: InstructionCharacterPropertyAirJumps, ns: GameCreator.Runtime.VisualScripting, asm: Assembly-CSharp}
       data:
         m_Breakpoint: 0
         m_IsEnabled: 1
         m_Character:
           m_Property:
-            rid: 8215184114800656806
-        m_JumpForce:
+            rid: 8215184128373686565
+        m_AirJumps:
           m_Operation: 0
           m_Value:
             m_Property:
-              rid: 8215184114800656803
+              rid: 8215184128373686560
         m_Transition:
           m_Duration: 0
           m_Easing: 3
           m_Time: 0
           m_WaitToComplete: 1
-    - rid: 8215184114800656803
+    - rid: 8215184128373686560
       type: {class: GetDecimalStatValue, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
         m_Traits:
           m_Property:
-            rid: 8215184114800656804
+            rid: 8215184128373686566
         m_Stat:
           m_Property:
-            rid: 8215184114800656805
-    - rid: 8215184114800656804
-      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
-      data: 
-    - rid: 8215184114800656805
+            rid: 8215184128373686562
+    - rid: 8215184128373686562
       type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
       data:
-        m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
-    - rid: 8215184114800656806
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
+    - rid: 8215184128373686563
       type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data: 
-    - rid: 8215184128373686567
+    - rid: 8215184128373686564
       type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data: 
-    - rid: 8215184128373686568
+    - rid: 8215184128373686565
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686566
       type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data: 

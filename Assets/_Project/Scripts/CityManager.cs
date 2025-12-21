@@ -46,7 +46,8 @@ public class CityManager : MonoBehaviour
     private DeliveryPointMarker _activeStartMarker;
     private DeliveryPointMarker _activeEndMarker;
     private BuffSelectionModule _buffSelectionModule;
-
+    private List<IBuffChoice> _currentSelectionChoices;
+    
     public GameObject StartDeliveryPoint => _activeStartMarker != null ? _activeStartMarker.gameObject : null;
     public GameObject EndDeliveryPoint  => _activeEndMarker != null ? _activeEndMarker.gameObject : null;
     
@@ -200,7 +201,7 @@ public class CityManager : MonoBehaviour
             return;
         }
         
-        var choices = GetRandomChoices(3);
+        _currentSelectionChoices = GetRandomChoices(3); // Сохраняем выбранные варианты
         
         _isBuffSelectionActive = true;
         
@@ -209,7 +210,49 @@ public class CityManager : MonoBehaviour
             Time.timeScale = 0f;
         }
         
-        _buffSelectionModule.ShowWithChoices(choices);
+        _buffSelectionModule.ShowWithChoices(_currentSelectionChoices);
+    }
+    
+    private void OnChoiceSelected(int index)
+    {
+        if (_currentSelectionChoices == null || index < 0 || index >= _currentSelectionChoices.Count)
+        {
+            Debug.LogError($"Invalid choice index: {index}");
+            return;
+        }
+    
+        var selectedChoice = _currentSelectionChoices[index]; // Используем список выбранных вариантов
+        
+        if (!(selectedChoice is GameCreatorChoice gameCreatorChoice))
+        {
+            Debug.LogError("Selected choice is not a GameCreatorChoice");
+            return;
+        }
+        
+        Debug.Log($"Choice selected: {gameCreatorChoice.name}");
+    
+        if (gameCreatorChoice.instructionToRun != null)
+        {
+            Args args = new Args(character.gameObject, gameObject);
+            _ = gameCreatorChoice.instructionToRun.Run(args);
+        }
+        else
+        {
+            Debug.LogWarning($"No instruction assigned to choice: {gameCreatorChoice.name}");
+        }
+    }
+    
+    private void OnSelectionCompleted()
+    {
+        _isBuffSelectionActive = false;
+        _currentSelectionChoices = null; // Очищаем после использования
+        
+        if (pauseTimeOnBuffSelection)
+        {
+            Time.timeScale = 1f;
+        }
+        
+        ContinueAfterSelection();
     }
     
     private List<IBuffChoice> GetRandomChoices(int count)
@@ -233,52 +276,13 @@ public class CityManager : MonoBehaviour
         var shuffled = new List<IBuffChoice>(validChoices);
         for (int i = 0; i < shuffled.Count; i++)
         {
-            int randomIndex = UnityEngine.Random.Range(i, shuffled.Count);
+            int randomIndex = Random.Range(i, shuffled.Count);
             var temp = shuffled[i];
             shuffled[i] = shuffled[randomIndex];
             shuffled[randomIndex] = temp;
         }
         
         return shuffled.GetRange(0, Mathf.Min(count, shuffled.Count));
-    }
-    
-    private void OnChoiceSelected(int index)
-    {
-        if (index < 0 || index >= availableChoices.Count)
-        {
-            Debug.LogError($"Invalid choice index: {index}");
-            return;
-        }
-    
-        var selectedChoice = availableChoices[index];
-        Debug.Log($"Choice selected: {selectedChoice.name}");
-    
-        if (selectedChoice.instructionToRun != null)
-        {
-            Args args = new Args(character.gameObject, gameObject);
-            _ = selectedChoice.instructionToRun.Run(args);
-        }
-        else
-        {
-            Debug.LogWarning($"No instruction assigned to choice: {selectedChoice.name}");
-        }
-    }
-    
-    private void OnSelectionSkipped()
-    {
-        Debug.Log("Selection skipped");
-    }
-    
-    private void OnSelectionCompleted()
-    {
-        _isBuffSelectionActive = false;
-        
-        if (pauseTimeOnBuffSelection)
-        {
-            Time.timeScale = 1f;
-        }
-        
-        ContinueAfterSelection();
     }
     
     private void ContinueAfterSelection()
@@ -293,7 +297,7 @@ public class CityManager : MonoBehaviour
         }
     }
 
-    public void StartNewDelivery()
+    private void StartNewDelivery()
     {
         if (startDeliveryMarker == null || endDeliveryMarker == null)
         {
@@ -372,7 +376,7 @@ public class CityManager : MonoBehaviour
         return isWithinBounds;
     }
 
-    private bool IsPointInsideBlock(Vector2 point, BlockGeneration.Block block)
+    private bool IsPointInsideBlock(Vector2 point, Block block)
     {
         if (block.Nodes == null || block.Nodes.Count < 3)
             return false;
@@ -382,8 +386,8 @@ public class CityManager : MonoBehaviour
 
         for (int i = 0; i < nodeCount; i++)
         {
-            BlockGeneration.BlockNode node1 = block.Nodes[i];
-            BlockGeneration.BlockNode node2 = block.Nodes[(i + 1) % nodeCount];
+            BlockNode node1 = block.Nodes[i];
+            BlockNode node2 = block.Nodes[(i + 1) % nodeCount];
 
             Vector2 v1 = new Vector2(node1.X, node1.Y);
             Vector2 v2 = new Vector2(node2.X, node2.Y);
@@ -417,12 +421,12 @@ public class CityManager : MonoBehaviour
         
         while (globalAttempts < maxGlobalAttempts)
         {
-            BlockGeneration.Block selectedLot = null;
+            Block selectedLot = null;
             int lotSelectionAttempts = 0;
             
             while ((selectedLot == null || selectedLot.IsPark) && lotSelectionAttempts < 50)
             {
-                int randomLotIndex = UnityEngine.Random.Range(0, lots.Count);
+                int randomLotIndex = Random.Range(0, lots.Count);
                 selectedLot = lots[randomLotIndex];
                 lotSelectionAttempts++;
             }
@@ -433,9 +437,9 @@ public class CityManager : MonoBehaviour
                 continue;
             }
             
-            int edgeIndex = UnityEngine.Random.Range(0, selectedLot.Nodes.Count);
-            BlockGeneration.BlockNode node1 = selectedLot.Nodes[edgeIndex];
-            BlockGeneration.BlockNode node2 = selectedLot.Nodes[(edgeIndex + 1) % selectedLot.Nodes.Count];
+            int edgeIndex = Random.Range(0, selectedLot.Nodes.Count);
+            BlockNode node1 = selectedLot.Nodes[edgeIndex];
+            BlockNode node2 = selectedLot.Nodes[(edgeIndex + 1) % selectedLot.Nodes.Count];
             
             Vector2 edgeMidpoint = new Vector2(
                 (node1.X + node2.X) / 2f,
@@ -501,8 +505,8 @@ public class CityManager : MonoBehaviour
         float minBound = -halfMapSize + safetyOffset;
         float maxBound = halfMapSize - safetyOffset;
         
-        float x = UnityEngine.Random.Range(minBound, maxBound);
-        float z = UnityEngine.Random.Range(minBound, maxBound);
+        float x = Random.Range(minBound, maxBound);
+        float z = Random.Range(minBound, maxBound);
         
         Vector3 position = new Vector3(
             x * cityGenerator.mapScale,
