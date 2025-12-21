@@ -318,7 +318,7 @@ public class MinimapController : MonoBehaviour
         if (cityManager == null || minimapRect == null) return;
         
         // Обновляем позицию начальной точки
-        if (startPointMarkerRect != null && cityManager.StartDeliveryPoint != null)
+        if (cityManager.StartDeliveryPoint != null && startPointMarkerRect != null)
         {
             Vector3 startWorldPos = cityManager.StartDeliveryPoint.transform.position;
             Vector2 startLocalPos = WorldToMinimapPosition(startWorldPos);
@@ -326,7 +326,7 @@ public class MinimapController : MonoBehaviour
         }
         
         // Обновляем позицию конечной точки
-        if (endPointMarkerRect != null && cityManager.EndDeliveryPoint != null)
+        if (cityManager.EndDeliveryPoint != null && endPointMarkerRect != null)
         {
             Vector3 endWorldPos = cityManager.EndDeliveryPoint.transform.position;
             Vector2 endLocalPos = WorldToMinimapPosition(endWorldPos);

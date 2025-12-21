@@ -732,7 +732,6 @@ MonoBehaviour:
   hideOnStart: 1
   fadeDuration: 0.3
   useAnimation: 1
-  numberOfChoices: 3
   buffCardPrefab: {fileID: 3879807053537854354, guid: b59f9d32bbc8b3c4ca45d1308c706627, type: 3}
   cardsContainer: {fileID: 996586138}
 --- !u!114 &996586142
@@ -934,19 +933,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CityManager
   cityGenerator: {fileID: 1087277563}
   character: {fileID: 1731634678}
-  characterHeightOffset: 2
-  characterSpeed: 40
   startDeliveryMarker: {fileID: 7767441254120779053, guid: 6ca963adbd1ca4b48903edde81668e4f, type: 3}
   endDeliveryMarker: {fileID: 4084627189445893813, guid: 8b60522848c7e5b4991436db80d9c1e2, type: 3}
   deliveryPointHeight: 1
   minDistanceBetweenPoints: 600
-  maxAttempts: 999
   offsetFromBuilding: 1
+  characterHeightOffset: 2
+  characterSpeed: 40
   startHour: 9
   endHour: 18
   gameMinutesPerRealSecond: 5
   loopTimeAfterEnd: 0
-  pauseTimeOnBuffSelection: 1
   availableChoices:
   - {fileID: 11400000, guid: a7061d5dd67db1c4c9c7e6d338370bcc, type: 2}
   - {fileID: 11400000, guid: 2fcc3e18c0584d14aae229674810b626, type: 2}

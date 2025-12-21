@@ -1,13 +1,14 @@
 using UnityEngine;
 
 /// <summary>
-/// Интерфейс для всех UI модулей. Определяет контракт управления видимостью
-/// и жизненным циклом модуля.
+/// Defines the contract for all UI modules with explicit lifecycle phases.
 /// </summary>
 public interface IUIModule
 {
     string ModuleName { get; }
     bool IsVisible { get; }
+    bool IsInitialized { get; }
+    
     void Initialize();
     void Show();
     void Hide();
@@ -15,8 +16,8 @@ public interface IUIModule
 }
 
 /// <summary>
-/// Базовый абстрактный класс для всех UI модулей. Инкапсулирует общую логику
-/// управления видимостью, анимациями и состоянием.
+/// Base implementation of IUIModule with common functionality.
+/// Subclasses override lifecycle hooks for custom behavior.
 /// </summary>
 public abstract class UIModule : MonoBehaviour, IUIModule
 {
@@ -30,12 +31,10 @@ public abstract class UIModule : MonoBehaviour, IUIModule
     
     public string ModuleName => GetType().Name;
     public bool IsVisible { get; protected set; }
-    
-    protected bool isInitialized;
+    public bool IsInitialized { get; protected set; }
     
     protected virtual void Awake()
     {
-        // Автоматическая инициализация, если CanvasGroup не назначен в инспекторе
         if (canvasGroup == null)
         {
             canvasGroup = GetComponent<CanvasGroup>();
@@ -53,15 +52,15 @@ public abstract class UIModule : MonoBehaviour, IUIModule
     
     public virtual void Initialize()
     {
-        if (isInitialized) return;
+        if (IsInitialized) return;
         
         OnInitialize();
-        isInitialized = true;
+        IsInitialized = true;
     }
     
     public virtual void Show()
     {
-        if (!isInitialized)
+        if (!IsInitialized)
         {
             Initialize();
         }
@@ -105,16 +104,14 @@ public abstract class UIModule : MonoBehaviour, IUIModule
     public virtual void Cleanup()
     {
         OnCleanup();
-        isInitialized = false;
+        IsInitialized = false;
     }
     
-    // Методы для переопределения в дочерних классах
     protected virtual void OnInitialize() { }
     protected virtual void OnShow() { }
     protected virtual void OnHide() { }
     protected virtual void OnCleanup() { }
     
-    // Анимация появления/исчезания через CanvasGroup
     protected virtual void AnimateShow()
     {
         StopAllCoroutines();
