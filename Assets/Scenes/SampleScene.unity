@@ -202,6 +202,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1869731120}
+    - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1869731121}
   m_SourcePrefab: {fileID: 100100000, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
 --- !u!1 &150656384
 GameObject:
@@ -787,7 +790,7 @@ GameObject:
   - component: {fileID: 1087277563}
   - component: {fileID: 1087277564}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -939,10 +942,9 @@ MonoBehaviour:
   minDistanceBetweenPoints: 600
   offsetFromBuilding: 1
   characterHeightOffset: 2
-  characterSpeed: 40
   startHour: 9
   endHour: 18
-  gameMinutesPerRealSecond: 5
+  gameMinutesPerRealSecond: 3
   loopTimeAfterEnd: 0
   availableChoices:
   - {fileID: 11400000, guid: a7061d5dd67db1c4c9c7e6d338370bcc, type: 2}
@@ -1362,6 +1364,142 @@ MonoBehaviour:
       m_ChangeBase:
         m_IsEnabled: 0
         m_Value: 1
+--- !u!114 &1869731121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869731119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ecd922218e245e2b85d51f9f08338c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameCreator.Runtime.Core::GameCreator.Runtime.VisualScripting.Trigger
+  m_Instructions:
+    m_Instructions:
+    - rid: 8215184128373686787
+    - rid: 8215184128373686793
+    - rid: 8215184128373686801
+  m_TriggerEvent:
+    rid: 8215184128373686832
+  references:
+    version: 2
+    RefIds:
+    - rid: 8215184128373686787
+      type: {class: InstructionCharacterPropertyAirJumps, ns: GameCreator.Runtime.VisualScripting, asm: Assembly-CSharp}
+      data:
+        m_Breakpoint: 0
+        m_IsEnabled: 1
+        m_Character:
+          m_Property:
+            rid: 8215184128373686800
+        m_AirJumps:
+          m_Operation: 0
+          m_Value:
+            m_Property:
+              rid: 8215184128373686789
+        m_Transition:
+          m_Duration: 0
+          m_Easing: 3
+          m_Time: 0
+          m_WaitToComplete: 1
+    - rid: 8215184128373686789
+      type: {class: GetDecimalStatValue, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Traits:
+          m_Property:
+            rid: 8215184128373686790
+        m_Stat:
+          m_Property:
+            rid: 8215184128373686791
+    - rid: 8215184128373686790
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686791
+      type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Stat: {fileID: 11400000, guid: 460d296378322034488f3a907cd13de9, type: 2}
+    - rid: 8215184128373686793
+      type: {class: InstructionCharacterPropertyJumpForce, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
+      data:
+        m_Breakpoint: 0
+        m_IsEnabled: 1
+        m_Character:
+          m_Property:
+            rid: 8215184128373686799
+        m_JumpForce:
+          m_Operation: 0
+          m_Value:
+            m_Property:
+              rid: 8215184128373686795
+        m_Transition:
+          m_Duration: 0
+          m_Easing: 3
+          m_Time: 0
+          m_WaitToComplete: 1
+    - rid: 8215184128373686795
+      type: {class: GetDecimalStatValue, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Traits:
+          m_Property:
+            rid: 8215184128373686796
+        m_Stat:
+          m_Property:
+            rid: 8215184128373686797
+    - rid: 8215184128373686796
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686797
+      type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Stat: {fileID: 11400000, guid: 490bec953cc103748a7752f452279552, type: 2}
+    - rid: 8215184128373686799
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686800
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686801
+      type: {class: InstructionCharacterPropertyMoveSpeed, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
+      data:
+        m_Breakpoint: 0
+        m_IsEnabled: 1
+        m_Character:
+          m_Property:
+            rid: 8215184128373686802
+        m_Speed:
+          m_Operation: 0
+          m_Value:
+            m_Property:
+              rid: 8215184128373686803
+        m_Transition:
+          m_Duration: 0
+          m_Easing: 3
+          m_Time: 0
+          m_WaitToComplete: 1
+    - rid: 8215184128373686802
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686803
+      type: {class: GetDecimalStatValue, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Traits:
+          m_Property:
+            rid: 8215184128373686804
+        m_Stat:
+          m_Property:
+            rid: 8215184128373686805
+    - rid: 8215184128373686804
+      type: {class: GetGameObjectSelf, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data: 
+    - rid: 8215184128373686805
+      type: {class: GetStatInstance, ns: GameCreator.Runtime.Stats, asm: GameCreator.Runtime.Stats}
+      data:
+        m_Stat: {fileID: 11400000, guid: 632fb7a94fab0e64b8cbabd954214152, type: 2}
+    - rid: 8215184128373686832
+      type: {class: EventOnStart, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
+      data: 
 --- !u!1 &2079783957
 GameObject:
   m_ObjectHideFlags: 0

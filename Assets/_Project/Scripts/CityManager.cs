@@ -25,7 +25,6 @@ public class CityManager : MonoBehaviour
     
     [Header("Character Settings")]
     [SerializeField] private float characterHeightOffset = 2f;
-    [SerializeField] private float characterSpeed = 50f;
     
     [Header("Game Time Configuration")]
     [SerializeField] private float startHour = 9f;
@@ -139,7 +138,6 @@ public class CityManager : MonoBehaviour
     private void OnCityReady()
     {
         PlaceCharacterInCityCenter();
-        SetupCharacterSpeed();
         _gameController.StartNewDelivery();
         Debug.Log("City ready, game started");
     }
@@ -151,14 +149,6 @@ public class CityManager : MonoBehaviour
         Vector3 cityCenter = new Vector3(0, characterHeightOffset, 0);
         character.transform.position = cityCenter;
         character.transform.rotation = Quaternion.identity;
-    }
-    
-    private void SetupCharacterSpeed()
-    {
-        if (character?.Motion != null)
-        {
-            character.Motion.LinearSpeed = characterSpeed;
-        }
     }
 }
 

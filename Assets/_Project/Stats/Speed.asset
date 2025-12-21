@@ -15,7 +15,7 @@ MonoBehaviour:
   m_ID:
     m_String: Speed
   m_Data:
-    m_Base: 40
+    m_Base: 30
     m_Formula: {fileID: 0}
   m_Info:
     m_Name:
