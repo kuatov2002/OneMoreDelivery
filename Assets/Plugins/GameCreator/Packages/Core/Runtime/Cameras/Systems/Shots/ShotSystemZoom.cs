@@ -17,7 +17,7 @@ namespace GameCreator.Runtime.Cameras
         [SerializeField] private float m_SmoothTime = 0.1f;
 
         [SerializeField] private InputPropertyValueVector2 m_InputZoom = InputValueVector2Scroll.Create();
-        [SerializeField] private PropertyGetDecimal m_Sensitivity = GetDecimalDecimal.Create(0.01f);
+        [SerializeField] private PropertyGetDecimal m_Sensitivity = GetDecimalConstantPointOne.Create;
         
         // MEMBERS: -------------------------------------------------------------------------------
         
@@ -71,15 +71,15 @@ namespace GameCreator.Runtime.Cameras
             base.OnUpdate(shotType);
             this.m_InputZoom.OnUpdate();
             
+            float deltaTime = shotType.ShotCamera.TimeMode.DeltaTime;
+            
             if (shotType.IsActive)
             {
                 float sensitivity = (float) this.m_Sensitivity.Get(shotType.Args);
-                float delta = -this.m_InputZoom.Read().y * sensitivity;
+                float deltaMovement = -this.m_InputZoom.Read().y * sensitivity;
                 
-                this.m_TargetZoom = Mathf.Clamp01(this.m_TargetZoom + delta);
+                this.m_TargetZoom = Mathf.Clamp01(this.m_TargetZoom + deltaMovement);
             }
-
-            float deltaTime = shotType.ShotCamera.TimeMode.DeltaTime;
             
             this.Level = deltaTime > float.Epsilon
                 ? Mathf.SmoothDamp(

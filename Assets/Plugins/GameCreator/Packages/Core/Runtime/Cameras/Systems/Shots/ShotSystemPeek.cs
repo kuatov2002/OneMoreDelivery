@@ -72,8 +72,8 @@ namespace GameCreator.Runtime.Cameras
                     float sensitivityY = (float) this.m_SensitivityY.Get(shotType.Args);
                     
                     this.m_Value.Target += new Vector3(
-                        input.x * sensitivityX,
-                        input.y * sensitivityY,
+                        input.x * sensitivityX * shotType.ShotCamera.TimeMode.DeltaTime,
+                        input.y * sensitivityY * shotType.ShotCamera.TimeMode.DeltaTime,
                         0f
                     );
                     break;

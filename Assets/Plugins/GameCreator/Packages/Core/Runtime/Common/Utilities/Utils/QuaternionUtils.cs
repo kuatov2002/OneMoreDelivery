@@ -86,7 +86,7 @@ namespace GameCreator.Runtime.Common
         }
         
         /// <summary>
-        /// Projects a rotation onto a plane defined by a normal direction
+        /// Projects the direction of a rotation onto a plane defined by a normal direction
         /// </summary>
         /// <param name="rotation"></param>
         /// <param name="normal"></param>
@@ -106,6 +106,20 @@ namespace GameCreator.Runtime.Common
         {
             Vector3 projectionAxis = Vector3.ProjectOnPlane(direction, normal.normalized).normalized;
             return Quaternion.LookRotation(projectionAxis); 
+        }
+        
+        /// <summary>
+        /// Rotates a point around a pivot by a given quaternion rotation.
+        /// </summary>
+        /// <param name="pivot">The point to rotate around.</param>
+        /// <param name="point">The point to rotate.</param>
+        /// <param name="rotation">The quaternion rotation to apply.</param>
+        /// <returns>The rotated point.</returns>
+        public static Vector3 RotateAroundPivot(Vector3 pivot, Vector3 point, Quaternion rotation)
+        {
+            Vector3 translatedPoint = point - pivot;
+            Vector3 rotatedPoint = rotation * translatedPoint;
+            return rotatedPoint + pivot;
         }
     }
 }

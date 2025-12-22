@@ -20,10 +20,10 @@ namespace GameCreator.Runtime.Cameras
         private InputPropertyValueVector2 m_InputRotate = InputValueVector2MotionSecondary.Create();
         
         [SerializeField]
-        private PropertyGetDecimal m_SensitivityX = GetDecimalDecimal.Create(5f);
+        private PropertyGetDecimal m_SensitivityX = GetDecimalConstantOne.Create;
         
         [SerializeField]
-        private PropertyGetDecimal m_SensitivityY = GetDecimalDecimal.Create(5f);
+        private PropertyGetDecimal m_SensitivityY = GetDecimalConstantOne.Create;
 
         [SerializeField, Range(1f, 179f)] private float m_MaxPitch = 150f;
         [SerializeField] private EnablerAngle180 m_MaxYaw = new EnablerAngle180(false, 120f);
@@ -202,7 +202,7 @@ namespace GameCreator.Runtime.Cameras
             float smoothTime, float deltaTime)
         {
             if (deltaTime <= float.Epsilon) return current;
-            return Mathf.SmoothDampAngle(
+            return Mathf.SmoothDamp(
                 current,
                 target,
                 ref velocity,
@@ -243,8 +243,6 @@ namespace GameCreator.Runtime.Cameras
                     this.m_TargetRotation.y = localYaw + characterYaw;
                 }
             }
-
-            this.m_TargetRotation.y = Mathf.Repeat(this.m_TargetRotation.y, 360f);
         }
         
         private Vector3 GetTargetPosition(TShotType shotType)

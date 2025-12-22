@@ -16,6 +16,8 @@ namespace GameCreator.Runtime.Characters
         private const float MAX_SLOPE_SLIDE_FROM_CHARACTER = 90;
         private const float EPSILON_SLIDE_FROM_CHARACTER = 0.001f;
         
+        private const float VELOCITY_INTERVAL = 0.1f;
+        
         // EXPOSED MEMBERS: -----------------------------------------------------------------------
 
         [SerializeField] protected float m_SkinWidth = 0.08f;
@@ -30,8 +32,7 @@ namespace GameCreator.Runtime.Characters
 
         [NonSerialized] protected Vector3 m_MoveDirection;
         [NonSerialized] protected float m_VerticalSpeed;
- 
-        [NonSerialized] protected AnimFloat m_IsGrounded;
+        
         [NonSerialized] protected AnimVector3 m_FloorNormal;
  
         [NonSerialized] protected int m_GroundFrame = -100;
@@ -44,8 +45,13 @@ namespace GameCreator.Runtime.Characters
         [NonSerialized] private Vector3 m_PreviousPosition;
         [NonSerialized] private Vector3 m_Velocity;
         
+        [NonSerialized] private Vector3 m_AccumulatedDisplacement;
+        [NonSerialized] private float m_AccumulatedTime;
+        
         [NonSerialized] private Vector3 m_SlideFromCharacter;
         [NonSerialized] private int m_FrameSlideFromCharacter;
+        
+        [NonSerialized] private bool m_IsOnSteepSlope;
 
         // INTERFACE PROPERTIES: ------------------------------------------------------------------
 
@@ -66,9 +72,10 @@ namespace GameCreator.Runtime.Characters
             get
             {
                 if (this.m_Controller == null) return false;
+                if (this.m_ForceGrounded) return true;
 
-                bool inSlideFrame = this.m_FrameSlideFromCharacter < Time.frameCount;
-                return this.m_Controller.isGrounded && inSlideFrame;
+                bool inSlideFromCharacterFrame = this.m_FrameSlideFromCharacter < Time.frameCount;
+                return this.m_Controller.isGrounded && inSlideFromCharacterFrame && !this.m_IsOnSteepSlope;
             }
         }
 
@@ -104,7 +111,15 @@ namespace GameCreator.Runtime.Characters
                 this.m_GroundTime = this.Character.Time.Time;
                 this.m_GroundFrame = this.Character.Time.Frame;
                 this.m_Velocity = Vector3.zero;
-                this.m_PreviousPosition = this.Transform.position;
+                this.m_IsOnSteepSlope = false;
+                
+                this.m_PreviousPosition = this.Transform.localPosition;
+                
+                if (this.Transform.parent != null)
+                {
+                    Vector3 parentScale = this.Transform.parent.localScale;
+                    this.m_PreviousPosition = Vector3.Scale(this.m_PreviousPosition, parentScale);
+                }
             }
         }
 
@@ -112,8 +127,7 @@ namespace GameCreator.Runtime.Characters
         {
             base.OnStartup(character);
 
-            this.m_IsGrounded = new AnimFloat(1f, COYOTE_TIME);
-            this.m_FloorNormal = new AnimVector3(Vector3.up, 0.05f);
+            this.m_FloorNormal = new AnimVector3(Vector3.up, 0.15f);
             
             this.m_Controller = this.Character.GetComponent<CharacterController>();
             if (this.m_Controller == null)
@@ -170,18 +184,34 @@ namespace GameCreator.Runtime.Characters
             this.UpdateTranslation(this.Character.Motion);
             this.m_Axonometry?.ProcessPosition(this, this.Transform.position);
             
-            Vector3 displacement = this.Transform.position - this.m_PreviousPosition;
-            this.m_Velocity = this.Character.Time.DeltaTime > float.Epsilon
-                ? displacement / this.Character.Time.DeltaTime
-                : Vector3.zero;
+            Vector3 currentPosition = this.Transform.localPosition;
+            if (this.Transform.parent != null)
+            {
+                Vector3 parentScale = this.Transform.parent.localScale;
+                currentPosition = Vector3.Scale(currentPosition, parentScale);
+            }
             
-            this.m_PreviousPosition = this.Transform.position;
+            this.m_AccumulatedDisplacement += currentPosition - this.m_PreviousPosition;
+            this.m_AccumulatedTime += this.Character.Time.DeltaTime;
+            
+            if (this.m_AccumulatedTime >= VELOCITY_INTERVAL)
+            {
+                Vector3 localVelocity = this.m_AccumulatedDisplacement / this.m_AccumulatedTime;
+                this.m_Velocity = this.Transform.parent != null
+                    ? this.Transform.parent.TransformDirection(localVelocity)
+                    : localVelocity;
+                
+                this.m_AccumulatedDisplacement = Vector3.zero;
+                this.m_AccumulatedTime = 0f;
+            }
+
+            this.m_PreviousPosition = currentPosition;
         }
 
         public override void OnFixedUpdate()
         {
-            if (this.Character.IsDead) return;
             if (this.m_Controller == null) return;
+            if (this.Character.IsDead) return;
             
             base.OnFixedUpdate();
             this.UpdatePhysicProperties();
@@ -191,7 +221,9 @@ namespace GameCreator.Runtime.Characters
         {
             this.m_FloorNormal.UpdateWithDelta(this.Character.Time.DeltaTime);
             this.m_MoveDirection = Vector3.zero;
-            this.m_IsGrounded.UpdateWithDelta(this.IsGrounded, COYOTE_TIME, Time.unscaledTime);
+            
+            float floorAngle = Vector3.Angle(this.FloorNormal, Vector3.up);
+            this.m_IsOnSteepSlope = this.IsGrounded && floorAngle > this.m_MaxSlope;
             
             if (Math.Abs(this.m_Controller.skinWidth - this.m_SkinWidth) > float.Epsilon)
             {
@@ -238,7 +270,6 @@ namespace GameCreator.Runtime.Characters
         protected virtual void UpdateJump(IUnitMotion motion)
         {
             if (!motion.IsJumping) return;
-            if (!motion.CanJump) return;
             
             bool jumpCooldown = this.m_JumpTime + motion.JumpCooldown < this.Character.Time.Time;
             if (!jumpCooldown) return;
@@ -257,8 +288,8 @@ namespace GameCreator.Runtime.Characters
             gravity *= this.GravityInfluence;
             
             this.m_VerticalSpeed += gravity * this.Character.Time.DeltaTime;
-
-            if (this.m_Controller.isGrounded)
+            
+            if (this.m_ForceGrounded || (this.m_Controller.isGrounded && !this.m_IsOnSteepSlope))
             {
                 if (this.Character.Time.Time - this.m_GroundTime > COYOTE_TIME &&
                     this.Character.Time.Frame - this.m_GroundFrame > COYOTE_FRAMES)
@@ -284,21 +315,31 @@ namespace GameCreator.Runtime.Characters
         {
             Vector3 movement = Vector3.up * (this.m_VerticalSpeed * this.Character.Time.DeltaTime);
 
-            Vector3 kinetic = motion.MovementType switch
-            {
-                Character.MovementType.MoveToDirection => this.UpdateMoveToDirection(motion),
-                Character.MovementType.MoveToPosition => this.UpdateMoveToPosition(motion),
-                _ => Vector3.zero
-            };
-
+            Vector3 kinetic = this.UpdateKinematics
+                ? motion.MovementType switch
+                {
+                    Character.MovementType.MoveToDirection => this.UpdateMoveToDirection(motion),
+                    Character.MovementType.MoveToPosition => this.UpdateMoveToPosition(motion),
+                    _ => Vector3.zero
+                }
+                : Vector3.zero;
+            
             Vector3 rootMotion = this.Character.Animim.RootMotionDeltaPosition;
             Vector3 translation = Vector3.Lerp(kinetic, rootMotion, this.Character.RootMotionPosition);
             
             movement += this.m_Axonometry?.ProcessTranslation(this, translation) ?? translation;
-
+            
+            if (this.m_IsOnSteepSlope && this.m_Controller.isGrounded)
+            {
+                Vector3 direction = Vector3.ProjectOnPlane(this.m_FloorNormal.Current, Vector3.up).normalized;
+                movement += direction * (Mathf.Abs(motion.GravityDownwards) * this.Character.Time.DeltaTime);
+            }
+            
+            this.m_IsOnSteepSlope = false; 
+            
             if (this.m_FrameSlideFromCharacter >= Time.frameCount - 1)
             {
-                float deltaSpeed = motion.LinearSpeed * this.Character.Time.DeltaTime;
+                float deltaSpeed = Mathf.Abs(motion.GravityDownwards) * this.Character.Time.DeltaTime;
                 movement += this.m_SlideFromCharacter * deltaSpeed;
             }
             
@@ -342,6 +383,7 @@ namespace GameCreator.Runtime.Characters
         {
             position += Vector3.up * (this.Character.Motion.Height * 0.5f);
             this.Transform.position = position;
+            this.m_PreviousPosition = position;
             Physics.SyncTransforms();
         }
 
@@ -385,8 +427,17 @@ namespace GameCreator.Runtime.Characters
 
         protected virtual void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            this.m_FloorNormal.Target = hit.normal;
             float angle = Vector3.Angle(hit.normal, Vector3.up);
+            
+            float capsuleRadius = Mathf.Min(
+                this.Character.Motion.Radius,
+                this.Character.Motion.Height * 0.5f
+            );
+            
+            if (hit.point.y < this.Character.Feet.y + (capsuleRadius - 0.01f))
+            {
+                this.m_FloorNormal.Target = hit.normal;
+            }
             
             this.OnColliderHitPushRigidbodies(hit, angle);
             this.OnColliderHitSlideFromCharacters(hit, angle);
@@ -408,7 +459,7 @@ namespace GameCreator.Runtime.Characters
                 : other.transform.forward;
             
             slideDirection.y = -1f;
-                    
+            
             this.m_SlideFromCharacter = slideDirection;
             this.m_FrameSlideFromCharacter = Time.frameCount;
         }
