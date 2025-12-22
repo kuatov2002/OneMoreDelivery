@@ -56,6 +56,12 @@ public class CityGenerator : MonoBehaviour
     public float minBuildHeight = 2;
     public float maxBuildHeight = 15;
 
+    [Header("Grappling Hook Platforms")]
+    public GameObject grapplePlatformPrefab;
+    [Range(0f, 1f)]
+    public float grappleSpawnChance = 0.3f;
+    public float minDistanceToOtherBuildings = 2f;
+    
     [Header("Gizmos")]
     public bool drawRoadNodes;
     public bool drawRoads = true;
@@ -254,6 +260,31 @@ public class CityGenerator : MonoBehaviour
         roadPlane.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         blockContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         lotContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
+        
+        if (grapplePlatformPrefab != null)
+        {
+            var grappleContainer = new GameObject
+            {
+                name = "Grapple Platform Container"
+            };
+        
+            int spawnedCount = 0;
+            foreach (var lot in _lots)
+            {
+                if (_rand.NextDouble() > grappleSpawnChance) continue;
+            
+                if (BuildingHelper.TryGetGrapplePoint(lot, _lots, _rand, 
+                        out Vector3 position, out Vector3 outwardNormal, minDistanceToOtherBuildings))
+                {
+                    var platform = Instantiate(grapplePlatformPrefab, grappleContainer.transform);
+                    platform.transform.position = (position + Vector3.up * 0.01f) * mapScale;
+                    platform.transform.rotation = Quaternion.LookRotation(-outwardNormal);
+                    platform.name = $"GrapplePlatform_{spawnedCount++}";
+                }
+            }
+        
+            Debug.Log($"{spawnedCount} grappling platforms spawned");
+        }
     }
     
     /// <summary>

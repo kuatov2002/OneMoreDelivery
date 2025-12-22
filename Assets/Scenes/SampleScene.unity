@@ -128,8 +128,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: 'managedReferences[8215184150645179032]'
+      value: GameCreator.Runtime.Core GameCreator.Runtime.Characters.InteractionModeScreenCenter
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: managedReferences[5243232769837892272].m_Speed
       value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: managedReferences[8215184150645179032].m_MaxDistance
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: managedReferences[5243232769837892272].m_Jump.m_AirJumps
@@ -140,12 +148,20 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: managedReferences[5243232769837892272].m_Interaction.m_Radius
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: managedReferences[5243232769837892272].m_Acceleration.m_Acceleration
       value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: managedReferences[5243232769837892272].m_Acceleration.m_Deceleration
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664185161582372163, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      propertyPath: managedReferences[5243232769837892272].m_Interaction.m_Focus.m_InteractionMode
+      value: 8215184150645179032
       objectReference: {fileID: 0}
     - target: {fileID: 6780603008925302200, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -205,6 +221,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1869731121}
+    - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1869731123}
+    - targetCorrespondingSourceObject: {fileID: 8230587750230797869, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1869731122}
   m_SourcePrefab: {fileID: 100100000, guid: c9d3f027132904e4b86bd8b47491e3b5, type: 3}
 --- !u!1 &150656384
 GameObject:
@@ -401,7 +423,7 @@ MonoBehaviour:
           m_SensitivityY:
             m_Property:
               rid: 8215184083622297818
-          m_MaxPitch: 60
+          m_MaxPitch: 90
           m_MaxYaw:
             m_IsEnabled: 0
             m_Value: 90
@@ -912,6 +934,9 @@ MonoBehaviour:
   sidewalkThickness: 0.5
   minBuildHeight: 2
   maxBuildHeight: 15
+  grapplePlatformPrefab: {fileID: 7091462822281905120, guid: 66a45ce317b704d30a6ec883a22abb4b, type: 3}
+  grappleSpawnChance: 1
+  minDistanceToOtherBuildings: 2
   drawRoadNodes: 0
   drawRoads: 1
   drawBlockNodes: 0
@@ -1500,6 +1525,151 @@ MonoBehaviour:
     - rid: 8215184128373686832
       type: {class: EventOnStart, ns: GameCreator.Runtime.VisualScripting, asm: GameCreator.Runtime.Core}
       data: 
+--- !u!114 &1869731122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869731119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59e0e0bce86e413e8dd3acc1d7c4b270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Resolution: 32
+  m_SolverIterations: 10
+  m_Config:
+    throwHeight: 1
+    throwHeightEasing: 1
+    looseTensionFactor: 1
+    tightTensionFactor: 0
+    reelChaosX: 2
+    reelChaosY: 3
+    reelChaosMagnitude: 1
+  m_Hook:
+    m_Property:
+      rid: 6362048268528255703
+    usePooling: 0
+    size: 5
+    hasDuration: 0
+    duration: 10
+  m_HookRotation: {x: 90, y: 0, z: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 6362048268528255703
+      type: {class: GetGameObjectInstance, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
+      data:
+        m_GameObject: {fileID: 6913404304808709436, guid: c3ba18c7340c44c2684533060b963be8, type: 3}
+--- !u!120 &1869731123
+LineRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869731119}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 49714a5a71dd7489ba960fa8c521aa47, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Positions: []
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 0.05
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 0
+    numCapVertices: 0
+    alignment: 0
+    textureMode: 0
+    textureScale: {x: 1, y: 1}
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_MaskInteraction: 0
+  m_UseWorldSpace: 1
+  m_Loop: 0
+  m_ApplyActiveColorSpace: 1
 --- !u!1 &2079783957
 GameObject:
   m_ObjectHideFlags: 0

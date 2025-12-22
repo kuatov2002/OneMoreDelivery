@@ -449,5 +449,91 @@ namespace Services
             var normal = GetEdgeOutwardNormal(building, edgeIndex);
             return doorPos + normal * offsetDistance;
         }
+        
+        /// <summary>
+        /// Check if a point is too close to any other building
+        /// </summary>
+        public static bool IsPointNearOtherBuildings(Vector3 point, Block currentBuilding, List<Block> allBuildings, float minDistance = 2f)
+        {
+            Vector2 point2D = new Vector2(point.x, point.z);
+            
+            foreach (var building in allBuildings)
+            {
+                if (building == currentBuilding) continue;
+                
+                // Check distance to building center
+                Vector2 buildingCenter = new Vector2(
+                    building.Nodes.Average(n => n.X),
+                    building.Nodes.Average(n => n.Y)
+                );
+                
+                if (Vector2.Distance(point2D, buildingCenter) < minDistance)
+                    return true;
+                    
+                // Check distance to building edges
+                for (int i = 0; i < building.Nodes.Count; i++)
+                {
+                    var nodeA = building.Nodes[i];
+                    var nodeB = building.Nodes[(i + 1) % building.Nodes.Count];
+                    
+                    float dist = DistancePointToSegment(point2D, 
+                        new Vector2(nodeA.X, nodeA.Y), 
+                        new Vector2(nodeB.X, nodeB.Y));
+                        
+                    if (dist < minDistance)
+                        return true;
+                }
+            }
+            
+            return false;
+        }
+
+        private static float DistancePointToSegment(Vector2 point, Vector2 a, Vector2 b)
+        {
+            Vector2 ab = b - a;
+            Vector2 ap = point - a;
+            float t = Mathf.Clamp01(Vector2.Dot(ap, ab) / Vector2.Dot(ab, ab));
+            Vector2 closest = a + t * ab;
+            return Vector2.Distance(point, closest);
+        }
+
+        /// <summary>
+        /// Get a valid grappling hook platform spawn point (on roof edge, not near other buildings)
+        /// </summary>
+        public static bool TryGetGrapplePoint(Block building, List<Block> allBuildings, System.Random rand, 
+            out Vector3 position, out Vector3 outwardNormal, float minDistanceToOthers = 2f)
+        {
+            position = Vector3.zero;
+            outwardNormal = Vector3.forward;
+            
+            if (building.Nodes.Count < 2) return false;
+            
+            // Try multiple random edges to find valid one
+            List<int> edgeIndices = Enumerable.Range(0, building.Nodes.Count).OrderBy(x => rand.Next()).ToList();
+            
+            foreach (int edgeIndex in edgeIndices)
+            {
+                var nodeA = building.Nodes[edgeIndex];
+                var nodeB = building.Nodes[(edgeIndex + 1) % building.Nodes.Count];
+                
+                // Random point on edge
+                float t = (float)rand.NextDouble();
+                Vector3 edgePoint = new Vector3(
+                    Mathf.Lerp(nodeA.X, nodeB.X, t),
+                    building.Height,
+                    Mathf.Lerp(nodeA.Y, nodeB.Y, t)
+                );
+                
+                // Check if clear from other buildings
+                if (!IsPointNearOtherBuildings(edgePoint, building, allBuildings, minDistanceToOthers))
+                {
+                    position = edgePoint;
+                    outwardNormal = GetEdgeOutwardNormal(building, edgeIndex);
+                    return true;
+                }
+            }
+            
+            return false;
+        }
     }
 }
