@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using BlockGeneration;
 using GraphModel;
@@ -7,6 +8,7 @@ using RoadGeneration;
 using BlockDivision;
 using Services;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class CityGenerator : MonoBehaviour
 {
@@ -26,7 +28,7 @@ public class CityGenerator : MonoBehaviour
 
     [Header("Seed and Size")]
     public float mapScale = 1;
-    public int mapSize = 300;
+    
    
     [Header("Major Road generation")]
     [Range(0, 20)]
@@ -79,10 +81,12 @@ public class CityGenerator : MonoBehaviour
     private bool _genDone;
     private int _seed;
     
+    [NonSerialized] public int MapSize;
     public event System.Action OnCityGenerationComplete;
-    
-    void Start()
+
+    public void Generate(int mapSize)
     {
+        MapSize = mapSize;
         _seed = Random.Range(0, int.MaxValue);
         _rand = new System.Random(_seed);
         _roadGraph = new Graph();
@@ -109,10 +113,10 @@ public class CityGenerator : MonoBehaviour
 
         //ROAD GENERATION
         MajorGenerator majorGen = new MajorGenerator(
-            _rand, mapSize, maxMajorRoad, maxDegreeInCurves, branchingProbability, _roadGraph);
+            _rand, MapSize, maxMajorRoad, maxDegreeInCurves, branchingProbability, _roadGraph);
         majorGen.Run();
         MinorGenerator minorGen = new MinorGenerator(
-            _rand, mapSize, maxMinorRoad, crossingDeletionProbability, _roadGraph, majorGen.GetRoadSegments());
+            _rand, MapSize, maxMinorRoad, crossingDeletionProbability, _roadGraph, majorGen.GetRoadSegments());
         minorGen.Run();
 
         //ROAD GENERATION TIME, ROAD COUNT
@@ -122,7 +126,7 @@ public class CityGenerator : MonoBehaviour
         Debug.Log(minorGen.GetRoadSegments().Count + " minor road generated");
 
         //BLOCK GENERATION
-        BlockGenerator blockGen = new BlockGenerator(_roadGraph, mapSize, majorThickness, minorThickness, _blockHeight);
+        BlockGenerator blockGen = new BlockGenerator(_roadGraph, MapSize, majorThickness, minorThickness, _blockHeight);
         blockGen.Generate();
         _blockNodes = blockGen.BlockNodes;
         _blocks = blockGen.Blocks;
@@ -138,7 +142,7 @@ public class CityGenerator : MonoBehaviour
 
         BlockDivider blockDiv = new BlockDivider(_rand, _thinnedBlocks, _lots);
         blockDiv.DivideBlocks();
-        blockDiv.SetBuildingHeights(minBuildHeight, maxBuildHeight, _blockHeight, mapSize);
+        blockDiv.SetBuildingHeights(minBuildHeight, maxBuildHeight, _blockHeight, MapSize);
         _boundingRectangles = blockDiv.BoundingRectangles;
 
         //LOT GENERATION TIME, LOT COUNT
@@ -180,7 +184,7 @@ public class CityGenerator : MonoBehaviour
         roadPlane.AddComponent<MeshFilter>();
         roadPlane.AddComponent<MeshRenderer>();
         
-        Mesh roadMesh = MeshCreateService.GenerateRoadMesh(mapSize);
+        Mesh roadMesh = MeshCreateService.GenerateRoadMesh(MapSize);
         roadPlane.GetComponent<MeshFilter>().mesh = roadMesh;
 
         // Добавляем MeshCollider к дороге

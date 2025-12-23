@@ -127,7 +127,7 @@ public class MinimapController : MonoBehaviour
     {
         if (cityGenerator != null)
         {
-            _mapSize = cityGenerator.mapSize;
+            _mapSize = cityGenerator.MapSize;
             _cityScale = cityGenerator.mapScale;
             
             Debug.Log($"MinimapController synced: mapSize={_mapSize}, cityScale={_cityScale}");

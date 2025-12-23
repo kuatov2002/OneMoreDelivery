@@ -4,6 +4,7 @@ using BlockGeneration;
 using GameCreator.Runtime.Characters;
 using GameCreator.Runtime.Common;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Block = BlockGeneration.Block;
 
 /// <summary>
@@ -15,6 +16,9 @@ public class CityManager : MonoBehaviour
     [Header("Dependencies")]
     [SerializeField] private CityGenerator cityGenerator;
     [SerializeField] private Character character;
+ 
+    [Header("City Configuration")]
+    [SerializeField] private int mapSize = 100;
     
     [Header("Delivery Configuration")]
     [SerializeField] private DeliveryPointMarker startDeliveryMarker;
@@ -33,6 +37,9 @@ public class CityManager : MonoBehaviour
     
     [Header("Buff Configuration")]
     [SerializeField] private List<GameCreatorChoice> availableChoices;
+    
+    [Header("Win Condition")]
+    [SerializeField] private int deliveriesRequiredToWin = 3;
     
     private GameTimeSystem _timeSystem;
     private DeliveryPointService _deliveryService;
@@ -62,13 +69,13 @@ public class CityManager : MonoBehaviour
     
     private void Start()
     {
-        ValidateDependencies();
-        InitializeSystems();
-        
         if (cityGenerator != null)
         {
             cityGenerator.OnCityGenerationComplete += OnCityReady;
         }
+        ValidateDependencies();
+        InitializeSystems();
+        cityGenerator.Generate((int)(mapSize * Math.Pow(1.1, RunData.CurrentDay)));
     }
     
     private void Update()
@@ -81,6 +88,11 @@ public class CityManager : MonoBehaviour
         if (cityGenerator != null)
         {
             cityGenerator.OnCityGenerationComplete -= OnCityReady;
+        }
+        if (_gameController != null)
+        {
+            _gameController.OnDeliveryCountChanged -= HandleDeliveryCountChanged;
+            _gameController.OnWinConditionMet -= HandleWinCondition;
         }
     }
     
@@ -130,8 +142,25 @@ public class CityManager : MonoBehaviour
             _deliveryService,
             _buffSelectionService,
             _timeSystem,
-            character
+            character,
+            deliveriesRequiredToWin
         );
+        
+        _gameController.OnDeliveryCountChanged += HandleDeliveryCountChanged;
+        _gameController.OnWinConditionMet += HandleWinCondition;
+    }
+    
+    private void HandleDeliveryCountChanged(int current)
+    {
+        Debug.Log($"Delivery progress: {current}/{deliveriesRequiredToWin}");
+        // Update UI here if needed
+    }
+    
+    private void HandleWinCondition(int totalDeliveries)
+    {
+        Time.timeScale = 1f;
+        RunData.CurrentDay++;
+        SceneManager.LoadSceneAsync("Hub");
     }
     
     private void OnCityReady()
@@ -163,17 +192,29 @@ public class DeliveryGameController
     private readonly Character _character;
     
     private bool _isWaitingForSelection;
+    private int _completedDeliveries;
+    private readonly int _deliveriesRequiredToWin;
+    
+    // Event for win condition
+    public event Action<int> OnWinConditionMet; // Passes total deliveries completed
+    public event Action<int> OnDeliveryCountChanged; // Current count, required count
+    
+    public int CompletedDeliveries => _completedDeliveries;
+    public int DeliveriesRequiredToWin => _deliveriesRequiredToWin;
     
     public DeliveryGameController(
         DeliveryPointService deliveryService,
         BuffSelectionService buffSelectionService,
         GameTimeSystem timeSystem,
-        Character character)
+        Character character,
+        int deliveriesRequiredToWin)
     {
         _deliveryService = deliveryService ?? throw new ArgumentNullException(nameof(deliveryService));
         _buffSelectionService = buffSelectionService ?? throw new ArgumentNullException(nameof(buffSelectionService));
         _timeSystem = timeSystem ?? throw new ArgumentNullException(nameof(timeSystem));
         _character = character ?? throw new ArgumentNullException(nameof(character));
+        _deliveriesRequiredToWin = deliveriesRequiredToWin;
+        _completedDeliveries = 0;
     }
     
     public void StartNewDelivery()
@@ -194,8 +235,23 @@ public class DeliveryGameController
     
     private void OnDeliveryCompleted()
     {
-        Debug.Log("Delivery completed");
+        _completedDeliveries++;
+        Debug.Log($"Delivery completed! Total: {_completedDeliveries}/{_deliveriesRequiredToWin}");
+        
+        OnDeliveryCountChanged?.Invoke(_completedDeliveries);
+        
         ShowBuffSelection();
+    }
+    
+    private void HandleWinCondition()
+    {
+        Debug.Log($"WIN! Completed {_completedDeliveries} deliveries!");
+        _timeSystem.Pause();
+        Time.timeScale = 0f;
+        
+        OnWinConditionMet?.Invoke(_completedDeliveries);
+        
+        // Game is now in win state - external systems should handle UI/transition
     }
     
     private void ShowBuffSelection()
@@ -216,6 +272,12 @@ public class DeliveryGameController
         if (choice != null)
         {
             ApplyBuff(choice);
+        }
+        
+        if (_completedDeliveries >= _deliveriesRequiredToWin)
+        {
+            HandleWinCondition();
+            return;
         }
         
         if (_timeSystem.IsWorkingHours)
@@ -474,8 +536,8 @@ public class DeliveryPointService
     
     private bool IsPositionWithinMapBounds(Vector3 position)
     {
-        float halfMapSize = _cityGenerator.mapSize / 2f;
-        float safetyOffset = _cityGenerator.mapSize * 0.1f;
+        float halfMapSize = _cityGenerator.MapSize / 2f;
+        float safetyOffset = _cityGenerator.MapSize * 0.1f;
         
         float minBound = -halfMapSize + safetyOffset;
         float maxBound = halfMapSize - safetyOffset;
@@ -526,8 +588,8 @@ public class DeliveryPointService
     
     private Vector3 GetSafeRandomPositionOnMap()
     {
-        float halfMapSize = _cityGenerator.mapSize / 2f;
-        float safetyOffset = _cityGenerator.mapSize * 0.1f;
+        float halfMapSize = _cityGenerator.MapSize / 2f;
+        float safetyOffset = _cityGenerator.MapSize * 0.1f;
         
         float minBound = -halfMapSize + safetyOffset;
         float maxBound = halfMapSize - safetyOffset;
