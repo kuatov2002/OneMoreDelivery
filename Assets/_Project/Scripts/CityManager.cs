@@ -30,7 +30,6 @@ public class CityManager : MonoBehaviour
     [SerializeField] private float startHour = 9f;
     [SerializeField] private float endHour = 18f;
     [SerializeField] private float gameMinutesPerRealSecond = 1f;
-    [SerializeField] private bool loopTimeAfterEnd = true;
     
     [Header("Buff Configuration")]
     [SerializeField] private List<GameCreatorChoice> availableChoices;
@@ -105,7 +104,7 @@ public class CityManager : MonoBehaviour
     
     private void InitializeSystems()
     {
-        _timeSystem = new GameTimeSystem(startHour, endHour, gameMinutesPerRealSecond, loopTimeAfterEnd);
+        _timeSystem = new GameTimeSystem(startHour, endHour, gameMinutesPerRealSecond);
         
         _deliveryService = new DeliveryPointService(
             cityGenerator,
@@ -245,7 +244,6 @@ public class GameTimeSystem
     private readonly float _startHour;
     private readonly float _endHour;
     private readonly float _gameMinutesPerRealSecond;
-    private readonly bool _loopTimeAfterEnd;
     
     private bool _isPaused;
     
@@ -256,14 +254,12 @@ public class GameTimeSystem
     public bool IsPaused => _isPaused;
     
     public event Action OnWorkDayEnded;
-    public event Action OnTimeReset;
     
-    public GameTimeSystem(float startHour, float endHour, float gameMinutesPerRealSecond, bool loopTimeAfterEnd)
+    public GameTimeSystem(float startHour, float endHour, float gameMinutesPerRealSecond)
     {
         _startHour = startHour;
         _endHour = endHour;
         _gameMinutesPerRealSecond = gameMinutesPerRealSecond;
-        _loopTimeAfterEnd = loopTimeAfterEnd;
         _currentTimeInMinutes = startHour * 60f;
     }
     
@@ -275,17 +271,9 @@ public class GameTimeSystem
         
         if (CurrentTimeInHours >= _endHour)
         {
-            if (_loopTimeAfterEnd)
-            {
-                _currentTimeInMinutes = _startHour * 60f;
-                OnTimeReset?.Invoke();
-            }
-            else
-            {
-                _currentTimeInMinutes = _endHour * 60f;
-                _isPaused = true;
-                OnWorkDayEnded?.Invoke();
-            }
+            _currentTimeInMinutes = _endHour * 60f;
+            _isPaused = true;
+            OnWorkDayEnded?.Invoke();
         }
     }
     
