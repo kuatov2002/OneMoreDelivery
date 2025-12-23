@@ -20,7 +20,7 @@ public class CityManager : MonoBehaviour
     [SerializeField] private DeliveryPointMarker startDeliveryMarker;
     [SerializeField] private DeliveryPointMarker endDeliveryMarker;
     [SerializeField] private float deliveryPointHeight = 1f;
-    [SerializeField] private float minDistanceBetweenPoints = 100f;
+    [SerializeField] private float targetDistanceBetweenPoints = 600f;
     [SerializeField] private float offsetFromBuilding = 3f;
     
     [Header("Character Settings")]
@@ -112,7 +112,7 @@ public class CityManager : MonoBehaviour
             startDeliveryMarker,
             endDeliveryMarker,
             deliveryPointHeight,
-            minDistanceBetweenPoints,
+            targetDistanceBetweenPoints,
             offsetFromBuilding
         );
         
@@ -304,7 +304,7 @@ public class DeliveryPointService
     private readonly DeliveryPointMarker _startMarkerPrefab;
     private readonly DeliveryPointMarker _endMarkerPrefab;
     private readonly float _deliveryPointHeight;
-    private readonly float _minDistanceBetweenPoints;
+    private readonly float _targetDistanceBetweenPoints;
     private readonly float _offsetFromBuilding;
     private readonly int _maxAttempts = 30;
     
@@ -335,14 +335,14 @@ public class DeliveryPointService
         DeliveryPointMarker startMarkerPrefab,
         DeliveryPointMarker endMarkerPrefab,
         float deliveryPointHeight,
-        float minDistanceBetweenPoints,
+        float targetDistanceBetweenPoints,
         float offsetFromBuilding)
     {
         _cityGenerator = cityGenerator ?? throw new ArgumentNullException(nameof(cityGenerator));
         _startMarkerPrefab = startMarkerPrefab ?? throw new ArgumentNullException(nameof(startMarkerPrefab));
         _endMarkerPrefab = endMarkerPrefab ?? throw new ArgumentNullException(nameof(endMarkerPrefab));
         _deliveryPointHeight = deliveryPointHeight;
-        _minDistanceBetweenPoints = minDistanceBetweenPoints;
+        _targetDistanceBetweenPoints = targetDistanceBetweenPoints;
         _offsetFromBuilding = offsetFromBuilding;
     }
     
@@ -350,13 +350,19 @@ public class DeliveryPointService
     {
         CleanupExistingPoints();
         
+        float minDistance = _targetDistanceBetweenPoints * 0.9f;
+        float maxDistance = _targetDistanceBetweenPoints * 1.1f;
+        
         Vector3 startPos = GetPositionNearBuilding();
         Vector3 endPos = GetPositionNearBuilding();
         
         int attempts = 0;
-        while (Vector3.Distance(startPos, endPos) < _minDistanceBetweenPoints && attempts < _maxAttempts)
+        float distance = Vector3.Distance(startPos, endPos);
+        
+        while ((distance < minDistance || distance > maxDistance) && attempts < _maxAttempts)
         {
             endPos = GetPositionNearBuilding();
+            distance = Vector3.Distance(startPos, endPos);
             attempts++;
         }
         
@@ -369,7 +375,7 @@ public class DeliveryPointService
         _activeStartMarker.gameObject.SetActive(true);
         _activeEndMarker.gameObject.SetActive(true);
         
-        Debug.Log($"Delivery points spawned: Start at {startPos}, End at {endPos}, Distance: {Vector3.Distance(startPos, endPos):F2}");
+        Debug.Log($"Delivery points spawned: Start at {startPos}, End at {endPos}, Distance: {distance:F2}");
     }
     
     private void CleanupExistingPoints()
