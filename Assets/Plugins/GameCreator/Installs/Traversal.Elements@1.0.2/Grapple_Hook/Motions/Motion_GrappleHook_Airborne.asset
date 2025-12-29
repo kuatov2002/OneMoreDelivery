@@ -56,7 +56,7 @@ MonoBehaviour:
   m_AnimationSpeed:
     m_Property:
       rid: 6362048135355695202
-  <EditorModelPath>k__BackingField: 
+  <EditorModelPath>k__BackingField: Assets/Plugins/GameCreator/Installs/Inventory.Items@1.2.12/_Meshes/Armor/Armor.fbx
   references:
     version: 2
     RefIds:
@@ -155,7 +155,7 @@ MonoBehaviour:
     - rid: 6362048135355695221
       type: {class: GetDecimalDecimal, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data:
-        m_Value: 1
+        m_Value: 0.2
     - rid: 6362048135355695276
       type: {class: GetGameObjectTarget, ns: GameCreator.Runtime.Common, asm: GameCreator.Runtime.Core}
       data: 
