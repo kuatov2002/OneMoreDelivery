@@ -6,20 +6,20 @@ using UnityEngine;
 /// Центральный координатор всех UI модулей. Управляет регистрацией, навигацией
 /// и взаимодействием между модулями. Реализует паттерн Singleton для глобального доступа.
 /// </summary>
-public class UIController : MonoBehaviour
+public class HUD : MonoBehaviour
 {
-    private static UIController _instance;
-    public static UIController Instance
+    private static HUD _instance;
+    public static HUD Instance
     {
         get
         {
             if (_instance == null)
             {
-                _instance = FindFirstObjectByType<UIController>();
+                _instance = FindFirstObjectByType<HUD>();
                 if (_instance == null)
                 {
-                    GameObject go = new GameObject("UIController");
-                    _instance = go.AddComponent<UIController>();
+                    GameObject go = new GameObject("HUD");
+                    _instance = go.AddComponent<HUD>();
                 }
             }
             return _instance;
@@ -44,9 +44,7 @@ public class UIController : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
         _instance = this;
-        DontDestroyOnLoad(gameObject);
         
         InitializeController();
     }

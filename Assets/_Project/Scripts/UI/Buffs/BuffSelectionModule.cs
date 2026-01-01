@@ -114,7 +114,7 @@ public class BuffSelectionService
         }
         
         var randomChoices = GetRandomChoices(count);
-        var selectionModule = UIController.Instance.GetModule<BuffSelectionModule>();
+        var selectionModule = HUD.Instance.GetModule<BuffSelectionModule>();
         
         if (selectionModule == null)
         {
