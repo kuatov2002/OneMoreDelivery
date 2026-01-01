@@ -81,7 +81,7 @@ public class CityGenerator : MonoBehaviour
     private bool _genDone;
     private int _seed;
     
-    [NonSerialized] public int MapSize;
+    public int MapSize;
     public event System.Action OnCityGenerationComplete;
 
     public void Generate(int mapSize)

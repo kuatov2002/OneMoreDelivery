@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using BlockGeneration;
 using GameCreator.Runtime.Characters;
-using GameCreator.Runtime.Common;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Block = BlockGeneration.Block;
@@ -35,15 +33,11 @@ public class CityManager : MonoBehaviour
     [SerializeField] private float endHour = 18f;
     [SerializeField] private float gameMinutesPerRealSecond = 1f;
     
-    [Header("Buff Configuration")]
-    [SerializeField] private List<GameCreatorChoice> availableChoices;
-    
     [Header("Win Condition")]
     [SerializeField] private int deliveriesRequiredToWin = 3;
     
     private GameTimeSystem _timeSystem;
     private DeliveryPointService _deliveryService;
-    private BuffSelectionService _buffSelectionService;
     private DeliveryGameController _gameController;
     
     // Public properties for backward compatibility with existing UI and systems
@@ -127,20 +121,8 @@ public class CityManager : MonoBehaviour
             offsetFromBuilding
         );
         
-        var buffChoices = new List<IBuffChoice>();
-        foreach (var choice in availableChoices)
-        {
-            if (choice is IBuffChoice buffChoice)
-            {
-                buffChoices.Add(buffChoice);
-            }
-        }
-        
-        _buffSelectionService = new BuffSelectionService(buffChoices);
-        
         _gameController = new DeliveryGameController(
             _deliveryService,
-            _buffSelectionService,
             _timeSystem,
             character,
             deliveriesRequiredToWin
@@ -204,13 +186,11 @@ public class DeliveryGameController
     
     public DeliveryGameController(
         DeliveryPointService deliveryService,
-        BuffSelectionService buffSelectionService,
         GameTimeSystem timeSystem,
         Character character,
         int deliveriesRequiredToWin)
     {
         _deliveryService = deliveryService ?? throw new ArgumentNullException(nameof(deliveryService));
-        _buffSelectionService = buffSelectionService ?? throw new ArgumentNullException(nameof(buffSelectionService));
         _timeSystem = timeSystem ?? throw new ArgumentNullException(nameof(timeSystem));
         _character = character ?? throw new ArgumentNullException(nameof(character));
         _deliveriesRequiredToWin = deliveriesRequiredToWin;
@@ -239,8 +219,14 @@ public class DeliveryGameController
         Debug.Log($"Delivery completed! Total: {_completedDeliveries}/{_deliveriesRequiredToWin}");
         
         OnDeliveryCountChanged?.Invoke(_completedDeliveries);
-        
-        ShowBuffSelection();
+        if (_completedDeliveries >= _deliveriesRequiredToWin)
+        {
+            HandleWinCondition();
+        }
+        if (_timeSystem.IsWorkingHours)
+        {
+            StartNewDelivery();
+        }
     }
     
     private void HandleWinCondition()
@@ -252,47 +238,6 @@ public class DeliveryGameController
         OnWinConditionMet?.Invoke(_completedDeliveries);
         
         // Game is now in win state - external systems should handle UI/transition
-    }
-    
-    private void ShowBuffSelection()
-    {
-        _isWaitingForSelection = true;
-        _timeSystem.Pause();
-        Time.timeScale = 0f;
-        
-        _buffSelectionService.ShowRandomSelection(3, OnBuffChoiceSelected);
-    }
-    
-    private void OnBuffChoiceSelected(IBuffChoice choice)
-    {
-        _isWaitingForSelection = false;
-        _timeSystem.Resume();
-        Time.timeScale = 1f;
-        
-        if (choice != null)
-        {
-            ApplyBuff(choice);
-        }
-        
-        if (_completedDeliveries >= _deliveriesRequiredToWin)
-        {
-            HandleWinCondition();
-            return;
-        }
-        
-        if (_timeSystem.IsWorkingHours)
-        {
-            StartNewDelivery();
-        }
-    }
-    
-    private void ApplyBuff(IBuffChoice choice)
-    {
-        if (choice is GameCreatorChoice gameCreatorChoice && gameCreatorChoice.instructionToRun != null)
-        {
-            Args args = new Args(_character.gameObject);
-            _ = gameCreatorChoice.instructionToRun.Run(args);
-        }
     }
 }
 
