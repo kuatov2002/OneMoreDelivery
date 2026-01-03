@@ -976,9 +976,20 @@ MonoBehaviour:
   sidewalkThickness: 0.5
   minBuildHeight: 2
   maxBuildHeight: 15
+  tallBuildingChance: 0.3
+  createClusteredHeights: 1
+  stairsPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  bridgePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  ziplinePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  railPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  climbingPolePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  platformPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
+  wallRunSurfacePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   grapplePlatformPrefab: {fileID: 7091462822281905120, guid: 66a45ce317b704d30a6ec883a22abb4b, type: 3}
   grappleSpawnChance: 1
   minDistanceToOtherBuildings: 2
+  highJumpPrefab: {fileID: 7815738818384742637, guid: 2a631eb0bd181134d89467b4f560c30f, type: 3}
+  highJumpSpawnChance: 1
   drawRoadNodes: 0
   drawRoads: 1
   drawBlockNodes: 0
@@ -989,6 +1000,7 @@ MonoBehaviour:
   drawTriangulatedMeshes: 0
   drawBoundingBoxes: 0
   drawLots: 1
+  MapSize: 0
 --- !u!114 &1087277564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1013,10 +1025,6 @@ MonoBehaviour:
   startHour: 9
   endHour: 18
   gameMinutesPerRealSecond: 3
-  availableChoices:
-  - {fileID: 11400000, guid: a7061d5dd67db1c4c9c7e6d338370bcc, type: 2}
-  - {fileID: 11400000, guid: 2fcc3e18c0584d14aae229674810b626, type: 2}
-  - {fileID: 11400000, guid: 7af087a976b542d47b7cf9b5ff66d43a, type: 2}
   deliveriesRequiredToWin: 3
 --- !u!1 &1317695372
 GameObject:

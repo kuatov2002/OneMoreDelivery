@@ -7,13 +7,14 @@ using MeshGeneration;
 using RoadGeneration;
 using BlockDivision;
 using Services;
+using ParkourGeneration;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class CityGenerator : MonoBehaviour
 {
-    private Graph _roadGraph; //Graph which will be built, and then drawn
-    private List<BlockNode> _blockNodes; //Nodes of the Blocks
+    private Graph _roadGraph;
+    private List<BlockNode> _blockNodes;
     private List<Block> _blocks;
     private List<Block> _thinnedBlocks;
     private List<Block> _lots;
@@ -29,7 +30,6 @@ public class CityGenerator : MonoBehaviour
     [Header("Seed and Size")]
     public float mapScale = 1;
     
-   
     [Header("Major Road generation")]
     [Range(0, 20)]
     public int maxDegreeInCurves = 10;
@@ -54,15 +54,32 @@ public class CityGenerator : MonoBehaviour
     [Range(0.1f, 1f)]
     public float sidewalkThickness = 0.5f;
     
-    [Header("Building generation")] 
-    public float minBuildHeight = 2;
-    public float maxBuildHeight = 15;
+    [Header("Building generation - УЛУЧШЕНО ДЛЯ ПАРКУРА")] 
+    public float minBuildHeight = 3; // Увеличено для лучшего паркура
+    public float maxBuildHeight = 20; // Увеличено для большего разнообразия
+    [Range(0f, 1f)]
+    public float tallBuildingChance = 0.3f; // Шанс создать очень высокое здание
+    public bool createClusteredHeights = true; // Группировать здания разной высоты рядом
 
+    [Header("Parkour Elements - НОВОЕ!")]
+    public GameObject stairsPrefab;
+    public GameObject bridgePrefab;
+    public GameObject ziplinePrefab;
+    public GameObject railPrefab;
+    public GameObject climbingPolePrefab;
+    public GameObject platformPrefab;
+    public GameObject wallRunSurfacePrefab;
+    
     [Header("Grappling Hook Platforms")]
     public GameObject grapplePlatformPrefab;
     [Range(0f, 1f)]
-    public float grappleSpawnChance = 0.3f;
+    public float grappleSpawnChance = 0.4f; // Увеличено
     public float minDistanceToOtherBuildings = 2f;
+    
+    [Header("High Jump Platforms")]
+    public GameObject highJumpPrefab;
+    [Range(0f, 1f)]
+    public float highJumpSpawnChance = 0.8f; // Увеличено для паркура
     
     [Header("Gizmos")]
     public bool drawRoadNodes;
@@ -76,7 +93,6 @@ public class CityGenerator : MonoBehaviour
     public bool drawBoundingBoxes;
     public bool drawLots = true;
 
-    //Event to call, when the generation is ready
     private bool _genReady;
     private bool _genDone;
     private int _seed;
@@ -98,7 +114,7 @@ public class CityGenerator : MonoBehaviour
 
     void Update()
     {
-        if (_genReady && !_genDone) //This make sure, that this will be only called once
+        if (_genReady && !_genDone)
         {
             _genDone = true;
             GenerateGameObjects();
@@ -111,7 +127,7 @@ public class CityGenerator : MonoBehaviour
         System.Diagnostics.Stopwatch mainSw = System.Diagnostics.Stopwatch.StartNew();
         System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
 
-        //ROAD GENERATION
+        // ROAD GENERATION
         MajorGenerator majorGen = new MajorGenerator(
             _rand, MapSize, maxMajorRoad, maxDegreeInCurves, branchingProbability, _roadGraph);
         majorGen.Run();
@@ -119,43 +135,44 @@ public class CityGenerator : MonoBehaviour
             _rand, MapSize, maxMinorRoad, crossingDeletionProbability, _roadGraph, majorGen.GetRoadSegments());
         minorGen.Run();
 
-        //ROAD GENERATION TIME, ROAD COUNT
         sw.Stop();
         Debug.Log("Road generation time taken: " + sw.Elapsed.TotalMilliseconds + " ms");
         Debug.Log(majorGen.GetRoadSegments().Count + " major road generated");
         Debug.Log(minorGen.GetRoadSegments().Count + " minor road generated");
 
-        //BLOCK GENERATION
+        // BLOCK GENERATION
         BlockGenerator blockGen = new BlockGenerator(_roadGraph, MapSize, majorThickness, minorThickness, _blockHeight);
         blockGen.Generate();
         _blockNodes = blockGen.BlockNodes;
         _blocks = blockGen.Blocks;
         Debug.Log(blockGen.Blocks.Count + " block generated");
 
-        //SIDEWALK GENERATION
+        // SIDEWALK GENERATION
         blockGen.ThickenBlocks(sidewalkThickness);
         _thinnedBlocks = blockGen.ThinnedBlocks;
         Debug.Log("Sidewalk generation completed");
 
-        //BLOCK DIVISION
+        // BLOCK DIVISION
         sw = System.Diagnostics.Stopwatch.StartNew();
 
         BlockDivider blockDiv = new BlockDivider(_rand, _thinnedBlocks, _lots);
         blockDiv.DivideBlocks();
-        blockDiv.SetBuildingHeights(minBuildHeight, maxBuildHeight, _blockHeight, MapSize);
+        
+        // НОВАЯ УЛУЧШЕННАЯ ГЕНЕРАЦИЯ ВЫСОТЫ ДЛЯ ПАРКУРА
+        SetParkourFriendlyBuildingHeights();
+        
         _boundingRectangles = blockDiv.BoundingRectangles;
 
-        //LOT GENERATION TIME, LOT COUNT
         sw.Stop();
         Debug.Log("Lot generation time taken: " + sw.Elapsed.TotalMilliseconds + " ms");
         Debug.Log(_lots.Count + " lot generated");
 
-        //BLOCK MESH GENERATION
+        // BLOCK MESH GENERATION
         MeshGenerator blockMeshGen = new MeshGenerator(_blocks, _blockHeight);
         blockMeshGen.GenerateMeshes();
         _blockMeshes = blockMeshGen.BlockMeshes;
 
-        //LOT MESH GENERATION
+        // LOT MESH GENERATION
         MeshGenerator lotMeshGen = new MeshGenerator(_lots, _blockHeight + _blockHeight / 3);
         lotMeshGen.GenerateMeshes();
 
@@ -168,6 +185,78 @@ public class CityGenerator : MonoBehaviour
         
         _genReady = true;
     }
+    
+    /// <summary>
+    /// НОВЫЙ МЕТОД: Устанавливает высоты зданий оптимизированные для паркура
+    /// Создает кластеры зданий разной высоты для интересных маршрутов
+    /// </summary>
+    private void SetParkourFriendlyBuildingHeights()
+    {
+        foreach (var lot in _lots)
+        {
+            if (lot.IsPark)
+            {
+                lot.Height = _blockHeight + _blockHeight / 3;
+                continue;
+            }
+            
+            // Базовая высота
+            float height = (float)_rand.NextDouble() * (maxBuildHeight - minBuildHeight) + minBuildHeight;
+            
+            // Шанс создать действительно высокое здание
+            if (_rand.NextDouble() < tallBuildingChance)
+            {
+                height = maxBuildHeight * (0.7f + (float)_rand.NextDouble() * 0.3f);
+            }
+            else
+            {
+                // Для обычных зданий предпочитаем средние высоты
+                height = height * 0.6f;
+            }
+            
+            // Здания ближе к центру карты выше
+            float distanceFromCenter = Mathf.Max(
+                Mathf.Abs(lot.Nodes[0].X),
+                Mathf.Abs(lot.Nodes[0].Y)
+            );
+            float centerFactor = 1f - (distanceFromCenter / MapSize);
+            centerFactor = Mathf.Clamp01(centerFactor);
+            
+            height = height * (0.5f + centerFactor * 0.5f);
+            
+            // Создаем вариацию высоты для паркура
+            if (createClusteredHeights)
+            {
+                // Группируем здания: каждое 3-е здание получает бонус или штраф
+                int buildingIndex = _lots.IndexOf(lot);
+                if (buildingIndex % 3 == 0)
+                {
+                    height *= 1.5f; // Высокое здание
+                }
+                else if (buildingIndex % 3 == 1)
+                {
+                    height *= 0.6f; // Низкое здание
+                }
+                // buildingIndex % 3 == 2 остается средней высоты
+            }
+            
+            // Минимальная высота
+            if (height < minBuildHeight)
+            {
+                height = minBuildHeight;
+            }
+            
+            // Максимальная высота
+            if (height > maxBuildHeight)
+            {
+                height = maxBuildHeight;
+            }
+            
+            lot.Height = height;
+        }
+        
+        Debug.Log($"Building heights optimized for parkour gameplay");
+    }
 
     private void GenerateGameObjects()
     {
@@ -176,7 +265,7 @@ public class CityGenerator : MonoBehaviour
             name = "==========="
         };
 
-        //Make RoadPlane
+        // Make RoadPlane
         var roadPlane = new GameObject
         {
             name = "Road Plane"
@@ -187,14 +276,13 @@ public class CityGenerator : MonoBehaviour
         Mesh roadMesh = MeshCreateService.GenerateRoadMesh(MapSize);
         roadPlane.GetComponent<MeshFilter>().mesh = roadMesh;
 
-        // Добавляем MeshCollider к дороге
         var roadCollider = roadPlane.AddComponent<MeshCollider>();
         roadCollider.sharedMesh = roadMesh;
 
         Material roadMaterial = Resources.Load<Material>("Material/RoadMaterial");
         roadPlane.GetComponent<MeshRenderer>().material = roadMaterial;
         
-        //Make Blocks
+        // Make Blocks
         var blockContainer = new GameObject
         {
             name = "Block Container"
@@ -219,7 +307,6 @@ public class CityGenerator : MonoBehaviour
             Mesh blockMesh = MeshCreateService.GenerateBlockMesh(_blockMeshes[i]);
             block.GetComponent<MeshFilter>().mesh = blockMesh;
 
-            // Добавляем MeshCollider с convex
             var meshCollider = block.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = blockMesh;
             meshCollider.convex = true;
@@ -228,7 +315,7 @@ public class CityGenerator : MonoBehaviour
             else block.GetComponent<MeshRenderer>().material = blockMaterial;
         }
         
-        //Make Lots
+        // Make Lots (Buildings)
         var lotContainer = new GameObject
         {
             name = "Lot Container"
@@ -252,7 +339,6 @@ public class CityGenerator : MonoBehaviour
             Mesh lotMesh = MeshCreateService.GenerateBlockMesh(_lotMeshes[i]);
             lot.GetComponent<MeshFilter>().mesh = lotMesh;
             
-            // Добавляем MeshCollider с convex к лотам
             var meshCollider = lot.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = lotMesh;
             meshCollider.convex = true;
@@ -265,62 +351,121 @@ public class CityGenerator : MonoBehaviour
         blockContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         lotContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         
-        if (grapplePlatformPrefab != null)
+        // === ГЕНЕРАЦИЯ ПАРКУР ЭЛЕМЕНТОВ - НОВОЕ! ===
+        GenerateParkourElements();
+        
+        // Existing platforms
+        GenerateGrapplePlatforms();
+        GenerateHighJumpPlatforms();
+    }
+    
+    /// <summary>
+    /// НОВЫЙ МЕТОД: Генерирует все паркур-элементы используя улучшенный ParkourElementsGeneratorV2
+    /// Версия 2.0 включает проверку коллизий и умное размещение элементов
+    /// </summary>
+    private void GenerateParkourElements()
+    {
+        var parkourContainer = new GameObject
         {
-            var grappleContainer = new GameObject
-            {
-                name = "Grapple Platform Container"
-            };
+            name = "===== PARKOUR ELEMENTS V2 ====="
+        };
         
-            int spawnedCount = 0;
-            foreach (var lot in _lots)
+        var parkourGen = new ParkourElementsGenerator(
+            _lots,
+            _roadGraph,
+            _rand,
+            mapScale,
+            stairsPrefab,
+            bridgePrefab,
+            ziplinePrefab,
+            railPrefab,
+            climbingPolePrefab,
+            platformPrefab,
+            wallRunSurfacePrefab
+        );
+        
+        parkourGen.GenerateAllParkourElements(parkourContainer);
+        
+        Debug.Log("All parkour elements generated with collision detection!");
+    }
+    
+    private void GenerateGrapplePlatforms()
+    {
+        if (grapplePlatformPrefab == null) return;
+        
+        var grappleContainer = new GameObject
+        {
+            name = "Grapple Platform Container"
+        };
+    
+        int spawnedCount = 0;
+        foreach (var lot in _lots)
+        {
+            if (_rand.NextDouble() > grappleSpawnChance) continue;
+        
+            if (BuildingHelper.TryGetGrapplePoint(lot, _lots, _rand, 
+                    out Vector3 position, out Vector3 outwardNormal, minDistanceToOtherBuildings))
             {
-                if (_rand.NextDouble() > grappleSpawnChance) continue;
-            
-                if (BuildingHelper.TryGetGrapplePoint(lot, _lots, _rand, 
-                        out Vector3 position, out Vector3 outwardNormal, minDistanceToOtherBuildings))
-                {
-                    var platform = Instantiate(grapplePlatformPrefab, grappleContainer.transform);
-                    platform.transform.position = (position + Vector3.up * 0.01f) * mapScale;
-                    platform.transform.rotation = Quaternion.LookRotation(-outwardNormal);
-                    platform.name = $"GrapplePlatform_{spawnedCount++}";
-                }
+                var platform = Instantiate(grapplePlatformPrefab, grappleContainer.transform);
+                platform.transform.position = (position + Vector3.up * 0.01f) * mapScale;
+                platform.transform.rotation = Quaternion.LookRotation(-outwardNormal);
+                platform.name = $"GrapplePlatform_{spawnedCount++}";
             }
-        
-            Debug.Log($"{spawnedCount} grappling platforms spawned");
         }
+    
+        Debug.Log($"{spawnedCount} grappling platforms spawned");
     }
     
-    /// <summary>
-    /// Получить граф дорог
-    /// </summary>
-    public Graph GetRoadGraph()
+    private void GenerateHighJumpPlatforms()
     {
-        return _roadGraph;
-    }
-    
-    /// <summary>
-    /// Получить список всех лотов (зданий)
-    /// </summary>
-    public List<Block> GetLots()
-    {
-        return _lots;
-    }
+        if (highJumpPrefab == null) return;
+        
+        var highJumpContainer = new GameObject
+        {
+            name = "HighJump Platform Container"
+        };
 
-    /// <summary>
-    /// Получить список всех блоков
-    /// </summary>
-    public List<Block> GetBlocks()
-    {
-        return _blocks;
+        int spawnedCount = 0;
+        foreach (var lot in _lots)
+        {
+            if (_rand.NextDouble() > highJumpSpawnChance) continue;
+    
+            for (int i = 0; i < lot.Nodes.Count; i++)
+            {
+                var nodeA = lot.Nodes[i];
+                var nodeB = lot.Nodes[(i + 1) % lot.Nodes.Count];
+        
+                Vector3 edgeCenter = new Vector3(
+                    (nodeA.X + nodeB.X) / 2f,
+                    lot.Height - 0.3f,
+                    (nodeA.Y + nodeB.Y) / 2f
+                );
+        
+                float edgeWidth = Vector2.Distance(
+                    new Vector2(nodeA.X, nodeA.Y),
+                    new Vector2(nodeB.X, nodeB.Y)
+                ) / 2;
+        
+                Vector3 outwardNormal = -BuildingHelper.GetEdgeOutwardNormal(lot, i);
+        
+                var platform = Instantiate(highJumpPrefab, highJumpContainer.transform);
+                platform.transform.position = edgeCenter * mapScale;
+                platform.transform.rotation = Quaternion.LookRotation(outwardNormal);
+                platform.transform.localScale = new Vector3(edgeWidth * mapScale, 1, 1);
+                platform.name = $"HighJump_{spawnedCount++}";
+            }
+        }
+
+        Debug.Log($"{spawnedCount} high jump platforms spawned");
     }
+    
+    public Graph GetRoadGraph() => _roadGraph;
+    public List<Block> GetLots() => _lots;
+    public List<Block> GetBlocks() => _blocks;
 
     private void OnDrawGizmos()
     {
-        if (_roadGraph == null)
-        {
-            return;
-        }
+        if (_roadGraph == null) return;
 
         if (drawRoads)
         {
