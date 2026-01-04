@@ -65,7 +65,6 @@ public class CityGenerator : MonoBehaviour
     public GameObject stairsPrefab;
     public GameObject bridgePrefab;
     public GameObject ziplinePrefab;
-    public GameObject railPrefab;
     public GameObject climbingPolePrefab;
     public GameObject platformPrefab;
     public GameObject wallRunSurfacePrefab;
@@ -378,7 +377,6 @@ public class CityGenerator : MonoBehaviour
             stairsPrefab,
             bridgePrefab,
             ziplinePrefab,
-            railPrefab,
             climbingPolePrefab,
             platformPrefab,
             wallRunSurfacePrefab

@@ -23,7 +23,6 @@ namespace ParkourGeneration
         private readonly GameObject stairsPrefab;
         private readonly GameObject bridgePrefab;
         private readonly GameObject ziplinePrefab;
-        private readonly GameObject railPrefab;
         private readonly GameObject climbingPolePrefab;
         private readonly GameObject platformPrefab;
         private readonly GameObject wallRunSurfacePrefab;
@@ -46,9 +45,8 @@ namespace ParkourGeneration
         
         // Ограничения на количество элементов на одно здание
         private readonly int maxStairsPerBuilding = 2;      // Максимум 2 лестницы на здание
-        private readonly int maxBridgesPerBuilding = 3;     // Максимум 3 моста от здания
+        private readonly int maxBridgesPerBuilding = 2;     // Максимум 3 моста от здания
         private readonly int maxZiplinesPerBuilding = 2;    // Максимум 2 zipline'а от здания
-        private readonly int maxRailsPerBuilding = 3;       // Максимум 3 стороны с перилами
         private readonly int maxPolesPerBuilding = 1;       // Максимум 1 столб на здание
         
         // Дистанции и проверки
@@ -60,9 +58,8 @@ namespace ParkourGeneration
         
         // Шансы появления (можно настраивать)
         private readonly float stairsSpawnChance = 0.5f;
-        private readonly float bridgeSpawnChance = 0.25f;
-        private readonly float ziplineSpawnChance = 0.2f;
-        private readonly float railSpawnChance = 0.4f;
+        private readonly float bridgeSpawnChance = 0.8f;
+        private readonly float ziplineSpawnChance = 0.3f;
         private readonly float climbingPoleChance = 0.3f;
         private readonly float platformSpawnChance = 0.6f;
         
@@ -74,7 +71,6 @@ namespace ParkourGeneration
             GameObject stairs = null,
             GameObject bridge = null,
             GameObject zipline = null,
-            GameObject rail = null,
             GameObject pole = null,
             GameObject platform = null,
             GameObject wallRun = null)
@@ -87,7 +83,6 @@ namespace ParkourGeneration
             stairsPrefab = stairs;
             bridgePrefab = bridge;
             ziplinePrefab = zipline;
-            railPrefab = rail;
             climbingPolePrefab = pole;
             platformPrefab = platform;
             wallRunSurfacePrefab = wallRun;
@@ -144,12 +139,6 @@ namespace ParkourGeneration
             ziplinesContainer.transform.SetParent(parentContainer.transform);
             int ziplinesCount = GenerateZiplinesImproved(ziplinesContainer);
             Debug.Log($"Generated {ziplinesCount} ziplines with obstacle avoidance");
-            
-            // 6. Перила - декоративный элемент, последний по важности
-            var railsContainer = new GameObject("Rails Container");
-            railsContainer.transform.SetParent(parentContainer.transform);
-            int railsCount = GenerateRailsImproved(railsContainer);
-            Debug.Log($"Generated {railsCount} rails");
             
             Debug.Log("=== Parkour generation complete ===");
         }
@@ -263,7 +252,7 @@ namespace ParkourGeneration
                 var nearbyBuildings = FindNearbyBuildingsWithSimilarHeight(
                     building1, 
                     maxBridgeDistance, 
-                    heightTolerance: 3f);
+                    heightTolerance: 2f);
                 
                 foreach (var building2 in nearbyBuildings)
                 {
@@ -445,69 +434,6 @@ namespace ParkourGeneration
             }
             
             return ziplineCount;
-        }
-        
-        /// <summary>
-        /// УЛУЧШЕННАЯ генерация перил с ограничением количества на здание
-        /// </summary>
-        private int GenerateRailsImproved(GameObject container)
-        {
-            if (railPrefab == null) return 0;
-            
-            int railCount = 0;
-            
-            foreach (var building in lots)
-            {
-                if (building.IsPark || building.Height < 3f) continue;
-                
-                // Проверяем шанс появления
-                if (rand.NextDouble() > railSpawnChance) continue;
-                
-                // === НОВОЕ: Ограничиваем количество сторон с перилами ===
-                int maxEdgesToRail = Mathf.Min(maxRailsPerBuilding, building.Nodes.Count);
-                int edgesToRail = rand.Next(1, maxEdgesToRail + 1);
-                
-                var edgeIndices = Enumerable.Range(0, building.Nodes.Count)
-                    .OrderBy(x => rand.Next())
-                    .Take(edgesToRail)
-                    .ToList();
-                
-                foreach (int edgeIndex in edgeIndices)
-                {
-                    var nodeA = building.Nodes[edgeIndex];
-                    var nodeB = building.Nodes[(edgeIndex + 1) % building.Nodes.Count];
-                    
-                    float edgeLength = Vector2.Distance(
-                        new Vector2(nodeA.X, nodeA.Y),
-                        new Vector2(nodeB.X, nodeB.Y));
-                    
-                    // Пропускаем очень короткие грани
-                    if (edgeLength < 1f) continue;
-                    
-                    var rail = Object.Instantiate(railPrefab, container.transform);
-                    var railCenter = new Vector3(
-                        (nodeA.X + nodeB.X) / 2f,
-                        building.Height + 0.1f,
-                        (nodeA.Y + nodeB.Y) / 2f
-                    );
-                    
-                    var direction = new Vector3(nodeB.X - nodeA.X, 0, nodeB.Y - nodeA.Y);
-                    rail.transform.position = railCenter * mapScale;
-                    rail.transform.rotation = Quaternion.LookRotation(direction);
-                    rail.transform.localScale = new Vector3(
-                        mapScale * 0.1f,
-                        mapScale * 0.3f,
-                        edgeLength * mapScale
-                    );
-                    
-                    rail.name = $"Rail_{railCount}";
-                    railCount++;
-                }
-                
-                buildingElements[building].RailsCount = edgesToRail;
-            }
-            
-            return railCount;
         }
         
         /// <summary>
@@ -909,7 +835,6 @@ namespace ParkourGeneration
         public int StairsCount = 0;
         public int BridgesCount = 0;
         public int ZiplinesCount = 0;
-        public int RailsCount = 0;
         public int PolesCount = 0;
     }
     

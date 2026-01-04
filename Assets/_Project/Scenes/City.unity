@@ -981,7 +981,6 @@ MonoBehaviour:
   stairsPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   bridgePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   ziplinePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
-  railPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   climbingPolePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   platformPrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
   wallRunSurfacePrefab: {fileID: 3198443354366159079, guid: 55f622d27e3695a4aa6637f00fb5f5ea, type: 3}
