@@ -62,11 +62,8 @@ public class CityGenerator : MonoBehaviour
     public bool createClusteredHeights = true; // Группировать здания разной высоты рядом
 
     [Header("Parkour Elements - НОВОЕ!")]
-    public GameObject stairsPrefab;
     public GameObject bridgePrefab;
     public GameObject ziplinePrefab;
-    public GameObject climbingPolePrefab;
-    public GameObject platformPrefab;
     public GameObject wallRunSurfacePrefab;
     
     [Header("Grappling Hook Platforms")]
@@ -74,11 +71,6 @@ public class CityGenerator : MonoBehaviour
     [Range(0f, 1f)]
     public float grappleSpawnChance = 0.4f; // Увеличено
     public float minDistanceToOtherBuildings = 2f;
-    
-    [Header("High Jump Platforms")]
-    public GameObject highJumpPrefab;
-    [Range(0f, 1f)]
-    public float highJumpSpawnChance = 0.8f; // Увеличено для паркура
     
     [Header("Gizmos")]
     public bool drawRoadNodes;
@@ -210,7 +202,7 @@ public class CityGenerator : MonoBehaviour
             else
             {
                 // Для обычных зданий предпочитаем средние высоты
-                height = height * 0.6f;
+                height *= 0.6f;
             }
             
             // Здания ближе к центру карты выше
@@ -221,7 +213,7 @@ public class CityGenerator : MonoBehaviour
             float centerFactor = 1f - (distanceFromCenter / MapSize);
             centerFactor = Mathf.Clamp01(centerFactor);
             
-            height = height * (0.5f + centerFactor * 0.5f);
+            height *= (0.5f + centerFactor * 0.5f);
             
             // Создаем вариацию высоты для паркура
             if (createClusteredHeights)
@@ -355,7 +347,6 @@ public class CityGenerator : MonoBehaviour
         
         // Existing platforms
         GenerateGrapplePlatforms();
-        GenerateHighJumpPlatforms();
     }
     
     /// <summary>
@@ -374,11 +365,8 @@ public class CityGenerator : MonoBehaviour
             _roadGraph,
             _rand,
             mapScale,
-            stairsPrefab,
             bridgePrefab,
             ziplinePrefab,
-            climbingPolePrefab,
-            platformPrefab,
             wallRunSurfacePrefab
         );
         
@@ -412,49 +400,6 @@ public class CityGenerator : MonoBehaviour
         }
     
         Debug.Log($"{spawnedCount} grappling platforms spawned");
-    }
-    
-    private void GenerateHighJumpPlatforms()
-    {
-        if (highJumpPrefab == null) return;
-        
-        var highJumpContainer = new GameObject
-        {
-            name = "HighJump Platform Container"
-        };
-
-        int spawnedCount = 0;
-        foreach (var lot in _lots)
-        {
-            if (_rand.NextDouble() > highJumpSpawnChance) continue;
-    
-            for (int i = 0; i < lot.Nodes.Count; i++)
-            {
-                var nodeA = lot.Nodes[i];
-                var nodeB = lot.Nodes[(i + 1) % lot.Nodes.Count];
-        
-                Vector3 edgeCenter = new Vector3(
-                    (nodeA.X + nodeB.X) / 2f,
-                    lot.Height - 0.3f,
-                    (nodeA.Y + nodeB.Y) / 2f
-                );
-        
-                float edgeWidth = Vector2.Distance(
-                    new Vector2(nodeA.X, nodeA.Y),
-                    new Vector2(nodeB.X, nodeB.Y)
-                ) / 2;
-        
-                Vector3 outwardNormal = -BuildingHelper.GetEdgeOutwardNormal(lot, i);
-        
-                var platform = Instantiate(highJumpPrefab, highJumpContainer.transform);
-                platform.transform.position = edgeCenter * mapScale;
-                platform.transform.rotation = Quaternion.LookRotation(outwardNormal);
-                platform.transform.localScale = new Vector3(edgeWidth * mapScale, 1, 1);
-                platform.name = $"HighJump_{spawnedCount++}";
-            }
-        }
-
-        Debug.Log($"{spawnedCount} high jump platforms spawned");
     }
     
     public Graph GetRoadGraph() => _roadGraph;

@@ -19,12 +19,8 @@ namespace ParkourGeneration
         private readonly System.Random rand;
         private readonly float mapScale;
         
-        // Префабы
-        private readonly GameObject stairsPrefab;
         private readonly GameObject bridgePrefab;
         private readonly GameObject ziplinePrefab;
-        private readonly GameObject climbingPolePrefab;
-        private readonly GameObject platformPrefab;
         private readonly GameObject wallRunSurfacePrefab;
         
         // === НОВОЕ: Структуры данных для отслеживания размещенных элементов ===
@@ -44,35 +40,27 @@ namespace ParkourGeneration
         // === НАСТРОЙКИ ГЕНЕРАЦИИ ===
         
         // Ограничения на количество элементов на одно здание
-        private readonly int maxStairsPerBuilding = 2;      // Максимум 2 лестницы на здание
         private readonly int maxBridgesPerBuilding = 2;     // Максимум 3 моста от здания
         private readonly int maxZiplinesPerBuilding = 2;    // Максимум 2 zipline'а от здания
-        private readonly int maxPolesPerBuilding = 1;       // Максимум 1 столб на здание
         
         // Дистанции и проверки
         private readonly float minBuildingDistance = 3f;
         private readonly float maxBridgeDistance = 15f;
         private readonly float maxZiplineDistance = 30f;
-        private readonly float minZiplineAngle = 15f;       // Минимальный угол наклона zipline в градусах
-        private readonly float raycastCheckRadius = 0.5f;   // Радиус для проверки пересечений
+        private readonly float minZiplineAngle = 10f;       // Минимальный угол наклона zipline в градусах
+        private readonly float raycastCheckRadius = 1.5f;   // Радиус для проверки пересечений
         
         // Шансы появления (можно настраивать)
-        private readonly float stairsSpawnChance = 0.5f;
-        private readonly float bridgeSpawnChance = 0.8f;
+        private readonly float bridgeSpawnChance = 0.5f;
         private readonly float ziplineSpawnChance = 0.3f;
-        private readonly float climbingPoleChance = 0.3f;
-        private readonly float platformSpawnChance = 0.6f;
         
         public ParkourElementsGenerator(
             List<Block> buildings,
             Graph roads,
             System.Random random,
             float scale,
-            GameObject stairs = null,
             GameObject bridge = null,
             GameObject zipline = null,
-            GameObject pole = null,
-            GameObject platform = null,
             GameObject wallRun = null)
         {
             lots = buildings;
@@ -80,11 +68,8 @@ namespace ParkourGeneration
             rand = random;
             mapScale = scale;
             
-            stairsPrefab = stairs;
             bridgePrefab = bridge;
             ziplinePrefab = zipline;
-            climbingPolePrefab = pole;
-            platformPrefab = platform;
             wallRunSurfacePrefab = wallRun;
             
             // Инициализируем систему отслеживания элементов
@@ -110,124 +95,19 @@ namespace ParkourGeneration
             // Сначала размещаем самые важные элементы (лестницы),
             // затем менее критичные (мосты, zipline'ы)
             
-            // 1. Лестницы - самый важный элемент, нужен для доступа на крыши
-            var stairsContainer = new GameObject("Stairs Container");
-            stairsContainer.transform.SetParent(parentContainer.transform);
-            int stairsCount = GenerateExternalStairsImproved(stairsContainer);
-            Debug.Log($"Generated {stairsCount} stairs with collision checking");
-            
-            // 2. Столбы - альтернативный доступ на крыши
-            var polesContainer = new GameObject("Climbing Poles Container");
-            polesContainer.transform.SetParent(parentContainer.transform);
-            int polesCount = GenerateClimbingPolesImproved(polesContainer);
-            Debug.Log($"Generated {polesCount} climbing poles");
-            
-            // 3. Промежуточные платформы - делают высокие здания доступнее
-            var platformsContainer = new GameObject("Mid-Height Platforms Container");
-            platformsContainer.transform.SetParent(parentContainer.transform);
-            int platformsCount = GenerateIntermediatePlatformsImproved(platformsContainer);
-            Debug.Log($"Generated {platformsCount} intermediate platforms");
-            
-            // 4. Мосты - соединяют близкие здания
+            // 1. Мосты - соединяют близкие здания
             var bridgesContainer = new GameObject("Bridges Container");
             bridgesContainer.transform.SetParent(parentContainer.transform);
             int bridgesCount = GenerateBridgesImproved(bridgesContainer);
             Debug.Log($"Generated {bridgesCount} bridges with raycast validation");
             
-            // 5. Zipline'ы - быстрое перемещение на дальние расстояния
+            // 2. Zipline'ы - быстрое перемещение на дальние расстояния
             var ziplinesContainer = new GameObject("Ziplines Container");
             ziplinesContainer.transform.SetParent(parentContainer.transform);
             int ziplinesCount = GenerateZiplinesImproved(ziplinesContainer);
             Debug.Log($"Generated {ziplinesCount} ziplines with obstacle avoidance");
             
             Debug.Log("=== Parkour generation complete ===");
-        }
-        
-        /// <summary>
-        /// УЛУЧШЕННАЯ генерация лестниц с проверкой на конфликты
-        /// Теперь лестницы не размещаются, если мешают другие здания или элементы
-        /// </summary>
-        private int GenerateExternalStairsImproved(GameObject container)
-        {
-            if (stairsPrefab == null) return 0;
-            
-            int stairsCount = 0;
-            
-            foreach (var building in lots)
-            {
-                // Пропускаем парки и низкие здания
-                if (building.IsPark || building.Height < 2f) continue;
-                
-                // Проверяем лимит лестниц на здание
-                if (buildingElements[building].StairsCount >= maxStairsPerBuilding) continue;
-                
-                // Проверяем шанс появления
-                if (rand.NextDouble() > stairsSpawnChance) continue;
-                
-                // Находим лучшую сторону для лестницы (ближайшую к дороге)
-                int bestEdge = FindEdgeNearestToRoad(building);
-                
-                // Получаем позицию и направление
-                var edgeCenter = BuildingHelper.GetEdgeCenter(building, bestEdge, 0f);
-                var edgeNormal = BuildingHelper.GetEdgeOutwardNormal(building, bestEdge);
-                
-                // Лестница будет выступать наружу на это расстояние
-                float stairsDepth = 1.5f;
-                var stairsEndPoint = edgeCenter + edgeNormal * stairsDepth;
-                
-                // === НОВАЯ ПРОВЕРКА 1: Не мешает ли другое здание ===
-                if (IsPointInsideAnyBuilding(stairsEndPoint, building))
-                {
-                    continue; // Лестница влезает в другое здание, пропускаем
-                }
-                
-                // === НОВАЯ ПРОВЕРКА 2: Не слишком ли близко к другим зданиям ===
-                if (BuildingHelper.IsPointNearOtherBuildings(
-                    stairsEndPoint, 
-                    building, 
-                    lots, 
-                    minBuildingDistance))
-                {
-                    continue;
-                }
-                
-                // === НОВАЯ ПРОВЕРКА 3: Не конфликтует ли с уже размещенными мостами ===
-                if (ConflictsWithLinearElements(edgeCenter, stairsEndPoint))
-                {
-                    continue;
-                }
-                
-                // Все проверки пройдены, создаем лестницу
-                var stairs = Object.Instantiate(stairsPrefab, container.transform);
-                stairs.transform.position = edgeCenter * mapScale;
-                stairs.transform.rotation = Quaternion.LookRotation(edgeNormal);
-                
-                float heightScale = building.Height / 2f;
-                stairs.transform.localScale = new Vector3(
-                    mapScale * 0.8f,
-                    heightScale,
-                    mapScale * stairsDepth
-                );
-                
-                stairs.name = $"ExternalStairs_{stairsCount}";
-                
-                // Регистрируем размещение
-                buildingElements[building].StairsCount++;
-                stairsCount++;
-                
-                // Для очень высоких зданий добавляем промежуточную платформу
-                if (building.Height > 8f && platformPrefab != null)
-                {
-                    var midPlatform = Object.Instantiate(platformPrefab, container.transform);
-                    var platformPos = edgeCenter + Vector3.up * building.Height * 0.5f;
-                    midPlatform.transform.position = platformPos * mapScale;
-                    midPlatform.transform.rotation = Quaternion.LookRotation(edgeNormal);
-                    midPlatform.transform.localScale = new Vector3(mapScale, mapScale * 0.2f, mapScale);
-                    midPlatform.name = $"StairsPlatform_{stairsCount}";
-                }
-            }
-            
-            return stairsCount;
         }
         
         /// <summary>
@@ -434,113 +314,6 @@ namespace ParkourGeneration
             }
             
             return ziplineCount;
-        }
-        
-        /// <summary>
-        /// УЛУЧШЕННАЯ генерация столбов с проверкой конфликтов
-        /// </summary>
-        private int GenerateClimbingPolesImproved(GameObject container)
-        {
-            if (climbingPolePrefab == null) return 0;
-            
-            int poleCount = 0;
-            
-            foreach (var building in lots)
-            {
-                if (building.IsPark || building.Height < 4f) continue;
-                
-                // Проверяем лимит столбов
-                if (buildingElements[building].PolesCount >= maxPolesPerBuilding) continue;
-                
-                // Проверяем шанс появления
-                if (rand.NextDouble() > climbingPoleChance) continue;
-                
-                // Пробуем разные углы, пока не найдем подходящий
-                var cornerIndices = Enumerable.Range(0, building.Nodes.Count)
-                    .OrderBy(x => rand.Next())
-                    .ToList();
-                
-                foreach (int cornerIndex in cornerIndices)
-                {
-                    var corner = building.Nodes[cornerIndex];
-                    var polePosition = new Vector3(corner.X, 0, corner.Y);
-                    
-                    // Проверяем, не мешает ли другое здание
-                    if (BuildingHelper.IsPointNearOtherBuildings(polePosition, building, lots, 1.5f))
-                        continue;
-                    
-                    // Проверяем конфликт с линейными элементами
-                    var topPoint = polePosition + Vector3.up * building.Height;
-                    if (ConflictsWithLinearElements(polePosition, topPoint))
-                        continue;
-                    
-                    // Создаем столб
-                    var pole = Object.Instantiate(climbingPolePrefab, container.transform);
-                    pole.transform.position = polePosition * mapScale;
-                    pole.transform.localScale = new Vector3(
-                        mapScale * 0.15f,
-                        building.Height,
-                        mapScale * 0.15f
-                    );
-                    
-                    pole.name = $"ClimbingPole_{poleCount}";
-                    
-                    buildingElements[building].PolesCount++;
-                    poleCount++;
-                    break; // Только один столб на здание
-                }
-            }
-            
-            return poleCount;
-        }
-        
-        /// <summary>
-        /// УЛУЧШЕННАЯ генерация платформ с проверкой размещения
-        /// </summary>
-        private int GenerateIntermediatePlatformsImproved(GameObject container)
-        {
-            if (platformPrefab == null) return 0;
-            
-            int platformCount = 0;
-            
-            foreach (var building in lots)
-            {
-                if (building.IsPark || building.Height < 6f) continue;
-                
-                int platformLevels = Mathf.FloorToInt(building.Height / 4f);
-                if (platformLevels < 2) continue;
-                
-                for (int level = 1; level < platformLevels; level++)
-                {
-                    if (rand.NextDouble() > platformSpawnChance) continue;
-                    
-                    float height = building.Height * level / (float)platformLevels;
-                    int edgeIndex = rand.Next(building.Nodes.Count);
-                    
-                    var edgeCenter = BuildingHelper.GetEdgeCenter(building, edgeIndex, height);
-                    var edgeNormal = BuildingHelper.GetEdgeOutwardNormal(building, edgeIndex);
-                    
-                    var platformPos = edgeCenter + edgeNormal * 0.8f;
-                    
-                    // Проверяем, не мешает ли другое здание
-                    if (IsPointInsideAnyBuilding(platformPos, building))
-                        continue;
-                    
-                    var platform = Object.Instantiate(platformPrefab, container.transform);
-                    platform.transform.position = platformPos * mapScale;
-                    platform.transform.rotation = Quaternion.LookRotation(edgeNormal);
-                    platform.transform.localScale = new Vector3(
-                        mapScale * 1.2f,
-                        mapScale * 0.15f,
-                        mapScale * 1.2f
-                    );
-                    
-                    platform.name = $"MidPlatform_{platformCount}";
-                    platformCount++;
-                }
-            }
-            
-            return platformCount;
         }
         
         // ===================================================================
