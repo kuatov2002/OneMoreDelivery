@@ -4,7 +4,7 @@ using System.Linq;
 
 /// <summary>
 /// Улучшенный генератор карты в стиле Slay the Spire.
-/// ИСПРАВЛЕНО: Добавлены проверки границ для предотвращения ArgumentOutOfRangeException
+/// ОБНОВЛЕНО: Использует RunData.Seed для воспроизводимости
 /// </summary>
 public class MapGenerator : MonoBehaviour
 {
@@ -21,9 +21,6 @@ public class MapGenerator : MonoBehaviour
     [Range(1, 10)]
     public int maxNodesPerLayer = 7;
     
-    [Tooltip("Гарантированные слои отдыха (обычно каждые 6 слоев)")]
-    public List<int> guaranteedRestLayers = new List<int> { 8 };
-    
     [Header("Spacing Settings")]
     [Tooltip("Расстояние между слоями по вертикали")]
     public float layerSpacing = 4.5f;
@@ -32,11 +29,11 @@ public class MapGenerator : MonoBehaviour
     public float nodeSpacing = 3.5f;
     
     [Tooltip("Максимальное случайное смещение по X (уменьшено для более предсказуемых путей)")]
-    [Range(0f, 0.3f)]
+    [Range(0f, 1f)]
     public float randomOffsetXAmount = 0.1f;
     
     [Tooltip("Максимальное случайное смещение по Y")]
-    [Range(0f, 0.3f)]
+    [Range(0f, 1f)]
     public float randomOffsetYAmount = 0.08f;
     
     [Header("Path Settings - Улучшенные")]
@@ -75,11 +72,13 @@ public class MapGenerator : MonoBehaviour
         public List<MapNode> nodesInColumn = new List<MapNode>();
     }
     
-    private List<List<MapNode>> layers = new List<List<MapNode>>();
-    private List<List<NodeColumn>> layerColumns = new List<List<NodeColumn>>();
+    private readonly List<List<MapNode>> _layers = new List<List<MapNode>>();
+    private readonly List<List<NodeColumn>> _layerColumns = new List<List<NodeColumn>>();
+    private System.Random _random;
     
     public void GenerateMap()
     {
+        InitializeRandom();
         ClearMap();
         CreateLayers();
         AssignNodesColumns();
@@ -88,13 +87,19 @@ public class MapGenerator : MonoBehaviour
         AssignNodeTypes();
         InitializeMapState();
         
-        Debug.Log($"Улучшенная карта: {numberOfLayers} слоев, {GetTotalNodeCount()} узлов");
+        Debug.Log($"Map generated with seed {RunData.Seed}: {numberOfLayers} layers, {GetTotalNodeCount()} nodes");
+    }
+    
+    private void InitializeRandom()
+    {
+        _random = new System.Random(RunData.Seed);
+        Random.InitState(RunData.Seed);
     }
     
     private void ClearMap()
     {
-        layers.Clear();
-        layerColumns.Clear();
+        _layers.Clear();
+        _layerColumns.Clear();
         
         if (nodesParent != null)
         {
@@ -126,7 +131,7 @@ public class MapGenerator : MonoBehaviour
                 }
             }
             
-            layers.Add(currentLayer);
+            _layers.Add(currentLayer);
         }
     }
     
@@ -134,38 +139,38 @@ public class MapGenerator : MonoBehaviour
     {
         if (layerIndex == 0) return 1;
         if (layerIndex == numberOfLayers - 1) return 1;
-        if (layerIndex == numberOfLayers - 2) return Random.Range(2, 4);
+        if (layerIndex == numberOfLayers - 2) return _random.Next(2, 4);
         
         float progress = (float)layerIndex / (numberOfLayers - 1);
         
         if (progress < 0.2f)
         {
-            return Random.Range(minNodesPerLayer, minNodesPerLayer + 2);
+            return _random.Next(minNodesPerLayer, minNodesPerLayer + 2);
         }
         else if (progress < 0.65f)
         {
-            return Random.Range(minNodesPerLayer + 1, maxNodesPerLayer + 1);
+            return _random.Next(minNodesPerLayer + 1, maxNodesPerLayer + 1);
         }
         else
         {
             float narrowingFactor = (progress - 0.65f) / 0.35f;
             int maxNodes = maxNodesPerLayer - Mathf.RoundToInt(narrowingFactor * 3f);
-            return Random.Range(minNodesPerLayer, Mathf.Max(minNodesPerLayer + 1, maxNodes));
+            return _random.Next(minNodesPerLayer, Mathf.Max(minNodesPerLayer + 1, maxNodes));
         }
     }
     
     private void AssignNodesColumns()
     {
-        for (int layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++)
         {
-            List<MapNode> layer = layers[layerIndex];
+            List<MapNode> layer = _layers[layerIndex];
             List<NodeColumn> columns = new List<NodeColumn>();
             
             int maxNodesNearby = layer.Count;
             if (layerIndex > 0)
-                maxNodesNearby = Mathf.Max(maxNodesNearby, layers[layerIndex - 1].Count);
-            if (layerIndex < layers.Count - 1)
-                maxNodesNearby = Mathf.Max(maxNodesNearby, layers[layerIndex + 1].Count);
+                maxNodesNearby = Mathf.Max(maxNodesNearby, _layers[layerIndex - 1].Count);
+            if (layerIndex < _layers.Count - 1)
+                maxNodesNearby = Mathf.Max(maxNodesNearby, _layers[layerIndex + 1].Count);
             
             int numColumns = Mathf.Max(layer.Count, maxNodesNearby);
             
@@ -189,15 +194,15 @@ public class MapGenerator : MonoBehaviour
                 }
             }
             
-            layerColumns.Add(columns);
+            _layerColumns.Add(columns);
         }
     }
     
     private void PositionNodesInColumns()
     {
-        for (int layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++)
         {
-            List<NodeColumn> columns = layerColumns[layerIndex];
+            List<NodeColumn> columns = _layerColumns[layerIndex];
             int totalColumns = columns.Count;
             
             float totalWidth = (totalColumns - 1) * nodeSpacing;
@@ -219,8 +224,8 @@ public class MapGenerator : MonoBehaviour
                         verticalOffset = (i - (nodesInColumn - 1) / 2f) * 0.3f;
                     }
                     
-                    float randomOffsetX = Random.Range(-randomOffsetXAmount, randomOffsetXAmount);
-                    float randomOffsetY = Random.Range(-randomOffsetYAmount, randomOffsetYAmount);
+                    float randomOffsetX = (float)(_random.NextDouble() * 2 - 1) * randomOffsetXAmount;
+                    float randomOffsetY = (float)(_random.NextDouble() * 2 - 1) * randomOffsetYAmount;
                     
                     Vector3 position = new Vector3(
                         columnX + randomOffsetX,
@@ -238,18 +243,18 @@ public class MapGenerator : MonoBehaviour
     {
         HashSet<string> existingConnections = new HashSet<string>();
         
-        for (int layerIndex = 0; layerIndex < layers.Count - 1; layerIndex++)
+        for (int layerIndex = 0; layerIndex < _layers.Count - 1; layerIndex++)
         {
-            List<MapNode> currentLayer = layers[layerIndex];
-            List<MapNode> nextLayer = layers[layerIndex + 1];
-            List<NodeColumn> currentColumns = layerColumns[layerIndex];
-            List<NodeColumn> nextColumns = layerColumns[layerIndex + 1];
+            List<MapNode> currentLayer = _layers[layerIndex];
+            List<MapNode> nextLayer = _layers[layerIndex + 1];
+            List<NodeColumn> currentColumns = _layerColumns[layerIndex];
+            List<NodeColumn> nextColumns = _layerColumns[layerIndex + 1];
             
             foreach (MapNode currentNode in currentLayer)
             {
                 int currentColumn = GetNodeColumn(currentNode, currentColumns);
                 List<MapNode> viableTargets = GetViableTargetNodes(
-                    currentNode, currentColumn, nextLayer, nextColumns, existingConnections
+                    currentNode, currentColumn, nextColumns, existingConnections
                 );
                 
                 if (viableTargets.Count > 0)
@@ -257,7 +262,7 @@ public class MapGenerator : MonoBehaviour
                     MapNode target = viableTargets[0];
                     CreateConnection(currentNode, target, existingConnections);
                     
-                    if (viableTargets.Count >= 2 && Random.value < branchProbability)
+                    if (viableTargets.Count >= 2 && _random.NextDouble() < branchProbability)
                     {
                         CreateConnection(currentNode, viableTargets[1], existingConnections);
                     }
@@ -275,33 +280,26 @@ public class MapGenerator : MonoBehaviour
     
     private int GetNodeColumn(MapNode node, List<NodeColumn> columns)
     {
-        for (int i = 0; i < columns.Count; i++)
+        foreach (var column in columns)
         {
-            if (columns[i].nodesInColumn.Contains(node))
-                return columns[i].columnIndex;
+            if (column.nodesInColumn.Contains(node))
+                return column.columnIndex;
         }
+
         return 0;
     }
     
-    /// <summary>
-    /// ИСПРАВЛЕНО: Добавлены проверки границ для всех обращений к targetColumns
-    /// Теперь мы проверяем как нижнюю границу (>= 0), так и верхнюю (< Count)
-    /// </summary>
     private List<MapNode> GetViableTargetNodes(
         MapNode sourceNode, 
-        int sourceColumn, 
-        List<MapNode> targetLayer,
+        int sourceColumn,
         List<NodeColumn> targetColumns,
         HashSet<string> existingConnections)
     {
         List<MapNode> viableNodes = new List<MapNode>();
         
-        // Проверяем колонны в диапазоне [sourceColumn - maxDistance, sourceColumn + maxDistance]
         for (int colOffset = 0; colOffset <= maxColumnDistance; colOffset++)
         {
-            // Проверяем колонну справа от источника
             int rightColumn = sourceColumn + colOffset;
-            // КРИТИЧНО: Проверяем что индекс находится В ГРАНИЦАХ списка
             if (rightColumn >= 0 && rightColumn < targetColumns.Count)
             {
                 foreach (var node in targetColumns[rightColumn].nodesInColumn)
@@ -313,13 +311,9 @@ public class MapGenerator : MonoBehaviour
                 }
             }
             
-            // Проверяем колонну слева от источника (если смещение > 0, чтобы не проверять дважды)
             if (colOffset > 0)
             {
                 int leftColumn = sourceColumn - colOffset;
-                // ИСПРАВЛЕНИЕ: Добавлена проверка верхней границы!
-                // Раньше было: if (leftColumn >= 0)
-                // Теперь: if (leftColumn >= 0 && leftColumn < targetColumns.Count)
                 if (leftColumn >= 0 && leftColumn < targetColumns.Count)
                 {
                     foreach (var node in targetColumns[leftColumn].nodesInColumn)
@@ -333,7 +327,6 @@ public class MapGenerator : MonoBehaviour
             }
         }
         
-        // Сортируем по физическому расстоянию (ближайшие первыми)
         viableNodes = viableNodes
             .OrderBy(node => Vector3.Distance(sourceNode.GetPosition(), node.GetPosition()))
             .ToList();
@@ -356,20 +349,20 @@ public class MapGenerator : MonoBehaviour
         
         if (preventPathCrossing && existingConnections.Count > 0)
         {
-            if (WouldCrossExistingPaths(source, target, existingConnections))
+            if (WouldCrossExistingPaths(source, target))
                 return false;
         }
         
         return true;
     }
     
-    private bool WouldCrossExistingPaths(MapNode newSource, MapNode newTarget, HashSet<string> existingConnections)
+    private bool WouldCrossExistingPaths(MapNode newSource, MapNode newTarget)
     {
         Vector2 newStart = newSource.GetPosition();
         Vector2 newEnd = newTarget.GetPosition();
         
         int targetLayer = newTarget.layer;
-        List<MapNode> previousLayer = layers[targetLayer - 1];
+        List<MapNode> previousLayer = _layers[targetLayer - 1];
         
         foreach (MapNode existingSource in previousLayer)
         {
@@ -415,7 +408,7 @@ public class MapGenerator : MonoBehaviour
         {
             int incomingCount = CountIncomingConnections(targetNode, currentLayer.First().layer);
             
-            if (incomingCount == 1 && Random.value < convergeProbability)
+            if (incomingCount == 1 && _random.NextDouble() < convergeProbability)
             {
                 int targetColumn = GetNodeColumn(targetNode, nextColumns);
                 
@@ -442,21 +435,12 @@ public class MapGenerator : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// ИСПРАВЛЕНО: Добавлена проверка границ при доступе к колоннам
-    /// Это предотвращает ошибку когда columnIndex выходит за границы списка columns
-    /// </summary>
     private void AddNodesFromColumn(List<MapNode> list, int columnIndex, List<NodeColumn> columns)
     {
-        // Раньше: if (columnIndex >= 0 && columnIndex < columns.Count)
-        // Проблема была в том, что проверка отсутствовала вообще!
-        
-        // Теперь мы ВСЕГДА проверяем границы перед доступом к элементу списка
         if (columnIndex >= 0 && columnIndex < columns.Count)
         {
             list.AddRange(columns[columnIndex].nodesInColumn);
         }
-        // Если индекс вне границ, просто ничего не добавляем (безопасно игнорируем)
     }
     
     private void EnsureAllNodesConnected(
@@ -480,7 +464,7 @@ public class MapGenerator : MonoBehaviour
                     .First();
                 
                 CreateConnection(closestSource, targetNode, existingConnections);
-                Debug.LogWarning($"Принудительное соединение для недостижимого узла на слое {targetNode.layer}");
+                Debug.LogWarning($"Forced connection for unreachable node at layer {targetNode.layer}");
             }
         }
     }
@@ -498,11 +482,11 @@ public class MapGenerator : MonoBehaviour
     
     private int CountIncomingConnections(MapNode targetNode, int sourceLayerIndex)
     {
-        if (sourceLayerIndex < 0 || sourceLayerIndex >= layers.Count)
+        if (sourceLayerIndex < 0 || sourceLayerIndex >= _layers.Count)
             return 0;
         
         int count = 0;
-        foreach (var sourceNode in layers[sourceLayerIndex])
+        foreach (var sourceNode in _layers[sourceLayerIndex])
         {
             if (sourceNode.connectedNodes.Contains(targetNode))
                 count++;
@@ -512,32 +496,27 @@ public class MapGenerator : MonoBehaviour
     
     private void AssignNodeTypes()
     {
-        for (int layerIndex = 0; layerIndex < layers.Count; layerIndex++)
+        for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++)
         {
-            bool isGuaranteedRestLayer = guaranteedRestLayers.Contains(layerIndex);
             bool isPreBossLayer = (layerIndex == numberOfLayers - 2);
             
-            foreach (MapNode node in layers[layerIndex])
+            foreach (MapNode node in _layers[layerIndex])
             {
                 if (layerIndex == 0)
                 {
                     node.nodeType = NodeType.Start;
                 }
-                else if (layerIndex == layers.Count - 1)
+                else if (layerIndex == _layers.Count - 1)
                 {
                     node.nodeType = NodeType.Boss;
                 }
                 else if (isPreBossLayer)
                 {
-                    node.nodeType = Random.value < 0.5f ? NodeType.Treasure : NodeType.RestSite;
-                }
-                else if (isGuaranteedRestLayer)
-                {
-                    node.nodeType = NodeType.RestSite;
+                    node.nodeType = _random.NextDouble() < 0.5 ? NodeType.Treasure : NodeType.RestSite;
                 }
                 else
                 {
-                    node.nodeType = nodeDistribution.GetRandomNodeType(layerIndex, numberOfLayers);
+                    node.nodeType = nodeDistribution.GetRandomNodeType(layerIndex, numberOfLayers, _random);
                 }
                 
                 node.UpdateIcon();
@@ -547,7 +526,7 @@ public class MapGenerator : MonoBehaviour
     
     private void InitializeMapState()
     {
-        foreach (var layer in layers)
+        foreach (var layer in _layers)
         {
             foreach (var node in layer)
             {
@@ -555,9 +534,9 @@ public class MapGenerator : MonoBehaviour
             }
         }
         
-        if (layers.Count > 0 && layers[0].Count > 0)
+        if (_layers.Count > 0 && _layers[0].Count > 0)
         {
-            MapNode startNode = layers[0][0];
+            MapNode startNode = _layers[0][0];
             startNode.SetState(NodeState.Current);
             
             foreach (MapNode connectedNode in startNode.connectedNodes)
@@ -569,18 +548,18 @@ public class MapGenerator : MonoBehaviour
     
     public int GetTotalNodeCount()
     {
-        return layers.Sum(layer => layer.Count);
+        return _layers.Sum(layer => layer.Count);
     }
     
     public List<List<MapNode>> GetLayers()
     {
-        return layers;
+        return _layers;
     }
     
     public List<MapNode> GetAllNodes()
     {
         List<MapNode> allNodes = new List<MapNode>();
-        foreach (var layer in layers)
+        foreach (var layer in _layers)
         {
             allNodes.AddRange(layer);
         }
@@ -600,7 +579,7 @@ public class NodeDistribution
     [Range(0, 100)] public float randomEventProbability = 20f;
     [Range(0, 100)] public float mysteryProbability = 5f;
     
-    public NodeType GetRandomNodeType(int currentLayer, int totalLayers)
+    public NodeType GetRandomNodeType(int currentLayer, int totalLayers, System.Random random)
     {
         float progress = (float)currentLayer / (totalLayers - 1);
         
@@ -609,10 +588,10 @@ public class NodeDistribution
         float adjustedEventProbability = randomEventProbability * (1.3f - progress * 0.5f);
         
         float totalProbability = adjustedCombatProbability + adjustedEliteProbability + 
-                                treasureProbability + shopProbability + 
-                                adjustedEventProbability + mysteryProbability;
+                                 treasureProbability + shopProbability + 
+                                 adjustedEventProbability + mysteryProbability;
         
-        float randomValue = Random.Range(0f, totalProbability);
+        float randomValue = (float)random.NextDouble() * totalProbability;
         float cumulative = 0f;
         
         cumulative += adjustedCombatProbability;

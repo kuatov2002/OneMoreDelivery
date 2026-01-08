@@ -246,58 +246,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &116206543
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 116206544}
-  - component: {fileID: 116206545}
-  m_Layer: 0
-  m_Name: NodeEventHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &116206544
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116206543}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 574769679}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &116206545
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116206543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50fba181b887fb5438fbaf88c741e8aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NodeEventHandler
-  eventPanel: {fileID: 0}
-  eventDescriptionText: {fileID: 0}
-  eventTitleText: {fileID: 0}
-  buttonsContainer: {fileID: 0}
-  buttonPrefab: {fileID: 0}
-  combatSceneName: City
-  rewardPanel: {fileID: 0}
-  currentNode: {fileID: 0}
 --- !u!1 &431153392
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,7 +387,6 @@ Transform:
   m_Children:
   - {fileID: 1943938099}
   - {fileID: 2103836175}
-  - {fileID: 116206544}
   - {fileID: 1296555923}
   - {fileID: 1924384219}
   - {fileID: 431153393}
@@ -720,6 +667,7 @@ MonoBehaviour:
   cameraYOffset: 3
   cameraSize: 8
   showTransitionAnimation: 1
+  autoRestoreProgress: 1
 --- !u!1 &2103836174
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,18 +713,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapGenerator
   numberOfLayers: 10
-  minNodesPerLayer: 3
-  maxNodesPerLayer: 6
-  guaranteedRestLayers: 060000000b000000
-  layerSpacing: 4.5
-  nodeSpacing: 3.5
-  randomOffsetXAmount: 0.15
-  randomOffsetYAmount: 0.08
+  minNodesPerLayer: 2
+  maxNodesPerLayer: 7
+  layerSpacing: 6
+  nodeSpacing: 4
+  randomOffsetXAmount: 0.6
+  randomOffsetYAmount: 0.6
   branchProbability: 0.4
   convergeProbability: 0.35
-  maxConnectionDistance: 2
+  maxColumnDistance: 1
+  preventPathCrossing: 1
+  balanceIncomingConnections: 1
   nodeDistribution:
-    combatProbability: 40
+    combatProbability: 80
     eliteCombatProbability: 15
     treasureProbability: 15
     shopProbability: 10

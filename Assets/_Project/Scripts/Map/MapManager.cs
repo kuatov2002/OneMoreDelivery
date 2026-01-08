@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Центральный менеджер карты в стиле Slay the Spire.
-/// Управляет текущим состоянием прохождения, обрабатывает выбор узлов игроком,
-/// и координирует переходы между узлами.
-/// УЛУЧШЕНО: Настроена камера для работы с увеличенными расстояниями
+/// ОБНОВЛЕНО: Сохраняет и восстанавливает прогресс через RunData
 /// </summary>
 public class MapManager : MonoBehaviour
 {
@@ -18,23 +17,27 @@ public class MapManager : MonoBehaviour
     [Tooltip("Ссылка на отрисовщик путей")]
     public PathDrawer pathDrawer;
     
-    [Header("Camera Settings - Настроены для больших расстояний")]
+    [Header("Camera Settings")]
     [Tooltip("Камера, которая будет следить за текущим узлом")]
     public Camera mapCamera;
     
     [Tooltip("Скорость перемещения камеры к узлу")]
     public float cameraMovementSpeed = 2.5f;
     
-    [Tooltip("Отступ камеры по Y для лучшего обзора (увеличен)")]
+    [Tooltip("Отступ камеры по Y для лучшего обзора")]
     public float cameraYOffset = -3f;
     
-    [Tooltip("Размер камеры (Orthographic Size). Увеличьте для большего обзора")]
+    [Tooltip("Размер камеры (Orthographic Size)")]
     [Range(3f, 15f)]
     public float cameraSize = 8f;
     
     [Header("Visual Effects")]
     [Tooltip("Показывать анимацию при переходе между узлами")]
     public bool showTransitionAnimation = true;
+    
+    [Header("Persistence")]
+    [Tooltip("Автоматически восстанавливать прогресс при старте")]
+    public bool autoRestoreProgress = true;
     
     // Текущее состояние
     private MapNode currentNode;
@@ -66,7 +69,6 @@ public class MapManager : MonoBehaviour
     
     void Update()
     {
-        // Плавное перемещение камеры
         if (isCameraMoving && mapCamera != null)
         {
             Vector3 currentPos = mapCamera.transform.position;
@@ -81,9 +83,6 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Настраивает камеру для карты
-    /// </summary>
     private void SetupCamera()
     {
         if (mapCamera != null && mapCamera.orthographic)
@@ -93,7 +92,7 @@ public class MapManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Генерирует новую карту
+    /// Генерирует новую карту и восстанавливает прогресс если есть
     /// </summary>
     public void GenerateNewMap()
     {
@@ -105,11 +104,33 @@ public class MapManager : MonoBehaviour
         
         mapGenerator.GenerateMap();
         
+        if (autoRestoreProgress && RunData.MapProgress.HasProgress)
+        {
+            RestoreProgressFromRunData();
+        }
+        else
+        {
+            InitializeNewRun();
+        }
+        
+        if (pathDrawer != null)
+        {
+            pathDrawer.DrawAllPaths(mapGenerator.GetAllNodes());
+            pathDrawer.UpdateAllLineColors(mapGenerator.GetAllNodes());
+        }
+    }
+    
+    /// <summary>
+    /// Инициализирует новое прохождение с начала
+    /// </summary>
+    private void InitializeNewRun()
+    {
         List<List<MapNode>> layers = mapGenerator.GetLayers();
         if (layers.Count > 0 && layers[0].Count > 0)
         {
             currentNode = layers[0][0];
             UpdateAvailableNodes();
+            SaveProgressToRunData();
             
             if (mapCamera != null)
             {
@@ -120,10 +141,87 @@ public class MapManager : MonoBehaviour
                 targetCameraPosition = startPosition;
             }
         }
+    }
+    
+    /// <summary>
+    /// Восстанавливает прогресс из RunData
+    /// </summary>
+    private void RestoreProgressFromRunData()
+    {
+        Debug.Log($"Восстановление прогресса: Layer {RunData.MapProgress.currentNodeLayer}, Position {RunData.MapProgress.currentNodePosition}");
         
-        if (pathDrawer != null)
+        List<List<MapNode>> layers = mapGenerator.GetLayers();
+        
+        // Восстанавливаем пройденные узлы
+        completedNodes.Clear();
+        foreach (var nodeId in RunData.MapProgress.completedNodes)
         {
-            pathDrawer.DrawAllPaths(mapGenerator.GetAllNodes());
+            MapNode node = FindNode(nodeId.layer, nodeId.position);
+            if (node != null)
+            {
+                completedNodes.Add(node);
+                node.SetState(NodeState.Completed);
+            }
+        }
+        
+        // Восстанавливаем текущий узел
+        currentNode = FindNode(RunData.MapProgress.currentNodeLayer, RunData.MapProgress.currentNodePosition);
+        
+        if (currentNode != null)
+        {
+            currentNode.SetState(NodeState.Current);
+            UpdateAvailableNodes();
+            
+            if (mapCamera != null)
+            {
+                Vector3 nodePosition = currentNode.GetPosition();
+                nodePosition.y += cameraYOffset;
+                nodePosition.z = mapCamera.transform.position.z;
+                mapCamera.transform.position = nodePosition;
+                targetCameraPosition = nodePosition;
+            }
+            
+            Debug.Log($"Прогресс восстановлен: {completedNodes.Count} узлов пройдено, текущий узел: {currentNode.nodeType}");
+        }
+        else
+        {
+            Debug.LogWarning("Не удалось найти текущий узел, начинаем с начала");
+            InitializeNewRun();
+        }
+    }
+    
+    /// <summary>
+    /// Находит узел по координатам
+    /// </summary>
+    private MapNode FindNode(int layer, int position)
+    {
+        List<List<MapNode>> layers = mapGenerator.GetLayers();
+        
+        if (layer >= 0 && layer < layers.Count)
+        {
+            List<MapNode> layerNodes = layers[layer];
+            if (position >= 0 && position < layerNodes.Count)
+            {
+                return layerNodes[position];
+            }
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
+    /// Сохраняет прогресс в RunData
+    /// </summary>
+    private void SaveProgressToRunData()
+    {
+        if (currentNode == null) return;
+        
+        RunData.MapProgress.SetCurrentNode(currentNode.layer, currentNode.positionInLayer);
+        
+        RunData.MapProgress.completedNodes.Clear();
+        foreach (var node in completedNodes)
+        {
+            RunData.MapProgress.AddCompletedNode(node.layer, node.positionInLayer);
         }
     }
     
@@ -138,7 +236,6 @@ public class MapManager : MonoBehaviour
             return;
         }
         
-        // Анимация линии при выборе
         if (showTransitionAnimation && pathDrawer != null)
         {
             pathDrawer.AnimateLine(currentNode, selectedNode);
@@ -152,30 +249,24 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void MoveToNode(MapNode targetNode)
     {
-        // Помечаем текущий узел как пройденный
         if (currentNode != null)
         {
             completedNodes.Add(currentNode);
             currentNode.SetState(NodeState.Completed);
         }
         
-        // Устанавливаем новый текущий узел
         currentNode = targetNode;
         currentNode.SetState(NodeState.Current);
         
-        // Обновляем доступные узлы
         UpdateAvailableNodes();
+        SaveProgressToRunData();
         
-        // Обновляем цвета линий
         if (pathDrawer != null)
         {
             pathDrawer.UpdateAllLineColors(mapGenerator.GetAllNodes());
         }
         
-        // Перемещаем камеру
         MoveCameraToNode(targetNode);
-        
-        // Запускаем событие узла
         TriggerNodeEvent(targetNode);
         
         Debug.Log($"Перемещение к узлу: {targetNode.nodeType} на слое {targetNode.layer}");
@@ -186,7 +277,6 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void UpdateAvailableNodes()
     {
-        // Сбрасываем состояния предыдущих доступных узлов
         foreach (MapNode node in availableNodes)
         {
             if (node.GetState() == NodeState.Available)
@@ -231,11 +321,11 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void TriggerNodeEvent(MapNode node)
     {
-        // Иначе используем простую логику
         switch (node.nodeType)
         {
             case NodeType.Combat:
                 Debug.Log("Начинается бой!");
+                SceneManager.LoadScene("City");
                 break;
                 
             case NodeType.EliteCombat:
@@ -244,7 +334,6 @@ public class MapManager : MonoBehaviour
                 
             case NodeType.Boss:
                 Debug.Log("Битва с боссом!");
-                OnBossDefeated();
                 break;
                 
             case NodeType.Treasure:
@@ -269,54 +358,18 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Вызывается после победы над боссом
-    /// </summary>
-    private void OnBossDefeated()
-    {
-        Debug.Log("Вы победили босса! Карта пройдена!");
-        // Здесь можно показать экран победы, перейти к следующему акту и т.д.
-    }
+    public MapNode GetCurrentNode() => currentNode;
+    public List<MapNode> GetAvailableNodes() => new List<MapNode>(availableNodes);
+    public List<MapNode> GetCompletedNodes() => new List<MapNode>(completedNodes);
     
-    /// <summary>
-    /// Возвращает текущий узел
-    /// </summary>
-    public MapNode GetCurrentNode()
-    {
-        return currentNode;
-    }
-    
-    /// <summary>
-    /// Возвращает список доступных узлов
-    /// </summary>
-    public List<MapNode> GetAvailableNodes()
-    {
-        return new List<MapNode>(availableNodes);
-    }
-    
-    /// <summary>
-    /// Возвращает список пройденных узлов
-    /// </summary>
-    public List<MapNode> GetCompletedNodes()
-    {
-        return new List<MapNode>(completedNodes);
-    }
-    
-    /// <summary>
-    /// Проверяет, достиг ли игрок конца карты
-    /// </summary>
     public bool IsMapCompleted()
     {
         return currentNode != null && currentNode.nodeType == NodeType.Boss;
     }
     
-    /// <summary>
-    /// Возвращает прогресс прохождения карты (0-1)
-    /// </summary>
     public float GetMapProgress()
     {
         if (currentNode == null || mapGenerator == null) return 0f;
-        
         return (float)currentNode.layer / (mapGenerator.numberOfLayers - 1);
     }
     
@@ -328,12 +381,19 @@ public class MapManager : MonoBehaviour
         completedNodes.Clear();
         availableNodes.Clear();
         currentNode = null;
+        RunData.ResetMapOnly();
         GenerateNewMap();
     }
     
     /// <summary>
-    /// Подсвечивает доступные пути от текущего узла
+    /// Форсирует сохранение текущего прогресса
     /// </summary>
+    public void ForceSaveProgress()
+    {
+        SaveProgressToRunData();
+        Debug.Log("Прогресс сохранен вручную");
+    }
+    
     public void HighlightAvailablePaths(bool highlight)
     {
         if (pathDrawer == null || currentNode == null) return;
@@ -344,9 +404,6 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Изменяет размер камеры (полезно для масштабирования)
-    /// </summary>
     public void SetCameraSize(float size)
     {
         cameraSize = Mathf.Clamp(size, 3f, 15f);
@@ -356,11 +413,5 @@ public class MapManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Возвращает текущий размер камеры
-    /// </summary>
-    public float GetCameraSize()
-    {
-        return cameraSize;
-    }
+    public float GetCameraSize() => cameraSize;
 }

@@ -10,16 +10,10 @@ using BlockDivision;
 using Services;
 using ParkourGeneration;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 /// <summary>
-/// ОБНОВЛЕННЫЙ CityGenerator для игры Courier Rush
-/// 
-/// КЛЮЧЕВЫЕ УЛУЧШЕНИЯ:
-/// 1. Умная генерация высот зданий для паркура
-/// 2. Кластеризация зданий по высоте для интересных маршрутов
-/// 3. Использование ParkourElementsGeneratorV3 с wallrun и маршрутами
-/// 4. Оптимизированная структура города для курьерской игры
+/// CityGenerator для игры Courier Rush
+/// ОБНОВЛЕНО: Использует RunData.Seed для воспроизводимости генерации
 /// </summary>
 public class CityGenerator : MonoBehaviour
 {
@@ -66,10 +60,10 @@ public class CityGenerator : MonoBehaviour
     
     [Header("Building Generation - ОПТИМИЗИРОВАНО ДЛЯ COURIER RUSH")] 
     [Tooltip("Минимальная высота зданий (для паркура нужны высокие здания)")]
-    public float minBuildHeight = 4f; // Увеличено для паркура
+    public float minBuildHeight = 4f;
     
     [Tooltip("Максимальная высота зданий")]
-    public float maxBuildHeight = 25f; // Увеличено для разнообразия
+    public float maxBuildHeight = 25f;
     
     [Range(0f, 1f)]
     [Tooltip("Шанс создать очень высокое здание в центре")]
@@ -92,7 +86,7 @@ public class CityGenerator : MonoBehaviour
     [Tooltip("Префаб поверхности для бега по стенам")]
     public GameObject wallRunSurfacePrefab;
     
-    [Header("Grappling Hook Platforms - LEGACY (для обратной совместимости)")]
+    [Header("Grappling Hook Platforms - LEGACY")]
     public GameObject grapplePlatformPrefab;
     [Range(0f, 1f)]
     public float grappleSpawnChance = 0.4f;
@@ -112,12 +106,10 @@ public class CityGenerator : MonoBehaviour
 
     private bool _genReady;
     private bool _genDone;
-    private int _seed;
     
     public int MapSize;
     public event System.Action OnCityGenerationComplete;
     
-    // Новые публичные данные для доступа из других систем
     private ParkourElementsGeneratorV3 _parkourGenerator;
     
     public List<ParkourRoute> GetParkourRoutes() => _parkourGenerator?.GetParkourRoutes();
@@ -126,8 +118,7 @@ public class CityGenerator : MonoBehaviour
     public void Generate(int mapSize)
     {
         MapSize = mapSize;
-        _seed = Random.Range(0, int.MaxValue);
-        _rand = new System.Random(_seed);
+        _rand = new System.Random((RunData.Seed * RunData.CurrentDay) % int.MaxValue);
         _roadGraph = new Graph();
         _lots = new List<Block>();
 
@@ -150,7 +141,6 @@ public class CityGenerator : MonoBehaviour
         System.Diagnostics.Stopwatch mainSw = System.Diagnostics.Stopwatch.StartNew();
         System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
 
-        // ROAD GENERATION
         MajorGenerator majorGen = new MajorGenerator(
             _rand, MapSize, maxMajorRoad, maxDegreeInCurves, branchingProbability, _roadGraph);
         majorGen.Run();
@@ -163,25 +153,21 @@ public class CityGenerator : MonoBehaviour
         Debug.Log(majorGen.GetRoadSegments().Count + " major road generated");
         Debug.Log(minorGen.GetRoadSegments().Count + " minor road generated");
 
-        // BLOCK GENERATION
         BlockGenerator blockGen = new BlockGenerator(_roadGraph, MapSize, majorThickness, minorThickness, _blockHeight);
         blockGen.Generate();
         _blockNodes = blockGen.BlockNodes;
         _blocks = blockGen.Blocks;
         Debug.Log(blockGen.Blocks.Count + " block generated");
 
-        // SIDEWALK GENERATION
         blockGen.ThickenBlocks(sidewalkThickness);
         _thinnedBlocks = blockGen.ThinnedBlocks;
         Debug.Log("Sidewalk generation completed");
 
-        // BLOCK DIVISION
         sw = System.Diagnostics.Stopwatch.StartNew();
 
         BlockDivider blockDiv = new BlockDivider(_rand, _thinnedBlocks, _lots);
         blockDiv.DivideBlocks();
         
-        // === НОВАЯ УЛУЧШЕННАЯ ГЕНЕРАЦИЯ ВЫСОТЫ ДЛЯ COURIER RUSH ===
         SetCourierRushBuildingHeights();
         
         _boundingRectangles = blockDiv.BoundingRectangles;
@@ -190,12 +176,10 @@ public class CityGenerator : MonoBehaviour
         Debug.Log("Lot generation time taken: " + sw.Elapsed.TotalMilliseconds + " ms");
         Debug.Log(_lots.Count + " lot generated");
 
-        // BLOCK MESH GENERATION
         MeshGenerator blockMeshGen = new MeshGenerator(_blocks, _blockHeight);
         blockMeshGen.GenerateMeshes();
         _blockMeshes = blockMeshGen.BlockMeshes;
 
-        // LOT MESH GENERATION
         MeshGenerator lotMeshGen = new MeshGenerator(_lots, _blockHeight + _blockHeight / 3);
         lotMeshGen.GenerateMeshes();
 
@@ -204,25 +188,15 @@ public class CityGenerator : MonoBehaviour
         _lotMeshes = lotMeshGen.BlockMeshes;
 
         mainSw.Stop();
-        Debug.Log("City generation time taken: " + mainSw.Elapsed.TotalMilliseconds + " ms");
+        Debug.Log($"City generation completed in {mainSw.Elapsed.TotalMilliseconds} ms with seed {RunData.Seed}");
         
         _genReady = true;
     }
     
-    /// <summary>
-    /// УЛУЧШЕННАЯ СИСТЕМА ГЕНЕРАЦИИ ВЫСОТ ДЛЯ COURIER RUSH
-    /// 
-    /// Создает город оптимизированный для паркур-геймплея:
-    /// 1. Высокие здания в центре для сложных маршрутов
-    /// 2. Кластеры зданий разной высоты для интересных путей
-    /// 3. Плавные переходы высот для natural flow
-    /// 4. "Лестницы" из зданий для vertical gameplay
-    /// </summary>
     private void SetCourierRushBuildingHeights()
     {
-        Debug.Log("=== Generating Courier Rush optimized building heights ===");
+        Debug.Log("Generating Courier Rush optimized building heights");
         
-        // Шаг 1: Вычисляем центр карты и расстояния
         var buildingDistances = new Dictionary<Block, float>();
         foreach (var lot in _lots)
         {
@@ -232,7 +206,6 @@ public class CityGenerator : MonoBehaviour
                 continue;
             }
             
-            // Расстояние от центра
             float distanceFromCenter = Mathf.Sqrt(
                 lot.Nodes[0].X * lot.Nodes[0].X +
                 lot.Nodes[0].Y * lot.Nodes[0].Y
@@ -240,7 +213,6 @@ public class CityGenerator : MonoBehaviour
             buildingDistances[lot] = distanceFromCenter;
         }
         
-        // Шаг 2: Создаем кластеры если включено
         if (createParkourClusters)
         {
             CreateParkourHeightClusters(buildingDistances);
@@ -253,12 +225,8 @@ public class CityGenerator : MonoBehaviour
         Debug.Log($"Building heights optimized for Courier Rush parkour gameplay");
     }
     
-    /// <summary>
-    /// Создает кластеры зданий разной высоты для паркур-маршрутов
-    /// </summary>
     private void CreateParkourHeightClusters(Dictionary<Block, float> buildingDistances)
     {
-        // Группируем здания по расстоянию от центра
         var centerBuildings = new List<Block>();
         var midBuildings = new List<Block>();
         var outerBuildings = new List<Block>();
@@ -278,21 +246,18 @@ public class CityGenerator : MonoBehaviour
                 outerBuildings.Add(lot);
         }
         
-        // Центр: высокие кластеры
         CreateHeightClustersForZone(centerBuildings, 
             minHeight: maxBuildHeight * 0.6f, 
             maxHeight: maxBuildHeight,
             clusterSize: 3,
             heightVariation: 0.3f);
         
-        // Средняя зона: смешанные кластеры
         CreateHeightClustersForZone(midBuildings,
             minHeight: maxBuildHeight * 0.4f,
             maxHeight: maxBuildHeight * 0.7f,
             clusterSize: 4,
             heightVariation: 0.4f);
         
-        // Окраины: низкие здания с вариацией
         CreateHeightClustersForZone(outerBuildings,
             minHeight: minBuildHeight,
             maxHeight: maxBuildHeight * 0.5f,
@@ -300,9 +265,6 @@ public class CityGenerator : MonoBehaviour
             heightVariation: 0.3f);
     }
     
-    /// <summary>
-    /// Создает кластеры высот в зоне
-    /// </summary>
     private void CreateHeightClustersForZone(List<Block> buildings, float minHeight, float maxHeight, 
         int clusterSize, float heightVariation)
     {
@@ -314,28 +276,22 @@ public class CityGenerator : MonoBehaviour
         {
             if (processed.Contains(building)) continue;
             
-            // Определяем базовую высоту для кластера
             float baseHeight = (float)(_rand.NextDouble() * (maxHeight - minHeight) + minHeight);
             
-            // Шанс создать ОЧЕНЬ высокое здание (landmark)
             if (_rand.NextDouble() < tallBuildingChance)
             {
                 baseHeight = maxHeight * (0.8f + (float)_rand.NextDouble() * 0.2f);
             }
             
-            // Находим соседние здания для кластера
             var cluster = FindNearbyBuildings(building, buildings, clusterSize, processed);
             
-            // Применяем высоты с вариацией
             foreach (var clusterBuilding in cluster)
             {
                 float variation = (float)(_rand.NextDouble() * 2 - 1) * heightVariation;
                 float height = baseHeight * (1f + variation * clusterIntensity);
                 
-                // Клэмп в пределах зоны
                 height = Mathf.Clamp(height, minHeight, maxHeight);
                 
-                // Минимальная высота для паркура
                 if (height < minBuildHeight)
                     height = minBuildHeight;
                 
@@ -344,7 +300,6 @@ public class CityGenerator : MonoBehaviour
             }
         }
         
-        // Обработка оставшихся зданий
         foreach (var building in buildings)
         {
             if (!processed.Contains(building))
@@ -355,9 +310,6 @@ public class CityGenerator : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Находит ближайшие здания для формирования кластера
-    /// </summary>
     private List<Block> FindNearbyBuildings(Block center, List<Block> candidates, int maxCount, HashSet<Block> exclude)
     {
         var result = new List<Block> { center };
@@ -378,9 +330,6 @@ public class CityGenerator : MonoBehaviour
         return result;
     }
     
-    /// <summary>
-    /// Создает базовые высоты без кластеризации
-    /// </summary>
     private void CreateBasicHeights(Dictionary<Block, float> buildingDistances)
     {
         float maxDist = buildingDistances.Values.Max();
@@ -391,20 +340,16 @@ public class CityGenerator : MonoBehaviour
             
             float normalizedDist = buildingDistances[lot] / maxDist;
             
-            // Базовая высота
             float height = (float)_rand.NextDouble() * (maxBuildHeight - minBuildHeight) + minBuildHeight;
             
-            // Шанс создать высокое здание
             if (_rand.NextDouble() < tallBuildingChance)
             {
                 height = maxBuildHeight * (0.7f + (float)_rand.NextDouble() * 0.3f);
             }
             
-            // Здания в центре выше
             float centerFactor = 1f - normalizedDist;
             height *= (0.5f + centerFactor * 0.5f);
             
-            // Клэмп
             height = Mathf.Clamp(height, minBuildHeight, maxBuildHeight);
             
             lot.Height = height;
@@ -418,7 +363,6 @@ public class CityGenerator : MonoBehaviour
             name = "==========="
         };
 
-        // Make RoadPlane
         var roadPlane = new GameObject
         {
             name = "Road Plane"
@@ -435,7 +379,6 @@ public class CityGenerator : MonoBehaviour
         Material roadMaterial = Resources.Load<Material>("Material/RoadMaterial");
         roadPlane.GetComponent<MeshRenderer>().material = roadMaterial;
         
-        // Make Blocks
         var blockContainer = new GameObject
         {
             name = "Block Container"
@@ -468,7 +411,6 @@ public class CityGenerator : MonoBehaviour
             else block.GetComponent<MeshRenderer>().material = blockMaterial;
         }
         
-        // Make Lots (Buildings)
         var lotContainer = new GameObject
         {
             name = "Lot Container"
@@ -504,20 +446,14 @@ public class CityGenerator : MonoBehaviour
         blockContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         lotContainer.transform.localScale = new Vector3(mapScale, mapScale, mapScale);
         
-        // === ГЕНЕРАЦИЯ ПАРКУР ЭЛЕМЕНТОВ V3 - COURIER RUSH ===
         GenerateParkourElementsV3();
         
-        // Legacy grapple platforms (если нужны)
         if (grapplePlatformPrefab != null)
         {
             GenerateGrapplePlatforms();
         }
     }
     
-    /// <summary>
-    /// Генерирует все паркур-элементы используя улучшенный V3 генератор
-    /// Включает wallrun, мосты, zipline и умные маршруты
-    /// </summary>
     private void GenerateParkourElementsV3()
     {
         var parkourContainer = new GameObject
@@ -541,9 +477,6 @@ public class CityGenerator : MonoBehaviour
         Debug.Log("Courier Rush parkour elements generated with routes and wallrun!");
     }
     
-    /// <summary>
-    /// Legacy метод для grapple платформ
-    /// </summary>
     private void GenerateGrapplePlatforms()
     {
         if (grapplePlatformPrefab == null) return;
