@@ -1,6 +1,5 @@
 using System;
 using BlockGeneration;
-using GameCreator.Runtime.Characters;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Block = BlockGeneration.Block;
@@ -13,7 +12,7 @@ public class CityManager : MonoBehaviour
 {
     [Header("Dependencies")]
     [SerializeField] private CityGenerator cityGenerator;
-    [SerializeField] private Character character;
+    [SerializeField] private GameObject character;
  
     [Header("City Configuration")]
     [SerializeField] private int mapSize = 100;
@@ -124,7 +123,6 @@ public class CityManager : MonoBehaviour
         _gameController = new DeliveryGameController(
             _deliveryService,
             _timeSystem,
-            character,
             deliveriesRequiredToWin
         );
         
@@ -171,7 +169,6 @@ public class DeliveryGameController
     private readonly DeliveryPointService _deliveryService;
     private readonly BuffSelectionService _buffSelectionService;
     private readonly GameTimeSystem _timeSystem;
-    private readonly Character _character;
     
     private bool _isWaitingForSelection;
     private int _completedDeliveries;
@@ -187,12 +184,10 @@ public class DeliveryGameController
     public DeliveryGameController(
         DeliveryPointService deliveryService,
         GameTimeSystem timeSystem,
-        Character character,
         int deliveriesRequiredToWin)
     {
         _deliveryService = deliveryService ?? throw new ArgumentNullException(nameof(deliveryService));
         _timeSystem = timeSystem ?? throw new ArgumentNullException(nameof(timeSystem));
-        _character = character ?? throw new ArgumentNullException(nameof(character));
         _deliveriesRequiredToWin = deliveriesRequiredToWin;
         _completedDeliveries = 0;
     }
