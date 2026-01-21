@@ -1,4 +1,5 @@
 //$ Copyright 2015-22, Code Respawn Technologies Pvt Ltd - All Rights Reserved $//
+
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,8 +12,9 @@ namespace DungeonArchitect
     /// <summary>
     /// The main dungeon behavior that manages the creation and destruction of dungeons
     /// </summary>
-	[ExecuteInEditMode]
-	public class Dungeon : MonoBehaviour {
+    [ExecuteInEditMode]
+    public class Dungeon : MonoBehaviour
+    {
         /// <summary>
         /// List of themes assigned to this dungeon
         /// </summary>
@@ -23,101 +25,106 @@ namespace DungeonArchitect
         /// </summary>
         public bool debugDraw = false;
 
-        DungeonConfig config;
-        PooledDungeonSceneProvider sceneProvider;
-        DungeonBuilder dungeonBuilder;
-        DungeonModel dungeonModel;
-        DungeonSceneObjectSpawner objectSpawner;
+        /// <summary>
+        /// Automatically build the dungeon on Start
+        /// </summary>
+        public bool buildOnStart = false;
+
+        public bool randomizeSeedOnStart = false;
+        
+        private DungeonConfig _config;
+        private PooledDungeonSceneProvider _sceneProvider;
+        private DungeonBuilder _dungeonBuilder;
+        private DungeonModel _dungeonModel;
+        private DungeonSceneObjectSpawner _objectSpawner;
 
         /// <summary>
         /// Active model used by the dungeon
         /// </summary>
-		public DungeonModel ActiveModel {
-			get {
-				if (dungeonModel == null) {
-					dungeonModel = GetComponent<DungeonModel> ();
-				}
-				return dungeonModel;
-			}
-		}
+        public DungeonModel ActiveModel
+        {
+            get
+            {
+                if (_dungeonModel == null) _dungeonModel = GetComponent<DungeonModel>();
+                return _dungeonModel;
+            }
+        }
 
         /// <summary>
         /// Flag to check if the layout has been built.  
         /// This is used to quickly reapply the theme after the theme graph has been modified,
         /// without rebuilding the layout, if it has already been built
         /// </summary>
-		public bool IsLayoutBuilt {
-			get {
-                if (dungeonBuilder == null)
-                {
-                    return false;
-                }
-                return dungeonBuilder.IsLayoutBuilt;
-			}
-		}
+        public bool IsLayoutBuilt
+        {
+            get
+            {
+                if (_dungeonBuilder == null) return false;
+                return _dungeonBuilder.IsLayoutBuilt;
+            }
+        }
 
         //[SerializeField]
-        LevelMarkerList markers = new LevelMarkerList();
-        public LevelMarkerList Markers
-        {
-            get { return markers; }
-        }
+        private LevelMarkerList _markers = new();
+        public LevelMarkerList Markers => _markers;
 
 
         /// <summary>
         /// Flag to rebuild the dungeon. Set this to true if you want to rebuild it in the next update
         /// </summary>
-		bool requestedRebuild = false;
+        private bool _requestedRebuild = false;
 
-		public DungeonConfig Config {
-			get {
-				if (config == null) {
-					config = GetComponent<DungeonConfig> ();
-				}
-				return config;
-			}
-		}
+        public DungeonConfig Config
+        {
+            get
+            {
+                if (_config == null) _config = GetComponent<DungeonConfig>();
+                return _config;
+            }
+        }
 
-        void Awake() {
+        private void Awake()
+        {
             Initialize();
-		}
-        
+        }
 
-		void Initialize() {
-			if (config == null) {
-				config = GetComponent<DungeonConfig> ();
-			}
-			
-			if (sceneProvider == null) {
-				sceneProvider = GetComponent<PooledDungeonSceneProvider> ();
-			}
-			
-			if (dungeonBuilder == null) {
-				dungeonBuilder = GetComponent<DungeonBuilder> ();
-			}
+        private void Start()
+        {
+            if (randomizeSeedOnStart) RandomizeSeed();
+            if (buildOnStart) Build();
+        }
 
-			if (dungeonModel == null) {
-				dungeonModel = GetComponent<DungeonModel> ();
-			}
-		}
+
+        private void Initialize()
+        {
+            if (_config == null) _config = GetComponent<DungeonConfig>();
+
+            if (_sceneProvider == null) _sceneProvider = GetComponent<PooledDungeonSceneProvider>();
+
+            if (_dungeonBuilder == null) _dungeonBuilder = GetComponent<DungeonBuilder>();
+
+            if (_dungeonModel == null) _dungeonModel = GetComponent<DungeonModel>();
+        }
 
         public List<DungeonThemeData> GetThemeAssets()
         {
             var themes = new List<DungeonThemeData>();
             foreach (var themeGraph in dungeonThemes)
             {
-                DungeonThemeData theme = new DungeonThemeData();
+                var theme = new DungeonThemeData();
                 theme.BuildFromGraph(themeGraph);
                 themes.Add(theme);
             }
+
             return themes;
         }
 
-        
+
         /// <summary>
         /// Builds the complete dungeon (layout and visual phase)
         /// </summary>
-		public void Build() {
+        public void Build()
+        {
             Build(new RuntimeDungeonSceneObjectInstantiator());
         }
 
@@ -130,57 +137,47 @@ namespace DungeonArchitect
         /// <param name="seed"></param>
         public void SetSeed(int seed)
         {
-	        Config.Seed = (uint) seed;
+            Config.Seed = (uint)seed;
         }
-        
+
         /// <summary>
         /// Randomizes the seed to generate a new dungeon layout
         /// </summary>
         public void RandomizeSeed()
         {
-	        SetSeed(Mathf.RoundToInt(Random.value * int.MaxValue));
+            SetSeed(Mathf.RoundToInt(Random.value * int.MaxValue));
         }
-        
+
         /// <summary>
         /// Randomizes the seed to generate a new dungeon layout
         /// </summary>
         public void RandomizeSeed(System.Random randomStream)
         {
-	        SetSeed(Mathf.RoundToInt(randomStream.NextFloat() * int.MaxValue));
+            SetSeed(Mathf.RoundToInt(randomStream.NextFloat() * int.MaxValue));
         }
-        
+
         public void Build(IDungeonSceneObjectInstantiator objectInstantiator)
         {
-	        if (dungeonBuilder.DestroyDungeonOnRebuild())
-	        {
-		        DestroyDungeon();
-	        }
-	        
+            if (_dungeonBuilder.DestroyDungeonOnRebuild()) DestroyDungeon();
+
             NotifyPreBuild();
 
             Initialize();
-			dungeonModel.ResetModel();
+            _dungeonModel.ResetModel();
 
-			dungeonBuilder.BuildDungeon(config, dungeonModel);
-            markers = dungeonBuilder.Markers;
+            _dungeonBuilder.BuildDungeon(_config, _dungeonModel);
+            _markers = _dungeonBuilder.Markers;
 
-			NotifyPostLayoutBuild();
+            NotifyPostLayoutBuild();
 
-            if (dungeonBuilder.IsThemingSupported())
-            {
+            if (_dungeonBuilder.IsThemingSupported())
                 ReapplyTheme(objectInstantiator);
-            }
             else
-            {
-                dungeonBuilder.BuildNonThemedDungeon(sceneProvider, objectInstantiator);
-            }
+                _dungeonBuilder.BuildNonThemedDungeon(_sceneProvider, objectInstantiator);
 
             // Build the navigation
             var navigation = GetComponent<DungeonRuntimeNavigation>();
-            if (navigation != null)
-            {
-                navigation.BuildNavMesh();
-            }
+            if (navigation != null) navigation.BuildNavMesh();
 
             NotifyPostBuild();
         }
@@ -189,102 +186,99 @@ namespace DungeonArchitect
         /// Runs the theming engine over the existing layout to rebuild the game objects from the theme file.  
         /// The layout is not built in this stage
         /// </summary>
-        public void ReapplyTheme(IDungeonSceneObjectInstantiator objectInstantiator) {
-	        if (!dungeonBuilder.IsThemingSupported())
-	        {
-		        return;
-	        }
-	        
+        public void ReapplyTheme(IDungeonSceneObjectInstantiator objectInstantiator)
+        {
+            if (!_dungeonBuilder.IsThemingSupported()) return;
+
             // Emit markers defined by this builder
-			dungeonBuilder.EmitMarkers();
+            _dungeonBuilder.EmitMarkers();
 
             // Emit markers defined by the users (by attaching implementation of DungeonMarkerEmitter behaviors)
-            dungeonBuilder.EmitCustomMarkers();
+            _dungeonBuilder.EmitCustomMarkers();
 
-            NotifyMarkersEmitted(dungeonBuilder.Markers);
+            NotifyMarkersEmitted(_dungeonBuilder.Markers);
 
             var themes = GetThemeAssets();
             var themeContext = CreateThemeExecutionContext(objectInstantiator);
             var themeEngine = new DungeonThemeEngine(themeContext);
-            themeEngine.ApplyTheme(dungeonBuilder.Markers, themes);
+            themeEngine.ApplyTheme(_dungeonBuilder.Markers, themes);
         }
 
-        DungeonThemeExecutionContext CreateThemeExecutionContext(IDungeonSceneObjectInstantiator objectInstantiator)
+        private DungeonThemeExecutionContext CreateThemeExecutionContext(
+            IDungeonSceneObjectInstantiator objectInstantiator)
         {
-            var context = new DungeonThemeExecutionContext();
-            context.builder = dungeonBuilder;
-            context.config = config;
-            context.model = dungeonModel;
-            context.spatialConstraintProcessor = GetComponent<SpatialConstraintProcessor>();
-            context.sceneProvider = GetComponent<DungeonSceneProvider>();
-            context.objectInstantiator = objectInstantiator;
-            context.spawnListeners = GetComponents<DungeonItemSpawnListener>().ToArray();
+            var context = new DungeonThemeExecutionContext
+            {
+                builder = _dungeonBuilder,
+                config = _config,
+                model = _dungeonModel,
+                spatialConstraintProcessor = GetComponent<SpatialConstraintProcessor>(),
+                sceneProvider = GetComponent<DungeonSceneProvider>(),
+                objectInstantiator = objectInstantiator,
+                spawnListeners = GetComponents<DungeonItemSpawnListener>().ToArray()
+            };
 
             var builder = GetComponent<DungeonBuilder>();
             if (builder.asyncBuild)
             {
-                var buildPosition = (builder.asyncBuildStartPosition != null) ? builder.asyncBuildStartPosition.position : Vector3.zero;
-                objectSpawner = new AsyncDungeonSceneObjectSpawner(builder.maxBuildTimePerFrame, buildPosition);
+                var buildPosition = builder.asyncBuildStartPosition != null
+                    ? builder.asyncBuildStartPosition.position
+                    : Vector3.zero;
+                _objectSpawner = new AsyncDungeonSceneObjectSpawner(builder.maxBuildTimePerFrame, buildPosition);
             }
             else
             {
-                objectSpawner = new SyncDungeonSceneObjectSpawner();
+                _objectSpawner = new SyncDungeonSceneObjectSpawner();
             }
 
-            context.objectSpawner = objectSpawner;
+            context.objectSpawner = _objectSpawner;
 
             var themeOverrides = new List<ThemeOverrideVolume>();
             var dungeon = GetComponent<Dungeon>();
 
             // Process the theme override volumes
-            var volumes = GameObject.FindObjectsOfType<ThemeOverrideVolume>();
+            var volumes = FindObjectsOfType<ThemeOverrideVolume>();
             foreach (var volume in volumes)
             {
-                if (volume.dungeon != dungeon)
-                {
-                    continue;
-                }
+                if (volume.dungeon != dungeon) continue;
                 themeOverrides.Add(volume);
             }
+
             context.themeOverrideVolumes = themeOverrides.ToArray();
 
             return context;
         }
 
-        DungeonEventListener[] GetListeners() {
-			var listeners = GetComponents<DungeonEventListener>();
-
-			var enabledListeners = from listener in listeners
-					where listener.enabled
-					select listener;
-
-			return enabledListeners.ToArray();
-		}
-
-		void NotifyPostLayoutBuild() {
-			// Notify all listeners of the post build event
-			foreach (var listener in GetListeners()) {
-				listener.OnPostDungeonLayoutBuild(this, ActiveModel);
-			}
-		}
-
-        void NotifyPreBuild()
+        private DungeonEventListener[] GetListeners()
         {
-            // Notify all listeners of the post build event
-            foreach (var listener in GetListeners())
-            {
-                listener.OnPreDungeonBuild(this, ActiveModel);
-            }
+            var listeners = GetComponents<DungeonEventListener>();
+
+            var enabledListeners = from listener in listeners
+                where listener.enabled
+                select listener;
+
+            return enabledListeners.ToArray();
         }
 
-        void NotifyPostBuild() {
-			// Notify all listeners of the post build event
-			foreach (var listener in GetListeners()) {
-				listener.OnPostDungeonBuild(this, ActiveModel);
-			}
-		}
+        private void NotifyPostLayoutBuild()
+        {
+            // Notify all listeners of the post build event
+            foreach (var listener in GetListeners()) listener.OnPostDungeonLayoutBuild(this, ActiveModel);
+        }
 
-        void NotifyMarkersEmitted(LevelMarkerList markers)
+        private void NotifyPreBuild()
+        {
+            // Notify all listeners of the post build event
+            foreach (var listener in GetListeners()) listener.OnPreDungeonBuild(this, ActiveModel);
+        }
+
+        private void NotifyPostBuild()
+        {
+            // Notify all listeners of the post build event
+            foreach (var listener in GetListeners()) listener.OnPostDungeonBuild(this, ActiveModel);
+        }
+
+        private void NotifyMarkersEmitted(LevelMarkerList markers)
         {
             // Notify all listeners of the post build event
             foreach (var listener in GetListeners())
@@ -294,113 +288,87 @@ namespace DungeonArchitect
             }
         }
 
-        void NotifyPreDungeonDestroy()
+        private void NotifyPreDungeonDestroy()
         {
             // Notify all listeners that the dungeon is destroyed
-            foreach (var listener in GetListeners())
-            {
-                listener.OnPreDungeonDestroy(this);
-            }
+            foreach (var listener in GetListeners()) listener.OnPreDungeonDestroy(this);
         }
 
-        void NotifyDungeonDestroyed() {
-			// Notify all listeners that the dungeon is destroyed
-			foreach (var listener in GetListeners()) {
-				listener.OnDungeonDestroyed(this);
-			}
-		}
+        private void NotifyDungeonDestroyed()
+        {
+            // Notify all listeners that the dungeon is destroyed
+            foreach (var listener in GetListeners()) listener.OnDungeonDestroyed(this);
+        }
 
         /// <summary>
         /// Destroys the dungeon
         /// </summary>
-		public void DestroyDungeon() {
+        public void DestroyDungeon()
+        {
             NotifyPreDungeonDestroy();
-            
-            var itemList = GameObject.FindObjectsOfType<DungeonSceneProviderData>();
+
+            var itemList = FindObjectsOfType<DungeonSceneProviderData>();
             var dungeonItems = new List<GameObject>();
             foreach (var item in itemList)
             {
                 if (item == null) continue;
-                if (item.dungeon == this)
-                {
-                    dungeonItems.Add(item.gameObject);
-                }
+                if (item.dungeon == this) dungeonItems.Add(item.gameObject);
             }
-			foreach(var item in dungeonItems) {
-				if (Application.isPlaying) {
-					Destroy(item);
-				} else {
-					DestroyImmediate(item);
-				}
-			}
-            
-            if (objectSpawner != null)
+
+            foreach (var item in dungeonItems)
+                if (Application.isPlaying)
+                    Destroy(item);
+                else
+                    DestroyImmediate(item);
+
+            if (_objectSpawner != null)
             {
-                objectSpawner.Destroy();
-                objectSpawner = null;
+                _objectSpawner.Destroy();
+                _objectSpawner = null;
             }
 
             // Build the navigation
             var navigation = GetComponent<DungeonRuntimeNavigation>();
-            if (navigation != null) {
-                navigation.DestroyNavMesh();
-            }
+            if (navigation != null) navigation.DestroyNavMesh();
 
-            if (dungeonModel != null) {
-				dungeonModel.ResetModel();
-			}
+            if (_dungeonModel != null) _dungeonModel.ResetModel();
 
-			if (dungeonBuilder != null) {
-				dungeonBuilder.OnDestroyed();
-			}
+            if (_dungeonBuilder != null) _dungeonBuilder.OnDestroyed();
 
-			NotifyDungeonDestroyed();
-		}
-
-		/// <summary>
-		/// Requests the dungeon to be rebuilt in the next update phase
-		/// </summary>
-		public void RequestRebuild() {
-			requestedRebuild = true;
-		}
-
-		public virtual void Update() {
-			if (dungeonModel == null) return;
-			
-			if (requestedRebuild) {
-				requestedRebuild = false;
-				Build();
-            }
-            if (debugDraw)
-            {
-                DebugDraw();
-            }
-
-            if (objectSpawner != null)
-            {
-                objectSpawner.Tick();
-            }
+            NotifyDungeonDestroyed();
         }
 
-		void OnGUI()
+        /// <summary>
+        /// Requests the dungeon to be rebuilt in the next update phase
+        /// </summary>
+        public void RequestRebuild()
         {
+            _requestedRebuild = true;
         }
 
-		void DebugDraw() {
-            if (dungeonBuilder != null)
-            {
-                dungeonBuilder.DebugDraw();
-            }
-        }
-
-        void OnDrawGizmosSelected()
+        public virtual void Update()
         {
-            if (debugDraw && dungeonBuilder != null)
+            if (_dungeonModel == null) return;
+
+            if (_requestedRebuild)
             {
-                dungeonBuilder.DebugDrawGizmos();
+                _requestedRebuild = false;
+                Build();
             }
+
+            if (debugDraw) DebugDraw();
+
+            if (_objectSpawner != null) _objectSpawner.Tick();
         }
 
-	}
-	
+        private void DebugDraw()
+        {
+            if (_dungeonBuilder != null) _dungeonBuilder.DebugDraw();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (debugDraw && _dungeonBuilder != null) _dungeonBuilder.DebugDrawGizmos();
+        }
+    }
 }

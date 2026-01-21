@@ -1,9 +1,11 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
 /// <summary>
 /// Класс представляет один узел на карте в стиле Slay the Spire.
 /// УЛУЧШЕНО: Добавлена цветовая кодировка узлов по типам, как в оригинальной игре
+/// ИСПРАВЛЕНО: Использует новый Input System вместо legacy Input
 /// </summary>
 public class MapNode : MonoBehaviour
 {
@@ -46,19 +48,13 @@ public class MapNode : MonoBehaviour
     public Sprite mysteryIcon;
     public Sprite startIcon;
     
-    // Состояние узла
     private NodeState currentState = NodeState.Locked;
-    
-    // Связи с другими узлами
     public List<MapNode> connectedNodes = new List<MapNode>();
     
-    // Визуальные эффекты
     private Vector3 originalScale;
     private bool isHovered = false;
-    
     private Camera mainCamera;
     
-    // Для анимации пульсации доступных узлов
     private float pulseTimer = 0f;
     private const float pulseSpeed = 2f;
     private const float pulseAmount = 0.1f;
@@ -71,7 +67,6 @@ public class MapNode : MonoBehaviour
 
     void Update()
     {
-        // Анимация пульсации для доступных узлов
         if (currentState == NodeState.Available)
         {
             pulseTimer += Time.deltaTime * pulseSpeed;
@@ -85,7 +80,7 @@ public class MapNode : MonoBehaviour
         
         if (currentState != NodeState.Available) return;
     
-        Vector2 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
     
         if (hit.collider != null && hit.collider.gameObject == this.gameObject)
@@ -95,7 +90,7 @@ public class MapNode : MonoBehaviour
                 OnMouseEnter();
             }
         
-            if (Input.GetMouseButtonDown(0))
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 MapManager.Instance?.OnNodeSelected(this);
             }
@@ -109,7 +104,7 @@ public class MapNode : MonoBehaviour
     private void OnMouseEnter()
     {
         isHovered = true;
-        transform.localScale = originalScale * 1.2f; // Уменьшенное увеличение для StS стиля
+        transform.localScale = originalScale * 1.2f;
         if (selectionGlow != null) selectionGlow.SetActive(true);
     }
     
@@ -135,9 +130,6 @@ public class MapNode : MonoBehaviour
         return currentState;
     }
     
-    /// <summary>
-    /// Обновляет иконку узла в зависимости от его типа
-    /// </summary>
     public void UpdateIcon()
     {
         if (iconRenderer == null) return;
@@ -181,22 +173,16 @@ public class MapNode : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// НОВОЕ: Обновляет визуальное представление узла с цветовой кодировкой по типам
-    /// Это делает карту более похожей на Slay the Spire, где каждый тип узла имеет свой цвет
-    /// </summary>
     private void UpdateVisuals()
     {
         if (backgroundRenderer == null) return;
         
-        // Получаем базовый цвет узла в зависимости от его типа
         Color baseColor = GetNodeTypeColor();
         
         switch (currentState)
         {
             case NodeState.Locked:
-                // Затемненный и полупрозрачный
-                backgroundRenderer.color = baseColor * 0.3f; // Темнее для недоступных узлов
+                backgroundRenderer.color = baseColor * 0.3f;
                 if (iconRenderer != null) 
                     iconRenderer.color = new Color(1f, 1f, 1f, 0.3f);
                 if (selectionGlow != null) 
@@ -204,15 +190,13 @@ public class MapNode : MonoBehaviour
                 break;
                 
             case NodeState.Available:
-                // Яркий и привлекательный - используем цвет типа узла
-                backgroundRenderer.color = baseColor * 1.2f; // Ярче для доступных
+                backgroundRenderer.color = baseColor * 1.2f;
                 if (iconRenderer != null) 
                     iconRenderer.color = Color.white;
                 break;
                 
             case NodeState.Completed:
-                // Приглушенный - сохраняем намек на цвет типа
-                backgroundRenderer.color = baseColor * 0.5f; // Приглушенный для пройденных
+                backgroundRenderer.color = baseColor * 0.5f;
                 if (iconRenderer != null) 
                     iconRenderer.color = new Color(1f, 1f, 1f, 0.6f);
                 if (selectionGlow != null) 
@@ -220,7 +204,6 @@ public class MapNode : MonoBehaviour
                 break;
                 
             case NodeState.Current:
-                // Яркий с желтым оттенком для текущего узла
                 Color currentNodeColor = Color.Lerp(baseColor, currentColor, 0.5f);
                 backgroundRenderer.color = currentNodeColor * 1.3f;
                 if (iconRenderer != null) 
@@ -244,34 +227,30 @@ public class MapNode : MonoBehaviour
         return transform.position;
     }
     
-    /// <summary>
-    /// УЛУЧШЕНО: Возвращает цвет узла в зависимости от типа (как в Slay the Spire)
-    /// Это ключевая особенность визуального стиля игры
-    /// </summary>
     public Color GetNodeTypeColor()
     {
         switch (nodeType)
         {
             case NodeType.Start:
-                return new Color(0.4f, 0.6f, 0.9f); // Голубой для старта
+                return new Color(0.4f, 0.6f, 0.9f);
             case NodeType.Combat:
-                return new Color(0.85f, 0.25f, 0.25f); // Красный для боев
+                return new Color(0.85f, 0.25f, 0.25f);
             case NodeType.EliteCombat:
-                return new Color(0.75f, 0.2f, 0.75f); // Темно-пурпурный для элитных
+                return new Color(0.75f, 0.2f, 0.75f);
             case NodeType.Boss:
-                return new Color(0.9f, 0.1f, 0.1f); // Ярко-красный для босса
+                return new Color(0.9f, 0.1f, 0.1f);
             case NodeType.Treasure:
-                return new Color(0.95f, 0.75f, 0.2f); // Золотой для сокровищ
+                return new Color(0.95f, 0.75f, 0.2f);
             case NodeType.Shop:
-                return new Color(0.25f, 0.75f, 0.35f); // Зеленый для магазина
+                return new Color(0.25f, 0.75f, 0.35f);
             case NodeType.RestSite:
-                return new Color(0.3f, 0.65f, 0.85f); // Голубой для отдыха
+                return new Color(0.3f, 0.65f, 0.85f);
             case NodeType.RandomEvent:
-                return new Color(0.85f, 0.45f, 0.2f); // Оранжевый для событий
+                return new Color(0.85f, 0.45f, 0.2f);
             case NodeType.Mystery:
-                return new Color(0.55f, 0.55f, 0.75f); // Серо-фиолетовый для загадок
+                return new Color(0.55f, 0.55f, 0.75f);
             default:
-                return new Color(0.5f, 0.5f, 0.5f); // Серый по умолчанию
+                return new Color(0.5f, 0.5f, 0.5f);
         }
     }
 }
