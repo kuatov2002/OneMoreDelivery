@@ -767,7 +767,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   RotationMode: 1
@@ -807,7 +807,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   Movement: 0
@@ -877,7 +877,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   RunSpeed: 8
@@ -986,16 +986,16 @@ MonoBehaviour:
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 0
+    m_RotationOrder: 4
   AllowDashWhenJumping: 0
   Cooldown:
     Unlimited: 0
-    ConsumptionDuration: 2
-    PauseOnEmptyDuration: 1
-    RefillDuration: 1
+    ConsumptionDuration: 0.5
+    PauseOnEmptyDuration: 0.7
+    RefillDuration: 0.5
     CanInterruptRefill: 1
     CooldownState: 0
-    CurrentDurationLeft: 0
+    CurrentDurationLeft: 0.5
   InvincibleWhileDashing: 0
   DashFeedback: {fileID: 0}
 --- !u!114 &114580283184247006
@@ -1050,7 +1050,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   InitialWeapon: {fileID: 114594623923584052, guid: ef55da2671b55de42ac772579e5f8a70,
