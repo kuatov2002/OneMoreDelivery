@@ -126,7 +126,7 @@ MonoBehaviour:
   MinDamageCaused: 2
   MaxDamageCaused: 2
   Knockback: 1
-  KnockbackForce: {x: 30, y: 0, z: 0}
+  KnockbackForce: {x: 0, y: 0, z: 15}
   KnockbackDirection: 0
   InvincibilityDuration: 0.5
   CanDamageOwner: 0
@@ -220,7 +220,7 @@ MonoBehaviour:
   MinDamageCaused: 2
   MaxDamageCaused: 2
   Knockback: 1
-  KnockbackForce: {x: 30, y: 0, z: 0}
+  KnockbackForce: {x: 0, y: 0, z: 15}
   KnockbackDirection: 0
   InvincibilityDuration: 0.5
   CanDamageOwner: 0
@@ -314,7 +314,7 @@ MonoBehaviour:
   MinDamageCaused: 10
   MaxDamageCaused: 10
   Knockback: 1
-  KnockbackForce: {x: 100, y: 0, z: 0}
+  KnockbackForce: {x: 0, y: 0, z: 15}
   KnockbackDirection: 0
   InvincibilityDuration: 0.5
   CanDamageOwner: 0
