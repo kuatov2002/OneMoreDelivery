@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114096976402940132}
   - component: {fileID: 114049947547974234}
   - component: {fileID: 2463841059975174656}
+  - component: {fileID: 3349744673400318312}
   m_Layer: 10
   m_Name: LoftSwordFast
   m_TagString: Untagged
@@ -81,7 +82,7 @@ MonoBehaviour:
   MovementMultiplier: 0
   PreventAllMovementWhileInUse: 1
   PreventAllAimWhileInUse: 1
-  RecoilForce: -10
+  RecoilForce: 0
   Animators: []
   PerformAnimatorSanityChecks: 0
   MirrorCharacterAnimatorParameters: 0
@@ -112,7 +113,7 @@ MonoBehaviour:
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
-  AreaOffset: {x: 0, y: 0, z: 0}
+  AreaOffset: {x: 0, y: 0, z: 1}
   AreaSize: {x: 4, y: 2, z: 4}
   TriggerFilter: 195
   HitDamageableFeedback: {fileID: 0}
@@ -126,9 +127,9 @@ MonoBehaviour:
   MinDamageCaused: 2
   MaxDamageCaused: 2
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 15}
+  KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0.5
+  InvincibilityDuration: 0
   CanDamageOwner: 0
 --- !u!114 &114290391021249986
 MonoBehaviour:
@@ -175,7 +176,7 @@ MonoBehaviour:
   MovementMultiplier: 0
   PreventAllMovementWhileInUse: 1
   PreventAllAimWhileInUse: 1
-  RecoilForce: -10
+  RecoilForce: 0
   Animators: []
   PerformAnimatorSanityChecks: 0
   MirrorCharacterAnimatorParameters: 0
@@ -206,8 +207,8 @@ MonoBehaviour:
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
-  AreaOffset: {x: 0, y: 0.2, z: 0}
-  AreaSize: {x: 3, y: 3, z: 4}
+  AreaOffset: {x: 0, y: 0, z: 1}
+  AreaSize: {x: 4, y: 2, z: 4}
   TriggerFilter: 195
   HitDamageableFeedback: {fileID: 0}
   HitNonDamageableFeedback: {fileID: 0}
@@ -220,9 +221,9 @@ MonoBehaviour:
   MinDamageCaused: 2
   MaxDamageCaused: 2
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 15}
+  KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0.5
+  InvincibilityDuration: 0
   CanDamageOwner: 0
 --- !u!114 &114096976402940132
 MonoBehaviour:
@@ -269,7 +270,7 @@ MonoBehaviour:
   MovementMultiplier: 0
   PreventAllMovementWhileInUse: 1
   PreventAllAimWhileInUse: 1
-  RecoilForce: -10
+  RecoilForce: 0
   Animators: []
   PerformAnimatorSanityChecks: 0
   MirrorCharacterAnimatorParameters: 0
@@ -300,8 +301,8 @@ MonoBehaviour:
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
-  AreaOffset: {x: 0, y: 0.5, z: 0}
-  AreaSize: {x: 4, y: 3, z: 4}
+  AreaOffset: {x: 0, y: 0, z: 1}
+  AreaSize: {x: 4, y: 2, z: 4}
   TriggerFilter: 195
   HitDamageableFeedback: {fileID: 0}
   HitNonDamageableFeedback: {fileID: 0}
@@ -314,9 +315,9 @@ MonoBehaviour:
   MinDamageCaused: 10
   MaxDamageCaused: 10
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 15}
+  KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0.5
+  InvincibilityDuration: 0
   CanDamageOwner: 0
 --- !u!114 &114049947547974234
 MonoBehaviour:
@@ -350,17 +351,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimControl: 1
-  AimControlActive: 1
+  AimControlActive: 0
   RotationMode: 0
   WeaponRotationSpeed: 0
   MinimumAngle: -180
   MaximumAngle: 180
   MinimumMagnitude: 0.2
-  ReticleType: 0
+  ReticleType: 2
   Reticle: {fileID: 1373789777524232, guid: 65207112181da7b41bee2bb13af8b883, type: 3}
   ReticleDistance: 0
   ReticleHeight: 0
-  ReticleAtMousePosition: 0
+  ReticleAtMousePosition: 1
   RotateReticle: 0
   ReplaceMousePointer: 1
   MouseDeadZoneRadius: 0.5
@@ -377,3 +378,42 @@ MonoBehaviour:
     m_Bits: 9
   MaximumSlopeElevation: 50
   AvoidNullAim: 1
+--- !u!114 &3349744673400318312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1831551693771866}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917bba013df402b42b7581f687f6c802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TargetsMask:
+    serializedVersion: 2
+    m_Bits: 8192
+  ObstacleMask:
+    serializedVersion: 2
+    m_Bits: 256
+  ScanRadius: 2
+  LineOfFireBoxcastSize: {x: 0.1, y: 0.1}
+  DurationBetweenScans: 0.2
+  DetectionOriginOffset: {x: 0, y: 0, z: 1}
+  OnlyAcquireTargetsIfOwnerIsIdle: 0
+  RotationMode: 0
+  ApplyAutoAimAsLastDirection: 1
+  MoveCameraTarget: 1
+  CameraTargetDistance: 0.5
+  CameraTargetMaxDistance: 10
+  CameraTargetSpeed: 5
+  MoveCameraToCharacterIfNoTarget: 0
+  AimMarkerPrefab: {fileID: 5368971261599636427, guid: d39c5f6ebe143724f829ae8356cba72c,
+    type: 3}
+  DestroyAimMarkerOnWeaponDestroy: 1
+  FirstTargetFoundFeedback: {fileID: 0}
+  NewTargetFoundFeedback: {fileID: 0}
+  NoMoreTargetsFeedback: {fileID: 0}
+  Target: {fileID: 0}
+  DrawDebugRadius: 1
+  OverlapMaximum: 10
