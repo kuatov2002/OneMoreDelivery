@@ -25,12 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831551693771866}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114594623923584052
 MonoBehaviour:
@@ -46,36 +47,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WeaponName: Sword
   WeaponCurrentlyActive: 1
-  TriggerMode: 0
+  InputAuthorized: 1
+  TriggerMode: 1
   DelayBeforeUse: 0
   DelayBeforeUseReleaseInterruption: 0
   TimeBetweenUses: 2
   TimeBetweenUsesReleaseInterruption: 0
+  UseBurstMode: 0
+  BurstLength: 3
+  BurstTimeBetweenShots: 0.1
   MagazineBased: 0
   MagazineSize: 30
   AutoReload: 0
+  NoInputReload: 0
   ReloadTime: 2
   AmmoConsumedPerShot: 1
   AutoDestroyWhenEmpty: 0
   AutoDestroyWhenEmptyDelay: 1
+  PreventReloadIfAmmoEmpty: 0
   CurrentAmmoLoaded: 30
   WeaponAttachmentOffset: {x: 0, y: 0.31, z: 0}
   FlipWeaponOnCharacterFlip: 0
   RightFacingFlipValue: {x: 1, y: 1, z: 1}
   LeftFacingFlipValue: {x: -1, y: 1, z: 1}
   WeaponUseTransform: {fileID: 0}
+  WeaponShouldFlip: 1
   LeftHandHandle: {fileID: 0}
   RightHandHandle: {fileID: 0}
   ModifyMovementWhileAttacking: 0
   MovementMultiplier: 0
   PreventAllMovementWhileInUse: 1
+  PreventAllAimWhileInUse: 0
   RecoilForce: 0
   Animators: []
+  PerformAnimatorSanityChecks: 0
+  MirrorCharacterAnimatorParameters: 0
   WeaponAnimationID: 10
   IdleAnimationParameter: 
-  StartAnimationParameter: Slash1
+  StartAnimationParameter: 
   DelayBeforeUseAnimationParameter: 
-  SingleUseAnimationParameter: 
+  SingleUseAnimationParameter: Slash1Fast
   UseAnimationParameter: 
   DelayBetweenUsesAnimationParameter: 
   StopAnimationParameter: 
@@ -84,27 +95,36 @@ MonoBehaviour:
   ReloadStopAnimationParameter: 
   WeaponAngleAnimationParameter: 
   WeaponAngleRelativeAnimationParameter: 
+  EquippedAnimationParameter: 
+  InterruptedAnimationParameter: 
   WeaponStartMMFeedback: {fileID: 0}
   WeaponUsedMMFeedback: {fileID: 0}
+  WeaponUsedMMFeedbackAlt: {fileID: 0}
   WeaponStopMMFeedback: {fileID: 0}
   WeaponReloadMMFeedback: {fileID: 0}
   WeaponReloadNeededMMFeedback: {fileID: 0}
+  WeaponReloadImpossibleMMFeedback: {fileID: 0}
   InitializeOnStart: 0
   Interruptable: 0
   Flipped: 0
+  MeleeDamageAreaMode: 0
   DamageAreaShape: 2
-  AreaSize: {x: 4, y: 2, z: 4}
   AreaOffset: {x: 0, y: 0, z: 0}
+  AreaSize: {x: 4, y: 2, z: 4}
+  TriggerFilter: 195
   HitDamageableFeedback: {fileID: 0}
   HitNonDamageableFeedback: {fileID: 0}
-  InitialDelay: 1
+  ExistingDamageArea: {fileID: 0}
+  InitialDelay: 0.4
   ActiveDuration: 0.3
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 1280
-  DamageCaused: 2
+  MinDamageCaused: 2
+  MaxDamageCaused: 2
   Knockback: 1
-  KnockbackForce: {x: 30, y: 0}
+  KnockbackForce: {x: 2, y: 0, z: 0}
+  KnockbackDirection: 0
   InvincibilityDuration: 0.5
   CanDamageOwner: 0
 --- !u!114 &2463841059975174656
@@ -120,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimControl: 0
+  AimControlActive: 1
   RotationMode: 0
   WeaponRotationSpeed: 0
   MinimumAngle: -180
@@ -139,8 +160,10 @@ MonoBehaviour:
   CameraTargetMaxDistance: 10
   CameraTargetSpeed: 5
   Unrestricted3DAim: 0
+  AimCenter: 0
   ReticleMovesWithSlopes: 0
   ReticleObstacleMask:
     serializedVersion: 2
     m_Bits: 9
   MaximumSlopeElevation: 50
+  AvoidNullAim: 1
