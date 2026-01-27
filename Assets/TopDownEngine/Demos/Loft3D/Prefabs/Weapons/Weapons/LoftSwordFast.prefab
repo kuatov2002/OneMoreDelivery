@@ -129,7 +129,7 @@ MonoBehaviour:
   Knockback: 1
   KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0
+  InvincibilityDuration: 0.1
   CanDamageOwner: 0
 --- !u!114 &114290391021249986
 MonoBehaviour:
@@ -223,7 +223,7 @@ MonoBehaviour:
   Knockback: 1
   KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0
+  InvincibilityDuration: 0.066
   CanDamageOwner: 0
 --- !u!114 &114096976402940132
 MonoBehaviour:
@@ -317,7 +317,7 @@ MonoBehaviour:
   Knockback: 1
   KnockbackForce: {x: 0, y: 0, z: 1}
   KnockbackDirection: 0
-  InvincibilityDuration: 0
+  InvincibilityDuration: 0.15
   CanDamageOwner: 0
 --- !u!114 &114049947547974234
 MonoBehaviour:

@@ -17,13 +17,6 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Duration of the block in seconds")]
         public float BlockDuration = 2f;
 
-        [Tooltip("Damage reduction percentage during normal block (0-1)")]
-        public float BlockDamageReduction = 0.6f;
-
-        [Header("Parry Settings")] 
-        [Tooltip("Duration of parry window in seconds")]
-        public float ParryWindow = 0.3f;
-
         [Header("Cooldown")] 
         [Tooltip("Cooldown between block uses")]
         public MMCooldown Cooldown;
@@ -32,9 +25,6 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Feedback when entering block/parry state")]
         public MMFeedbacks BlockStartFeedback;
 
-        [Tooltip("Feedback when successfully parrying an attack")]
-        public MMFeedbacks ParrySuccessFeedback;
-
         [Tooltip("Feedback during normal block")]
         public MMFeedbacks BlockHitFeedback;
 
@@ -42,9 +32,7 @@ namespace MoreMountains.TopDownEngine
         public MMFeedbacks BlockStopFeedback;
 
         protected bool _blocking = false;
-        protected bool _inParryWindow = false;
         protected float _blockTimer = 0f;
-        protected float _parryTimer = 0f;
 
         protected const string _blockingAnimationParameterName = "Blocking";
         protected int _blockingAnimationParameter;
@@ -60,7 +48,6 @@ namespace MoreMountains.TopDownEngine
             base.Initialization();
             Cooldown.Initialization();
             BlockStartFeedback?.Initialization(gameObject);
-            ParrySuccessFeedback?.Initialization(gameObject);
             BlockHitFeedback?.Initialization(gameObject);
             BlockStopFeedback?.Initialization(gameObject);
         }
@@ -96,16 +83,6 @@ namespace MoreMountains.TopDownEngine
             {
                 _blockTimer += Time.deltaTime;
 
-                // Handle parry window timing
-                if (_inParryWindow)
-                {
-                    _parryTimer += Time.deltaTime;
-                    if (_parryTimer >= ParryWindow) 
-                    {
-                        ExitParryWindow();
-                    }
-                }
-
                 // Auto-stop block after duration
                 if (_blockTimer >= BlockDuration) 
                 {
@@ -113,127 +90,64 @@ namespace MoreMountains.TopDownEngine
                 }
             }
         }
+        
+        protected virtual void OnTriggerEnter(Collider collision)
+        {
+            if (!_blocking) return;
+    
+            DamageOnTouch damageOnTouch = collision.GetComponent<DamageOnTouch>();
+            if (damageOnTouch != null)
+            {
+                BlockHitFeedback?.PlayFeedbacks(transform.position);
+            }
+        }
 
-        /// <summary>
-        /// Starts the block, changes movement state to SpecialAttacking
-        /// </summary>
         protected virtual void BlockStart()
         {
-            // Start cooldown
             Cooldown.Start();
-            
-            // Set blocking flags
             _blocking = true;
-            _inParryWindow = true;
             _blockTimer = 0f;
-            _parryTimer = 0f;
+    
+            // ← БЛОКИРУЕМ УРОН СРАЗУ!
+            if (_health != null)
+            {
+                _health.Invulnerable = true;
+            }
 
-            // Change to SpecialAttacking state to prevent conflicts
             _movement.ChangeState(CharacterStates.MovementStates.SpecialAttacking);
 
-            // Disable movement during block
             if (_characterMovement != null) 
             {
                 _characterMovement.MovementForbidden = true;
             }
 
-            // Play feedbacks
             BlockStartFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStartFeedbacks();
         }
 
-        /// <summary>
-        /// Exits the parry window, transitioning to normal block
-        /// </summary>
-        protected virtual void ExitParryWindow()
-        {
-            _inParryWindow = false;
-        }
-
-        /// <summary>
-        /// Stops the block and restores previous movement state
-        /// </summary>
         protected virtual void BlockStop()
         {
             if (!_blocking) 
                 return;
 
-            // Stop cooldown
             Cooldown.Stop();
-            
-            // Clear blocking flags
             _blocking = false;
-            _inParryWindow = false;
             _blockTimer = 0f;
-            _parryTimer = 0f;
 
-            // Re-enable movement
+            // ← РАЗРЕШАЕМ УРОН ОБРАТНО!
+            if (_health != null)
+            {
+                _health.Invulnerable = false;
+            }
+
             if (_characterMovement != null) 
             {
                 _characterMovement.MovementForbidden = false;
             }
 
             _movement.ChangeState(CharacterStates.MovementStates.Idle);
-
-
-            // Play feedbacks
             BlockStopFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStopFeedbacks();
-        }
-
-        /// <summary>
-        /// Called when character is hit, handles parry or block logic
-        /// </summary>
-        protected override void OnHit()
-        {
-            base.OnHit();
-
-            if (!_blocking) 
-                return;
-
-            if (_inParryWindow)
-            {
-                OnParrySuccess();
-            }
-            else
-            {
-                OnBlockHit();
-            }
-        }
-
-        /// <summary>
-        /// Handles successful parry - negates damage completely
-        /// </summary>
-        protected virtual void OnParrySuccess()
-        {
-            ParrySuccessFeedback?.PlayFeedbacks(transform.position);
-
-            // Temporarily disable damage
-            _health.DamageDisabled();
-            
-            // Re-enable damage after one frame to allow the hit to process
-            StartCoroutine(ReenableDamageAfterFrame());
-        }
-
-        /// <summary>
-        /// Handles normal block - reduces damage
-        /// </summary>
-        protected virtual void OnBlockHit()
-        {
-            BlockHitFeedback?.PlayFeedbacks(transform.position);
-
-            // Calculate reduced damage and restore health accordingly
-            var reducedDamage = _health.LastDamage * (1f - BlockDamageReduction);
-            _health.SetHealth(_health.CurrentHealth + (_health.LastDamage - reducedDamage));
-        }
-
-        /// <summary>
-        /// Coroutine to re-enable damage after one frame (for parry)
-        /// </summary>
-        protected virtual IEnumerator ReenableDamageAfterFrame()
-        {
-            yield return null;
-            _health.DamageEnabled();
         }
 
         /// <summary>
@@ -273,19 +187,6 @@ namespace MoreMountains.TopDownEngine
         protected override void OnDeath()
         {
             base.OnDeath();
-
-            if (_blocking) 
-            {
-                BlockStop();
-            }
-        }
-
-        /// <summary>
-        /// Stop blocking when ability is disabled
-        /// </summary>
-        protected override void OnDisable()
-        {
-            base.OnDisable();
 
             if (_blocking) 
             {
