@@ -1069,9 +1069,9 @@ MonoBehaviour:
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
   ForceAlwaysShoot: 0
-  BufferInput: 0
-  NewInputExtendsBuffer: 0
-  MaximumBufferDuration: 0.25
+  BufferInput: 1
+  NewInputExtendsBuffer: 1
+  MaximumBufferDuration: 0.15
   RequiresPerfectTile: 0
   CurrentWeapon: {fileID: 0}
 --- !u!114 &114969408098699218
@@ -1221,7 +1221,6 @@ MonoBehaviour:
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  BlockDuration: 2
   Cooldown:
     Unlimited: 0
     ConsumptionDuration: 1

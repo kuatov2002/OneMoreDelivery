@@ -13,10 +13,6 @@ namespace MoreMountains.TopDownEngine
     [AddComponentMenu("TopDown Engine/Character/Abilities/Character Block")]
     public class CharacterBlock : CharacterAbility
     {
-        [Header("Block Settings")] 
-        [Tooltip("Duration of the block in seconds")]
-        public float BlockDuration = 2f;
-
         [Header("Cooldown")] 
         [Tooltip("Cooldown between block uses")]
         public MMCooldown Cooldown;
@@ -84,7 +80,7 @@ namespace MoreMountains.TopDownEngine
                 _blockTimer += Time.deltaTime;
 
                 // Auto-stop block after duration
-                if (_blockTimer >= BlockDuration) 
+                if (Cooldown.CurrentDurationLeft <= 0) 
                 {
                     BlockStop();
                 }
