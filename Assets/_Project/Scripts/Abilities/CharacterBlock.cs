@@ -17,6 +17,16 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Cooldown between block uses")]
         public MMCooldown Cooldown;
 
+        [Header("Block Settings")]
+        [Tooltip("Invulnerability duration after releasing block")]
+        public float InvulnerabilityAfterBlockDuration = 0.3f;
+        
+        [Tooltip("Damage to reflect back to attacker when blocking")]
+        public float ReflectDamage = 5f;
+        
+        [Tooltip("The duration of the invincibility frames for the attacker after being blocked (in seconds)")]
+        public float AttackerInvincibilityDuration = 0.5f;
+
         [Header("Feedbacks")] 
         [Tooltip("Feedback when entering block/parry state")]
         public MMFeedbacks BlockStartFeedback;
@@ -29,6 +39,8 @@ namespace MoreMountains.TopDownEngine
 
         protected bool _blocking = false;
         protected float _blockTimer = 0f;
+        protected float _invulnerabilityTimer = 0f;
+        protected bool _invulnerabilityActive = false;
 
         protected const string _blockingAnimationParameterName = "Blocking";
         protected int _blockingAnimationParameter;
@@ -63,7 +75,7 @@ namespace MoreMountains.TopDownEngine
                 BlockStart();
             }
 
-            // Stop blocking on button up
+            // Stop blocking on button up (immediately, but keep invulnerability)
             if (_inputManager.SecondaryShootButton.State.CurrentState == MMInput.ButtonStates.ButtonUp && _blocking) 
             {
                 BlockStop();
@@ -85,16 +97,76 @@ namespace MoreMountains.TopDownEngine
                     BlockStop();
                 }
             }
+
+            // Handle invulnerability timer after block ends
+            if (_invulnerabilityActive && !_blocking)
+            {
+                _invulnerabilityTimer += Time.deltaTime;
+                
+                if (_invulnerabilityTimer >= InvulnerabilityAfterBlockDuration)
+                {
+                    RemoveInvulnerability();
+                }
+            }
         }
         
         protected virtual void OnTriggerEnter(Collider collision)
         {
             if (!_blocking) return;
     
+            // Check if it's a damage source
             DamageOnTouch damageOnTouch = collision.GetComponent<DamageOnTouch>();
             if (damageOnTouch != null)
             {
                 BlockHitFeedback?.PlayFeedbacks(transform.position);
+                
+                // Apply knockback and damage to the attacker
+                ApplyKnockbackToAttacker(collision.gameObject, damageOnTouch);
+            }
+        }
+
+        protected virtual void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (!_blocking) return;
+    
+            // Check if it's a damage source
+            DamageOnTouch damageOnTouch = collision.GetComponent<DamageOnTouch>();
+            if (damageOnTouch != null)
+            {
+                BlockHitFeedback?.PlayFeedbacks(transform.position);
+                
+                // Apply knockback and damage to the attacker
+                ApplyKnockbackToAttacker(collision.gameObject, damageOnTouch);
+            }
+        }
+
+        /// <summary>
+        /// Applies knockback and damage to the attacker
+        /// </summary>
+        protected virtual void ApplyKnockbackToAttacker(GameObject attacker, DamageOnTouch attackerDamageOnTouch)
+        {
+            // Try to find the owner of the attack (usually the weapon owner)
+            GameObject attackOwner = attacker;
+            if (attackerDamageOnTouch.Owner != null)
+            {
+                attackOwner = attackerDamageOnTouch.Owner;
+            }
+
+            // Get the Health component of the attacker
+            Health attackerHealth = attackOwner.GetComponent<Health>();
+            if (attackerHealth == null)
+            {
+                attackerHealth = attackOwner.GetComponentInParent<Health>();
+            }
+            if (attackerHealth == null)
+            {
+                attackerHealth = attackOwner.GetComponentInChildren<Health>();
+            }
+
+            // Apply damage if we found a health component
+            if (attackerHealth != null && ReflectDamage > 0)
+            {
+                attackerHealth.Damage(ReflectDamage, gameObject, AttackerInvincibilityDuration, AttackerInvincibilityDuration, Vector3.zero);
             }
         }
 
@@ -104,10 +176,11 @@ namespace MoreMountains.TopDownEngine
             _blocking = true;
             _blockTimer = 0f;
     
-            // ← БЛОКИРУЕМ УРОН СРАЗУ!
+            // БЛОКИРУЕМ УРОН СРАЗУ!
             if (_health != null)
             {
                 _health.Invulnerable = true;
+                _invulnerabilityActive = true;
             }
 
             _movement.ChangeState(CharacterStates.MovementStates.SpecialAttacking);
@@ -130,11 +203,8 @@ namespace MoreMountains.TopDownEngine
             _blocking = false;
             _blockTimer = 0f;
 
-            // ← РАЗРЕШАЕМ УРОН ОБРАТНО!
-            if (_health != null)
-            {
-                _health.Invulnerable = false;
-            }
+            // НЕ снимаем неуязвимость сразу - запускаем таймер
+            _invulnerabilityTimer = 0f;
 
             if (_characterMovement != null) 
             {
@@ -144,6 +214,16 @@ namespace MoreMountains.TopDownEngine
             _movement.ChangeState(CharacterStates.MovementStates.Idle);
             BlockStopFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStopFeedbacks();
+        }
+
+        protected virtual void RemoveInvulnerability()
+        {
+            if (_health != null)
+            {
+                _health.Invulnerable = false;
+            }
+            _invulnerabilityActive = false;
+            _invulnerabilityTimer = 0f;
         }
 
         /// <summary>
@@ -156,6 +236,12 @@ namespace MoreMountains.TopDownEngine
             if (_blocking) 
             {
                 BlockStop();
+            }
+
+            // Immediately remove invulnerability on reset
+            if (_invulnerabilityActive)
+            {
+                RemoveInvulnerability();
             }
         }
 
@@ -187,6 +273,12 @@ namespace MoreMountains.TopDownEngine
             if (_blocking) 
             {
                 BlockStop();
+            }
+
+            // Remove invulnerability immediately on death
+            if (_invulnerabilityActive)
+            {
+                RemoveInvulnerability();
             }
         }
     }

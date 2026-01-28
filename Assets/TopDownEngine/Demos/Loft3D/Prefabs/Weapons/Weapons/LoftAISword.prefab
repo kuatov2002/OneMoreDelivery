@@ -109,8 +109,8 @@ MonoBehaviour:
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
-  AreaOffset: {x: 0, y: 0, z: 0}
-  AreaSize: {x: 4, y: 2, z: 4}
+  AreaOffset: {x: 0, y: 0, z: 2}
+  AreaSize: {x: 4, y: 2, z: 5}
   TriggerFilter: 195
   HitDamageableFeedback: {fileID: 0}
   HitNonDamageableFeedback: {fileID: 0}
@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0514d297deadac74fb15a7b7326ff0d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AimControl: 0
+  AimControl: 4
   AimControlActive: 1
   RotationMode: 0
   WeaponRotationSpeed: 0
