@@ -4862,7 +4862,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: cefb2661e65fc8c4c9c9e8319d6e9912, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10620,8 +10619,8 @@ Transform:
   m_GameObject: {fileID: 1753582637234184539}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -63.33333, y: 134.99998, z: 83.33333}
-  m_LocalScale: {x: 150.00014, y: 150.00003, z: 150.00005}
+  m_LocalPosition: {x: 0, y: 134.99998, z: 128.44}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7887231286394868449}
@@ -11652,9 +11651,9 @@ MonoBehaviour:
           ButtonText: Automatic Shaker Setup
         Owner: {fileID: 956573894401959423}
         DebugActive: 0
-        FlashColor: {r: 1, g: 0, b: 0, a: 1}
-        FlashDuration: 0.1
-        FlashAlpha: 1
+        FlashColor: {r: 1, g: 0, b: 0, a: 0.18431373}
+        FlashDuration: 0.05
+        FlashAlpha: 0.3
         FlashID: 0
         TargetFlash: {fileID: 0}
     - rid: 2

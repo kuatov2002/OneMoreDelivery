@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
+
 public class WallController : MonoBehaviour
 {
 
@@ -97,3 +99,5 @@ public class WallController : MonoBehaviour
         }
     }
 }
+
+#endif

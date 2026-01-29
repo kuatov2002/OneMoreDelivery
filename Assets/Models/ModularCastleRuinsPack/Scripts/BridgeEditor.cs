@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(BridgeController))]
 [CanEditMultipleObjects]
 public class BridgeEditor : Editor
@@ -26,3 +25,5 @@ public class BridgeEditor : Editor
         }   
     }
 }
+
+#endif

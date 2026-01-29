@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 public class BridgeController : MonoBehaviour
 {
 
@@ -116,3 +117,5 @@ public class BridgeController : MonoBehaviour
         }
     }
 }
+
+#endif

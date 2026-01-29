@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(WallController))]
 [CanEditMultipleObjects]
 public class WallEditor : Editor
@@ -20,3 +19,5 @@ public class WallEditor : Editor
         }
     }
 }
+#endif
+

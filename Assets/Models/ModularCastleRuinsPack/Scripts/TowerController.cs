@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
+
+
 public class TowerController : MonoBehaviour
 {
 
@@ -113,3 +116,4 @@ public class TowerController : MonoBehaviour
 
     
 }
+#endif

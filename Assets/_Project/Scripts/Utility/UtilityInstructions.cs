@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UtilityInstructions : MonoBehaviour
 {
@@ -24,6 +25,16 @@ public class UtilityInstructions : MonoBehaviour
     public void InstantiatePrefab(GameObject prefab) => Instantiate(prefab);
     public void InstantiatePrefabAtPosition(GameObject prefab, Transform position) => 
         Instantiate(prefab, position.position, position.rotation);
+    #endregion
+    
+    #region Scene Management Methods
+    public void LoadScene(string sceneName) => SceneManager.LoadScene(sceneName);
+    public void LoadSceneByIndex(int sceneIndex) => SceneManager.LoadScene(sceneIndex);
+    public void LoadSceneAsync(string sceneName) => SceneManager.LoadSceneAsync(sceneName);
+    public void ReloadCurrentScene() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    public void LoadNextScene() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    public void LoadPreviousScene() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+    public void QuitApplication() => Application.Quit();
     #endregion
     
     #region Debug Methods
