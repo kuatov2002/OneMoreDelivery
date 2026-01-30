@@ -80,7 +80,7 @@ namespace MoreMountains.TopDownEngine
             // Spawn VFX
             if (StormVFX != null)
             {
-                _stormEffect = Instantiate(StormVFX, transform.position, Quaternion.identity);
+                _stormEffect = Instantiate(StormVFX, transform.position+ Vector3.up*0.5f, Quaternion.identity);
             }
         }
 

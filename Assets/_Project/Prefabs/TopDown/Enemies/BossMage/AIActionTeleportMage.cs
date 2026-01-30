@@ -43,7 +43,7 @@ namespace MoreMountains.TopDownEngine
             // VFX out
             if (TeleportOutVFX != null)
             {
-                Instantiate(TeleportOutVFX, transform.position, Quaternion.identity);
+                Instantiate(TeleportOutVFX, transform.position+ Vector3.up*0.5f, Quaternion.identity);
             }
 
             // Hide
@@ -62,7 +62,7 @@ namespace MoreMountains.TopDownEngine
             // VFX in
             if (TeleportInVFX != null)
             {
-                Instantiate(TeleportInVFX, transform.position, Quaternion.identity);
+                Instantiate(TeleportInVFX, transform.position+ Vector3.up*0.5f, Quaternion.identity);
             }
 
             // Show

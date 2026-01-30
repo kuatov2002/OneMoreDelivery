@@ -109,7 +109,7 @@ namespace MoreMountains.TopDownEngine
             GameObject warning = null;
             if (WarningIndicator != null)
             {
-                warning = Instantiate(WarningIndicator, targetPos, Quaternion.identity);
+                warning = Instantiate(WarningIndicator, targetPos + Vector3.up, Quaternion.identity);
             }
 
             yield return new WaitForSeconds(WarningDuration);
