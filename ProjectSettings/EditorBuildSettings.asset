@@ -15,6 +15,15 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/GameScenes/2Scene.unity
     guid: 3cfef4f8715ef7b4b9179d2469390023
   - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossMage.unity
+    guid: b0b9c68163d80b94cb895f980a06fe6d
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTrickster.unity
+    guid: 4de2ace2f00bcc649b8433f9a7d9d248
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTrickster1.unity
+    guid: 1c052d9e76c094e4ab7bbf2add70040a
+  - enabled: 1
     path: Assets/TopDownEngine/Demos/StartScreen/StartScreen.unity
     guid: 52360e1567e3fee418407abdfd132d73
   - enabled: 1

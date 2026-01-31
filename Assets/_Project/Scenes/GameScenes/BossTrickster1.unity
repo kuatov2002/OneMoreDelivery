@@ -2500,14 +2500,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AutoAttributePlayerIDs: 1
   PlayerPrefabs:
-  - {fileID: 114507903003884368, guid: 48dda897b14a24544853d2f94a068f71, type: 3}
+  - {fileID: 114650071556604532, guid: 13947357160ef0844ae072f91dfd42f4, type: 3}
   SceneCharacters: []
   InitialSpawnPoint: {fileID: 1618121293}
   CurrentCheckpoint: {fileID: 0}
   PointsOfEntry: []
   IntroFadeDuration: 1
   SpawnDelay: 0
-  OutroFadeDuration: 1
+  OutroFadeDuration: 0.1
   FaderID: 0
   FadeCurve:
     MMTweenDefinitionType: 0
@@ -43575,21 +43575,6 @@ PrefabInstance:
       propertyPath: 'SpawnPoints.Array.data[3]'
       value: 
       objectReference: {fileID: 1154733561}
-    - target: {fileID: 1884143546621256593, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
-        type: 3}
-      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 105135218}
-    - target: {fileID: 1884143546621256593, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
-        type: 3}
-      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: GotoLevel
-      objectReference: {fileID: 0}
-    - target: {fileID: 1884143546621256593, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
-        type: 3}
-      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: BossTrickster1
-      objectReference: {fileID: 0}
     - target: {fileID: 3473010741535092414, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
         type: 3}
       propertyPath: managedReferences[1569843827175063821].Mode
@@ -43643,7 +43628,12 @@ PrefabInstance:
     - target: {fileID: 8821616259050663653, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
         type: 3}
       propertyPath: InitialHealth
-      value: 200
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821616259050663653, guid: ac4f92e12ca087e42b7a30dd2caa8b71,
+        type: 3}
+      propertyPath: MaximumHealth
+      value: 300
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

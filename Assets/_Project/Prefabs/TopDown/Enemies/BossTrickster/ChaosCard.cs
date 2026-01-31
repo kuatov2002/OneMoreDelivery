@@ -33,23 +33,17 @@ using UnityEngine;
 
                 case AIActionThrowChaosCards.CardEffect.Poison:
                     // Apply poison DoT
-                    StartCoroutine(ApplyPoisonCoroutine(health));
                     break;
 
                 case AIActionThrowChaosCards.CardEffect.Slow:
                     // Apply slow
-                    CharacterMovement movement = target.GetComponent<CharacterMovement>();
-                    if (movement != null)
-                    {
-                        StartCoroutine(ApplySlowCoroutine(movement));
-                    }
                     break;
 
                 case AIActionThrowChaosCards.CardEffect.Heal:
                     // Heal enemies (chaos!)
-                    if (target.CompareTag("Enemy"))
+                    if (target.CompareTag("Player"))
                     {
-                        health.CurrentHealth = Mathf.Min(health.CurrentHealth + 30, health.MaximumHealth);
+                        health.CurrentHealth = Mathf.Min(health.CurrentHealth + 2, health.MaximumHealth);
                     }
                     break;
             }

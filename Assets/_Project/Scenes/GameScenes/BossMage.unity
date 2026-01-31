@@ -1211,9 +1211,9 @@ MonoBehaviour:
   InitialSpawnPoint: {fileID: 1618121293}
   CurrentCheckpoint: {fileID: 0}
   PointsOfEntry: []
-  IntroFadeDuration: 0.1
+  IntroFadeDuration: 1
   SpawnDelay: 0
-  OutroFadeDuration: 0.1
+  OutroFadeDuration: 1
   FaderID: 0
   FadeCurve:
     MMTweenDefinitionType: 0
@@ -5125,6 +5125,26 @@ PrefabInstance:
     - target: {fileID: 4699950635495296, guid: 9be5d5aa8be2ff14b89870f3183f9e7a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884143546621256593, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
+        type: 3}
+      propertyPath: managedReferences[1569843802950336635].Timing.InitialDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884143546621256593, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
+        type: 3}
+      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 105135218}
+    - target: {fileID: 1884143546621256593, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
+        type: 3}
+      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: GotoLevel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1884143546621256593, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
+        type: 3}
+      propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: BossTrickster
       objectReference: {fileID: 0}
     - target: {fileID: 6685630235135278933, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
         type: 3}
