@@ -10297,7 +10297,7 @@ MonoBehaviour:
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  InitialWeapon: {fileID: 114020998038657194, guid: 0a949166632154140a973dbd4e07f9ea,
+  InitialWeapon: {fileID: 114020998038657194, guid: 7140e8b55d8b91341a053962359ed308,
     type: 3}
   CanPickupWeapons: 1
   WeaponUseFeedback: {fileID: 0}
@@ -10671,7 +10671,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.AIActionThrowChaosCards
   InitializationMode: 0
   Label: 
-  CardPrefab: {fileID: 1854097648223014, guid: 22c24322507874d45b520975551cd96f, type: 3}
+  CardPrefab: {fileID: 1854097648223014, guid: 816fc09b471118443b1042e5503658f7, type: 3}
   CardsPerThrow: 3
   SpreadAngle: 80
   ThrowCooldown: 2.5
@@ -10746,7 +10746,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.AIActionThrowChaosCards
   InitializationMode: 0
   Label: 
-  CardPrefab: {fileID: 1854097648223014, guid: 22c24322507874d45b520975551cd96f, type: 3}
+  CardPrefab: {fileID: 1854097648223014, guid: 816fc09b471118443b1042e5503658f7, type: 3}
   CardsPerThrow: 8
   SpreadAngle: 360
   ThrowCooldown: 4
