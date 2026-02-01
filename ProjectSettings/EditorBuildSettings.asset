@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/GameScenes/BossMage.unity
     guid: b0b9c68163d80b94cb895f980a06fe6d
   - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossMageDialogue.unity
+    guid: c9dfdbde86d10de478942606e2009659
+  - enabled: 1
     path: Assets/_Project/Scenes/GameScenes/BossTrickster.unity
     guid: 4de2ace2f00bcc649b8433f9a7d9d248
   - enabled: 1

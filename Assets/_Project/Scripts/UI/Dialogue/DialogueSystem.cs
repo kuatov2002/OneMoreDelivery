@@ -8,8 +8,6 @@ using Sirenix.OdinInspector;
 public class DialogueSystem : MonoBehaviour
 {
     [TitleGroup("UI References")]
-    [Required("Character icon image is required")]
-    [SerializeField] private Image characterIconImage;
     
     [Required("Speaker name text is required")]
     [SerializeField] private TextMeshProUGUI speakerNameText;
@@ -128,9 +126,6 @@ public class DialogueSystem : MonoBehaviour
         }
 
         DialogueLine line = dialogue.lines[index];
-
-        if (characterIconImage != null)
-            characterIconImage.sprite = line.characterIcon;
 
         if (speakerNameText != null)
             speakerNameText.text = line.speakerName;

@@ -5144,7 +5144,7 @@ PrefabInstance:
     - target: {fileID: 1884143546621256593, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
         type: 3}
       propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: BossTrickster
+      value: BossMageDialogue
       objectReference: {fileID: 0}
     - target: {fileID: 6685630235135278933, guid: 9be5d5aa8be2ff14b89870f3183f9e7a,
         type: 3}
