@@ -6604,7 +6604,7 @@ PrefabInstance:
     - target: {fileID: 1884143546621256593, guid: 151f3e3cae03402458ef06e03b4d4a41,
         type: 3}
       propertyPath: managedReferences[1569843802950336635].PlayEvents.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: 2Scene
+      value: BossArcherDialogue
       objectReference: {fileID: 0}
     - target: {fileID: 1884143546621256593, guid: 151f3e3cae03402458ef06e03b4d4a41,
         type: 3}
