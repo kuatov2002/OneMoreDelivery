@@ -6,7 +6,7 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LoftTieAnimatorController
+  m_Name: KnightAnimator
   m_Controller: {fileID: 9100000, guid: 0b1052866e6d0f84ba8c01d83331b346, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400000, guid: a3c11a726a37e944e87f1fafcacbb4c3, type: 3}

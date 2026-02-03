@@ -621,7 +621,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.98, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &54056192314340996
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1055,7 +1055,7 @@ MonoBehaviour:
   BlockingMovementStates: 070000000d000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  InitialWeapon: {fileID: 114594623923584052, guid: ef55da2671b55de42ac772579e5f8a70,
+  InitialWeapon: {fileID: 114594623923584052, guid: 8b9ea8879b777944b8d883fd7fe567b9,
     type: 3}
   CanPickupWeapons: 1
   WeaponUseFeedback: {fileID: 0}
@@ -1231,9 +1231,6 @@ MonoBehaviour:
     CooldownState: 0
     CurrentDurationLeft: 0
   InvulnerabilityAfterBlockDuration: 0.3
-  Knockback: 1
-  KnockbackForce: {x: 0, y: 10, z: 30}
-  KnockbackDirection: 0
   ReflectDamage: 3
   AttackerInvincibilityDuration: 0.1
   BlockStartFeedback: {fileID: 0}
@@ -87709,10 +87706,11 @@ Animator:
   m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
     are already bound by a Humanoid avatar. These transforms can only be changed
     by Humanoid clips.\n\tTransform 'Toes_R'\n\tTransform 'Toes_R'\n\tFrom animation
-    clip 'A_Idle_Base_Sword'\n\tFrom animation clip 'A_Attack_LightCombo01A_Sword'\n\tFrom
-    animation clip 'A_Attack_LightCombo01B_Sword'\n\tFrom animation clip 'A_Attack_LightCombo01C_Sword'\n\tFrom
-    animation clip 'A_Attack_LightCombo01A_ReturnToIdle_Sword'\n\tFrom animation
-    clip 'A_Attack_LightCombo01B_ReturnToIdle_Sword'\n\tFrom animation clip 'A_Attack_LightCombo01C_ReturnToIdle_Sword'"
+    clip 'A_Idle_Base_Sword'\n\tFrom animation clip 'A_Attack_LightCombo01A_RootMotion_Sword'\n\tFrom
+    animation clip 'A_Attack_LightCombo01B_RootMotion_Sword'\n\tFrom animation clip
+    'A_Attack_LightCombo01C_RootMotion_Sword'\n\tFrom animation clip 'A_Attack_LightCombo01A_ReturnToIdle_RootMotion_Sword'\n\tFrom
+    animation clip 'A_Attack_LightCombo01B_ReturnToIdle_RootMotion_Sword'\n\tFrom
+    animation clip 'A_Attack_LightCombo01C_ReturnToIdle_RootMotion_Sword'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0

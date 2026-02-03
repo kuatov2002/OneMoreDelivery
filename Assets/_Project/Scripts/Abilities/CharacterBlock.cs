@@ -20,12 +20,6 @@ namespace MoreMountains.TopDownEngine
         [Header("Block Settings")]
         [Tooltip("Invulnerability duration after releasing block")]
         public float InvulnerabilityAfterBlockDuration = 0.3f;
-        
-        [Tooltip("Damage to reflect back to attacker when blocking")]
-        public float ReflectDamage = 5f;
-        
-        [Tooltip("The duration of the invincibility frames for the attacker after being blocked (in seconds)")]
-        public float AttackerInvincibilityDuration = 0.5f;
 
         [Header("Feedbacks")] 
         [Tooltip("Feedback when entering block/parry state")]
@@ -121,53 +115,17 @@ namespace MoreMountains.TopDownEngine
                 BlockHitFeedback?.PlayFeedbacks(transform.position);
                 
                 // Apply knockback and damage to the attacker
-                ApplyKnockbackToAttacker(collision.gameObject, damageOnTouch);
-            }
-        }
-
-        protected virtual void OnTriggerEnter2D(Collider2D collision)
-        {
-            if (!_blocking) return;
-    
-            // Check if it's a damage source
-            DamageOnTouch damageOnTouch = collision.GetComponent<DamageOnTouch>();
-            if (damageOnTouch != null)
-            {
-                BlockHitFeedback?.PlayFeedbacks(transform.position);
-                
-                // Apply knockback and damage to the attacker
-                ApplyKnockbackToAttacker(collision.gameObject, damageOnTouch);
+                ApplyKnockbackToAttacker(damageOnTouch);
             }
         }
 
         /// <summary>
         /// Applies knockback and damage to the attacker
         /// </summary>
-        protected virtual void ApplyKnockbackToAttacker(GameObject attacker, DamageOnTouch attackerDamageOnTouch)
+        protected virtual void ApplyKnockbackToAttacker(DamageOnTouch attackerDamageOnTouch)
         {
-            // Try to find the owner of the attack (usually the weapon owner)
-            GameObject attackOwner = attacker;
-            if (attackerDamageOnTouch.Owner != null)
-            {
-                attackOwner = attackerDamageOnTouch.Owner;
-            }
-
-            // Get the Health component of the attacker
-            Health attackerHealth = attackOwner.GetComponent<Health>();
-            if (attackerHealth == null)
-            {
-                attackerHealth = attackOwner.GetComponentInParent<Health>();
-            }
-            if (attackerHealth == null)
-            {
-                attackerHealth = attackOwner.GetComponentInChildren<Health>();
-            }
-
-            // Apply damage if we found a health component
-            if (attackerHealth != null && ReflectDamage > 0)
-            {
-                attackerHealth.Damage(ReflectDamage, gameObject, AttackerInvincibilityDuration, AttackerInvincibilityDuration, Vector3.zero);
-            }
+            // Trigger the "hit non-damageable" feedback on the DamageOnTouch component
+            attackerDamageOnTouch.HitNonDamageableFeedback?.PlayFeedbacks(transform.position);
         }
 
         protected virtual void BlockStart()
