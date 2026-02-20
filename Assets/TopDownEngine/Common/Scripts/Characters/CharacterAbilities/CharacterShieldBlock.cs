@@ -103,6 +103,7 @@ namespace MoreMountains.TopDownEngine
                 {
                     StopBlocking();
                 }
+
                 return;
             }
             
@@ -132,7 +133,7 @@ namespace MoreMountains.TopDownEngine
 
             _blocking = true;
             _movement.ChangeState(CharacterStates.MovementStates.SpecialAttacking);
-            
+
             if (ParryEnabled)
             {
                 _parryWindowActive = true;
@@ -149,6 +150,11 @@ namespace MoreMountains.TopDownEngine
                 _characterMovement.MovementSpeedMultiplier = MovementSpeedMultiplier;
             }
 
+            MMAnimatorExtensions.UpdateAnimatorTrigger(
+                _animator, 
+                _blockStartedParameter, 
+                _character._animatorParameters
+            );
             BlockStartFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStartFeedbacks();
         }
