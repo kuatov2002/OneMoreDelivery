@@ -120,14 +120,14 @@ MonoBehaviour:
   HitNonDamageableFeedback: {fileID: 0}
   ExistingDamageArea: {fileID: 0}
   InitialDelay: 0.3
-  ActiveDuration: 0.3
+  ActiveDuration: 0.2
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 8448
   MinDamageCaused: 4
   MaxDamageCaused: 4
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 4}
+  KnockbackForce: {x: 0, y: 0, z: 6}
   KnockbackDirection: 0
   InvincibilityDuration: 0
   CanDamageOwner: 0
@@ -214,14 +214,14 @@ MonoBehaviour:
   HitNonDamageableFeedback: {fileID: 0}
   ExistingDamageArea: {fileID: 0}
   InitialDelay: 0.15
-  ActiveDuration: 0.3
+  ActiveDuration: 0.35
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 8448
   MinDamageCaused: 5
   MaxDamageCaused: 5
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 8}
+  KnockbackForce: {x: 0, y: 0, z: 9}
   KnockbackDirection: 0
   InvincibilityDuration: 0
   CanDamageOwner: 0
@@ -315,7 +315,7 @@ MonoBehaviour:
   MinDamageCaused: 7
   MaxDamageCaused: 7
   Knockback: 1
-  KnockbackForce: {x: 0, y: 0, z: 20}
+  KnockbackForce: {x: 0, y: 0, z: 30}
   KnockbackDirection: 0
   InvincibilityDuration: 0
   CanDamageOwner: 0
@@ -351,7 +351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimControl: 1
-  AimControlActive: 0
+  AimControlActive: 1
   RotationMode: 0
   WeaponRotationSpeed: 0
   MinimumAngle: -180

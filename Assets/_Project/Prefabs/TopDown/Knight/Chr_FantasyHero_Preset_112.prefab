@@ -11067,13 +11067,13 @@ GameObject:
   - component: {fileID: 5316690966851087128}
   - component: {fileID: 7470260951311266549}
   - component: {fileID: 2255769922637984528}
-  - component: {fileID: 8997349846758210725}
   - component: {fileID: 5582970741483675600}
   - component: {fileID: 4602188654502583259}
   - component: {fileID: 2348573645841796937}
   - component: {fileID: 4595623248223329937}
   - component: {fileID: 7879121618115080182}
-  - component: {fileID: 8902715165206333414}
+  - component: {fileID: -2792219103307999124}
+  - component: {fileID: 2162761560393666071}
   m_Layer: 10
   m_Name: Chr_FantasyHero_Preset_112
   m_TagString: Player
@@ -11229,7 +11229,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 070000000d000000
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   Movement: 0
@@ -11247,41 +11247,6 @@ MonoBehaviour:
   TouchTheGroundParticles:
   - {fileID: 8140962013653797656}
   TouchTheGroundSfx: []
---- !u!114 &8997349846758210725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3838246324168178313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46549681fdc2f6e459cd0dc02144e716, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.CharacterBlock
-  AbilityStartSfx: {fileID: 0}
-  AbilityInProgressSfx: {fileID: 0}
-  AbilityStopSfx: {fileID: 0}
-  AbilityStartFeedbacks: {fileID: 0}
-  AbilityStopFeedbacks: {fileID: 0}
-  AbilityPermitted: 1
-  BlockingMovementStates: 
-  BlockingConditionStates: 
-  BlockingWeaponStates: 
-  Cooldown:
-    Unlimited: 0
-    ConsumptionDuration: 1
-    PauseOnEmptyDuration: 1
-    RefillDuration: 1
-    CanInterruptRefill: 1
-    CooldownState: 0
-    CurrentDurationLeft: 0
-  InvulnerabilityAfterBlockDuration: 0.3
-  ReflectDamage: 3
-  AttackerInvincibilityDuration: 0.1
-  BlockStartFeedback: {fileID: 0}
-  BlockHitFeedback: {fileID: 8935219038554410376}
-  BlockStopFeedback: {fileID: 0}
 --- !u!114 &5582970741483675600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11297,8 +11262,8 @@ MonoBehaviour:
   Model: {fileID: 3838246324168178313}
   CurrentHealth: 0
   Invulnerable: 0
-  InitialHealth: 40
-  MaximumHealth: 40
+  InitialHealth: 400
+  MaximumHealth: 400
   ResetHealthOnEnable: 1
   ImmuneToDamage: 0
   DamageMMFeedbacks: {fileID: 6098394822155108195}
@@ -11345,7 +11310,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 070000000d000000
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   InitialWeapon: {fileID: 114594623923584052, guid: 8b9ea8879b777944b8d883fd7fe567b9,
@@ -11497,7 +11462,7 @@ MonoBehaviour:
   SlidingSpeed: 15
   SlidingSpeedControl: 0.4
   SlidingDirectionControl: 1
---- !u!114 &8902715165206333414
+--- !u!114 &-2792219103307999124
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11506,9 +11471,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3838246324168178313}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 893d1a748dcc4a247b555ae136c3d0df, type: 3}
+  m_Script: {fileID: 11500000, guid: ad9a0e697247f444a8855eca1cd50336, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.CharacterDash3D
+  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.CharacterChargeDash3D
   AbilityStartSfx: {fileID: 0}
   AbilityInProgressSfx: {fileID: 0}
   AbilityStopSfx: {fileID: 0}
@@ -11518,11 +11483,8 @@ MonoBehaviour:
   BlockingMovementStates: 
   BlockingConditionStates: 
   BlockingWeaponStates: 
-  DashMode: 1
-  DashSpace: 0
-  DashDirection: {x: 1, y: 0, z: 0}
-  DashDistance: 10
-  DashDuration: 0.5
+  DashDistance: 8
+  DashDuration: 0.3
   DashCurve:
     serializedVersion: 2
     m_Curve:
@@ -11547,17 +11509,61 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  AllowDashWhenJumping: 0
+  Damage: 1
+  DamageableLayerMask:
+    serializedVersion: 2
+    m_Bits: 8192
+  DamageOncePerTarget: 1
+  DetectionRadius: 1.5
+  DetectionInterval: 0
   Cooldown:
     Unlimited: 0
-    ConsumptionDuration: 2
-    PauseOnEmptyDuration: 1
-    RefillDuration: 1
-    CanInterruptRefill: 1
+    ConsumptionDuration: 0.3
+    PauseOnEmptyDuration: 0
+    RefillDuration: 0.6
+    CanInterruptRefill: 0
     CooldownState: 0
     CurrentDurationLeft: 0
-  InvincibleWhileDashing: 0
-  DashFeedback: {fileID: 0}
+  InvincibleWhileDashing: 1
+  DashStartFeedback: {fileID: 0}
+  DashStopFeedback: {fileID: 0}
+  HitFeedback: {fileID: 0}
+--- !u!114 &2162761560393666071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3838246324168178313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bb948bc538fab2439cec9d16630b86c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.CharacterShieldBlock
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  ShieldDirection: {x: 0, y: 0, z: 1}
+  ProtectionArc: 180
+  AllowMovementWhileBlocking: 0
+  MovementSpeedMultiplier: 0.3
+  DamageReduction: 0.8
+  PerfectBlock: 0
+  ParryEnabled: 1
+  ParryWindowDuration: 1
+  ParryDamageMultiplier: 1.5
+  StunOnParry: 1
+  StunDuration: 1.5
+  BlockStartFeedback: {fileID: 0}
+  BlockStopFeedback: {fileID: 0}
+  BlockHitFeedback: {fileID: 0}
+  ParrySuccessFeedback: {fileID: 0}
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0

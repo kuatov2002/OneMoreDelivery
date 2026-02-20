@@ -442,7 +442,11 @@ namespace MoreMountains.TopDownEngine
 			{
 				return;
 			}
-
+			CharacterShieldBlock shieldBlock = _character?.FindAbility<CharacterShieldBlock>();
+			if (shieldBlock != null)
+			{
+				damage = shieldBlock.ProcessIncomingDamage(damage, damageDirection, instigator);
+			}
 			damage = ComputeDamageOutput(damage, typedDamages, true);
 			
 			// we decrease the character's health by the damage
@@ -513,7 +517,6 @@ namespace MoreMountains.TopDownEngine
 					CurrentHealth = 0;
 					Kill();
 				}
-					
 			}
 		}
 

@@ -7,197 +7,319 @@ using UnityEngine.Rendering;
 
 namespace MoreMountains.TopDownEngine
 {
+    [CustomEditor(typeof(Character), true)]
+    [CanEditMultipleObjects]
+    public class CharacterInspector : Editor
+    {
+        public enum Modes { TwoD, ThreeD }
 
-	[CustomEditor (typeof(Character), true)]
-	[CanEditMultipleObjects]
+        // ─────────────────────────────────────────────────────────────────────
+        //  State color maps
+        // ─────────────────────────────────────────────────────────────────────
 
-	/// <summary>
-	/// Adds custom labels to the Character inspector
-	/// </summary>
+        private static readonly Dictionary<CharacterStates.CharacterConditions, Color> ConditionColors =
+            new Dictionary<CharacterStates.CharacterConditions, Color>
+            {
+                { CharacterStates.CharacterConditions.Normal,             new Color(0.40f, 0.85f, 0.40f) },
+                { CharacterStates.CharacterConditions.ControlledMovement, new Color(0.40f, 0.75f, 1.00f) },
+                { CharacterStates.CharacterConditions.Frozen,             new Color(0.60f, 0.90f, 1.00f) },
+                { CharacterStates.CharacterConditions.Paused,             new Color(1.00f, 0.85f, 0.30f) },
+                { CharacterStates.CharacterConditions.Dead,               new Color(0.85f, 0.20f, 0.20f) },
+                { CharacterStates.CharacterConditions.Stunned,            new Color(0.90f, 0.50f, 0.10f) },
+            };
 
-	public class CharacterInspector : Editor 
-	{		
-		public enum Modes { TwoD, ThreeD }
+        private static readonly Dictionary<CharacterStates.MovementStates, Color> MovementColors =
+            new Dictionary<CharacterStates.MovementStates, Color>
+            {
+                { CharacterStates.MovementStates.Null,            new Color(0.40f, 0.40f, 0.40f) },
+                { CharacterStates.MovementStates.Idle,            new Color(0.75f, 0.75f, 0.75f) },
+                { CharacterStates.MovementStates.Walking,         new Color(0.40f, 0.85f, 0.40f) },
+                { CharacterStates.MovementStates.Running,         new Color(0.30f, 1.00f, 0.50f) },
+                { CharacterStates.MovementStates.Jumping,         new Color(0.40f, 0.75f, 1.00f) },
+                { CharacterStates.MovementStates.DoubleJumping,   new Color(0.20f, 0.60f, 1.00f) },
+                { CharacterStates.MovementStates.Falling,         new Color(1.00f, 0.70f, 0.20f) },
+                { CharacterStates.MovementStates.FallingDownHole, new Color(0.85f, 0.20f, 0.20f) },
+                { CharacterStates.MovementStates.Dashing,         new Color(1.00f, 0.50f, 0.90f) },
+                { CharacterStates.MovementStates.Crouching,       new Color(0.80f, 0.80f, 0.40f) },
+                { CharacterStates.MovementStates.Crawling,        new Color(0.70f, 0.70f, 0.30f) },
+                { CharacterStates.MovementStates.Attacking,       new Color(1.00f, 0.30f, 0.30f) },
+                { CharacterStates.MovementStates.SpecialAttacking,new Color(1.00f, 0.10f, 0.50f) },
+                { CharacterStates.MovementStates.Pushing,         new Color(0.90f, 0.60f, 0.30f) },
+                { CharacterStates.MovementStates.Jetpacking,      new Color(0.50f, 0.90f, 1.00f) },
+            };
 
-		void onEnable()
-		{
-			// nothing
-		}
-		
-		/// <summary>
-		/// When inspecting a Character, adds to the regular inspector some labels, useful for debugging
-		/// </summary>
-		public override void OnInspectorGUI()
-		{
-			serializedObject.Update();
+        // ─────────────────────────────────────────────────────────────────────
+        //  Inspector
+        // ─────────────────────────────────────────────────────────────────────
 
-			Character character = (Character)target;
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
 
+            Character character = (Character)target;
 
-			// adds movement and condition states
-			if (character.CharacterState!=null)
-			{
-				EditorGUILayout.LabelField("Movement State",character.MovementState.CurrentState.ToString());
-				EditorGUILayout.LabelField("Condition State",character.ConditionState.CurrentState.ToString());
-			}
+            // ── Live State (Play Mode only) ───────────────────────────────────
+            if (Application.isPlaying && character.CharacterState != null)
+            {
+                DrawLiveState(character);
+                EditorGUILayout.Space(6);
+            }
 
-			// auto completes the animator
-			if (character.CharacterAnimator == null)
-			{
-				if (character.GetComponent<Animator>() != null)
-				{
-					character.CharacterAnimator = character.GetComponent<Animator>();
-				}
-			}
+            // ── Default inspector ─────────────────────────────────────────────
+            if (character.CharacterAnimator == null)
+            {
+                if (character.GetComponent<Animator>() != null)
+                    character.CharacterAnimator = character.GetComponent<Animator>();
+            }
 
-			// draws the default inspector if in Player mode
-			if (character.CharacterType == Character.CharacterTypes.Player)
-			{
-				DrawDefaultInspector();
-			}
+            if (character.CharacterType == Character.CharacterTypes.Player)
+            {
+                DrawDefaultInspector();
+            }
 
-			// in AI mode draws everything but the PlayerID field
-			if (character.CharacterType == Character.CharacterTypes.AI)
-			{
-				character.PlayerID = "";
-				Editor.DrawPropertiesExcluding(serializedObject, new string[] { "PlayerID" });
-			}
+            if (character.CharacterType == Character.CharacterTypes.AI)
+            {
+                character.PlayerID = "";
+                Editor.DrawPropertiesExcluding(serializedObject, new string[] { "PlayerID" });
+            }
 
-			EditorGUILayout.Space();
-			EditorGUILayout.LabelField("Autobuild", EditorStyles.boldLabel);
-			EditorGUILayout.HelpBox("The Character Autobuild button will automatically add all the components needed for a functioning Character, and set their settings, layer, tags. Be careful, if you've already customized your character, this will reset its settings!", MessageType.Warning, true);
-			if (GUILayout.Button("AutoBuild Player Character 2D"))
-			{
-				GenerateCharacter(Character.CharacterTypes.Player, Modes.TwoD);
-			}
-			if (GUILayout.Button("AutoBuild Player Character 3D"))
-			{
-				GenerateCharacter(Character.CharacterTypes.Player, Modes.ThreeD);
-			}
-			if (GUILayout.Button("AutoBuild AI Character 2D"))
-			{
-				GenerateCharacter(Character.CharacterTypes.AI, Modes.TwoD);
-			}
-			if (GUILayout.Button("AutoBuild AI Character 3D"))
-			{
-				GenerateCharacter(Character.CharacterTypes.AI, Modes.ThreeD);
-			}
-				
-			serializedObject.ApplyModifiedProperties();
-		}
+            // ── Autobuild ─────────────────────────────────────────────────────
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Autobuild", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "The Character Autobuild button will automatically add all the components needed for a functioning Character, " +
+                "and set their settings, layer, tags. Be careful, if you've already customized your character, this will reset its settings!",
+                MessageType.Warning, true);
 
-		/// <summary>
-		/// Adds all the possible components to a character
-		/// </summary>
-		protected virtual void GenerateCharacter(Character.CharacterTypes type, Modes mode)
-		{
-			Character character = (Character)target;
+            if (GUILayout.Button("AutoBuild Player Character 2D"))  GenerateCharacter(Character.CharacterTypes.Player, Modes.TwoD);
+            if (GUILayout.Button("AutoBuild Player Character 3D"))  GenerateCharacter(Character.CharacterTypes.Player, Modes.ThreeD);
+            if (GUILayout.Button("AutoBuild AI Character 2D"))      GenerateCharacter(Character.CharacterTypes.AI,     Modes.TwoD);
+            if (GUILayout.Button("AutoBuild AI Character 3D"))      GenerateCharacter(Character.CharacterTypes.AI,     Modes.ThreeD);
 
-			Debug.LogFormat(character.name + " : Character Autobuild Start");
+            serializedObject.ApplyModifiedProperties();
 
-			if (type == Character.CharacterTypes.Player)
-			{
-				character.CharacterType = Character.CharacterTypes.Player;
-				// sets the layer
-				character.gameObject.layer = LayerMask.NameToLayer("Player");
-				// sets the tag
-				character.gameObject.tag = "Player";
-				// sets the player ID
-				character.PlayerID = "Player1";
-			}
+            // Force repaint every editor frame in Play Mode
+            if (Application.isPlaying)
+                Repaint();
+        }
 
-			if (type == Character.CharacterTypes.AI)
-			{
-				character.CharacterType = Character.CharacterTypes.AI;
-				// sets the layer
-				character.gameObject.layer = LayerMask.NameToLayer("Enemies");
-			}
+        // ─────────────────────────────────────────────────────────────────────
+        //  Live state drawing
+        // ─────────────────────────────────────────────────────────────────────
 
-			if (mode == Modes.TwoD)
-			{
-				// Adds the rigidbody2D
-				Rigidbody2D rigidbody2D = (character.GetComponent<Rigidbody2D>() == null) ? character.gameObject.AddComponent<Rigidbody2D>() : character.GetComponent<Rigidbody2D>();
-				rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
-				rigidbody2D.simulated = true;
-				rigidbody2D.useAutoMass = false;
-				rigidbody2D.mass = 1;
-				rigidbody2D.linearDamping = 1;
-				rigidbody2D.angularDamping = 0.05f;
-				rigidbody2D.gravityScale = 0;
-				rigidbody2D.interpolation = RigidbodyInterpolation2D.Interpolate;
-				rigidbody2D.sleepMode = RigidbodySleepMode2D.StartAwake;
-				rigidbody2D.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-				rigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
+        private void DrawLiveState(Character character)
+        {
+            var headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize  = 10,
+                alignment = TextAnchor.MiddleLeft,
+                normal    = { textColor = new Color(0.7f, 0.7f, 0.7f) }
+            };
 
-				SortingGroup sortingGroup = (character.GetComponent<SortingGroup>() == null) ? character.gameObject.AddComponent<SortingGroup>() : character.GetComponent<SortingGroup>();
-				sortingGroup.sortingLayerName = "Characters";
+            // ── Condition ─────────────────────────────────────────────────────
+            var condition = character.ConditionState.CurrentState;
+            EditorGUILayout.LabelField("CONDITION", headerStyle);
+            DrawColoredLabel(condition.ToString(),
+                ConditionColors.TryGetValue(condition, out var cc) ? cc : Color.white);
 
-				// Adds the boxcollider2D if needed
-				BoxCollider2D boxcollider2D = (character.GetComponent<BoxCollider2D>() == null) ? character.gameObject.AddComponent<BoxCollider2D>() : character.GetComponent<BoxCollider2D>();
-				boxcollider2D.isTrigger = false;
+            EditorGUILayout.Space(4);
 
-				// adds the top down controller 2D
-				TopDownController2D topDownController2D = (character.GetComponent<TopDownController2D>() == null) ? character.gameObject.AddComponent<TopDownController2D>() : character.GetComponent<TopDownController2D>();
-				topDownController2D.Gravity = -30;                
-				topDownController2D.GroundLayerMask = LayerMask.GetMask("Ground");
-				topDownController2D.HoleLayerMask = LayerMask.GetMask("Hole");
+            // ── Movement ──────────────────────────────────────────────────────
+            var movement  = character.MovementState.CurrentState;
+            var previous  = character.MovementState.PreviousState;
+            EditorGUILayout.LabelField("MOVEMENT", headerStyle);
+            DrawColoredLabel(movement.ToString(),
+                MovementColors.TryGetValue(movement, out var mc) ? mc : Color.white);
 
-				// adds 2D specific components
-				if (character.GetComponent<CharacterOrientation2D>() == null) { character.gameObject.AddComponent<CharacterOrientation2D>(); }
-				if (character.GetComponent<CharacterDash2D>() == null) { character.gameObject.AddComponent<CharacterDash2D>(); }
-				if (character.GetComponent<CharacterJump2D>() == null) { character.gameObject.AddComponent<CharacterJump2D>(); }
-			}
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("prev:", GUILayout.Width(30));
+            DrawColoredLabel(previous.ToString(),
+                MovementColors.TryGetValue(previous, out var pc) ? pc * 0.65f : Color.gray,
+                height: 16);
+            EditorGUILayout.EndHorizontal();
 
-			if (mode == Modes.ThreeD)
-			{
-				// adds a character controller
-				CharacterController characterController = (character.GetComponent<CharacterController>() == null) ? character.gameObject.AddComponent<CharacterController>() : character.GetComponent<CharacterController>();
-				characterController.slopeLimit = 45f;
-				characterController.stepOffset = 0.3f;
-				characterController.skinWidth = 0.08f;
-				characterController.minMoveDistance = 0.001f;
-				characterController.radius = 0.5f;
+            // ── Speed ─────────────────────────────────────────────────────────
+            var movementAbility = character.FindAbility<CharacterMovement>();
+            if (movementAbility != null)
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.LabelField("SPEED", headerStyle);
 
-				// adds a rigidbody
-				Rigidbody rigidbody = (character.GetComponent<Rigidbody>() == null) ? character.gameObject.AddComponent<Rigidbody>() : character.GetComponent<Rigidbody>();
-				rigidbody.mass = 1;
-				rigidbody.linearDamping = 0;
-				rigidbody.angularDamping = 0.05f;
-				rigidbody.interpolation = RigidbodyInterpolation.None;
-				rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
-				rigidbody.useGravity = true;
-				rigidbody.isKinematic = true;
+                DrawProgressBar("Speed",      movementAbility.MovementSpeed,             30f, new Color(0.3f, 0.8f, 1f));
+                DrawProgressBar("Multiplier", movementAbility.MovementSpeedMultiplier,    3f, new Color(0.9f, 0.7f, 0.3f));
 
-				// adds the top down controller 3D
-				TopDownController3D topDownController3D = (character.GetComponent<TopDownController3D>() == null) ? character.gameObject.AddComponent<TopDownController3D>() : character.GetComponent<TopDownController3D>();
-				topDownController3D.Gravity = 40;
-				topDownController3D.ObstaclesLayerMask = LayerMask.GetMask("Obstacles", "Ground", "ObstaclesDoors", "MovingPlatform", "FallingPlatform");
+                if (movementAbility.MovementForbidden)
+                    DrawColoredLabel("⚠  Movement Forbidden", new Color(1f, 0.3f, 0.3f), height: 18);
+            }
 
-				// adds 3D specific components
-				if (character.GetComponent<CharacterOrientation3D>() == null) { character.gameObject.AddComponent<CharacterOrientation3D>(); }
-				if (character.GetComponent<CharacterCrouch>() == null) { character.gameObject.AddComponent<CharacterCrouch>(); }
-				if (character.GetComponent<CharacterJump3D>() == null) { character.gameObject.AddComponent<CharacterJump3D>(); }
-				if (character.GetComponent<CharacterDash3D>() == null) { character.gameObject.AddComponent<CharacterDash3D>(); }
-			}
+            // ── Controller ────────────────────────────────────────────────────
+            var controller = character.GetComponent<TopDownController>();
+            if (controller != null)
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.LabelField("CONTROLLER", headerStyle);
 
-			// adds components common to 2D and 3D
-			if (character.GetComponent<CharacterMovement>() == null) { character.gameObject.AddComponent<CharacterMovement>(); }
-			if (character.GetComponent<CharacterRun>() == null) { character.gameObject.AddComponent<CharacterRun>(); }
+                bool grounded = controller.Grounded;
+                DrawColoredLabel(grounded ? "Grounded" : "Airborne",
+                    grounded ? new Color(0.4f, 0.85f, 0.4f) : new Color(1f, 0.6f, 0.2f));
 
-			// adds (usually) player specific components
-			if (type == Character.CharacterTypes.Player)
-			{
-				if (character.GetComponent<CharacterButtonActivation>() == null) { character.gameObject.AddComponent<CharacterButtonActivation>(); }
-				if (character.GetComponent<CharacterPause>() == null) { character.gameObject.AddComponent<CharacterPause>(); }
-				if (character.GetComponent<CharacterTimeControl>() == null) { character.gameObject.AddComponent<CharacterTimeControl>(); }
-			}
+                DrawProgressBar("Velocity", controller.CurrentMovement.magnitude, 20f, new Color(0.3f, 0.8f, 1f));
+            }
+        }
 
-			// adds health
-			Health health = (character.GetComponent<Health>() == null) ? character.gameObject.AddComponent<Health>() : character.GetComponent<Health>();
-			health.MaximumHealth = 100;
-			health.CurrentHealth = 100;
-            
-			Debug.LogFormat(character.name + " : Character Autobuild Complete");
-		}
-	}
+        // ─────────────────────────────────────────────────────────────────────
+        //  Drawing helpers
+        // ─────────────────────────────────────────────────────────────────────
+
+        private static void DrawColoredLabel(string text, Color bgColor, float height = 22)
+        {
+            var rect = EditorGUILayout.GetControlRect(false, height);
+
+            // darken bg slightly so white text is readable on light colors
+            EditorGUI.DrawRect(rect, bgColor * 0.85f);
+
+            // subtle border
+            var border = rect;
+            border.height = 1;
+            EditorGUI.DrawRect(border, bgColor);
+            border.y = rect.yMax - 1;
+            EditorGUI.DrawRect(border, bgColor);
+
+            EditorGUI.LabelField(rect, text, new GUIStyle(EditorStyles.boldLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal    = { textColor = Color.white },
+                fontSize  = 11
+            });
+        }
+
+        private static void DrawProgressBar(string label, float value, float max, Color fillColor, float height = 18)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(label, GUILayout.Width(70));
+
+            var rect = EditorGUILayout.GetControlRect(false, height);
+
+            // background
+            EditorGUI.DrawRect(rect, new Color(0.18f, 0.18f, 0.18f));
+
+            // fill
+            float ratio = Mathf.Clamp01(value / max);
+            if (ratio > 0)
+            {
+                var fill = new Rect(rect.x, rect.y, rect.width * ratio, rect.height);
+                EditorGUI.DrawRect(fill, fillColor);
+            }
+
+            // value label
+            EditorGUI.LabelField(rect, value.ToString("F2"), new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal    = { textColor = Color.white },
+                fontStyle = FontStyle.Bold
+            });
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        //  Autobuild (оригинальный код без изменений)
+        // ─────────────────────────────────────────────────────────────────────
+
+        protected virtual void GenerateCharacter(Character.CharacterTypes type, Modes mode)
+        {
+            Character character = (Character)target;
+
+            Debug.LogFormat(character.name + " : Character Autobuild Start");
+
+            if (type == Character.CharacterTypes.Player)
+            {
+                character.CharacterType = Character.CharacterTypes.Player;
+                character.gameObject.layer = LayerMask.NameToLayer("Player");
+                character.gameObject.tag   = "Player";
+                character.PlayerID         = "Player1";
+            }
+
+            if (type == Character.CharacterTypes.AI)
+            {
+                character.CharacterType    = Character.CharacterTypes.AI;
+                character.gameObject.layer = LayerMask.NameToLayer("Enemies");
+            }
+
+            if (mode == Modes.TwoD)
+            {
+                Rigidbody2D rigidbody2D = character.GetComponent<Rigidbody2D>() ?? character.gameObject.AddComponent<Rigidbody2D>();
+                rigidbody2D.bodyType               = RigidbodyType2D.Dynamic;
+                rigidbody2D.simulated              = true;
+                rigidbody2D.useAutoMass            = false;
+                rigidbody2D.mass                   = 1;
+                rigidbody2D.linearDamping          = 1;
+                rigidbody2D.angularDamping         = 0.05f;
+                rigidbody2D.gravityScale           = 0;
+                rigidbody2D.interpolation          = RigidbodyInterpolation2D.Interpolate;
+                rigidbody2D.sleepMode              = RigidbodySleepMode2D.StartAwake;
+                rigidbody2D.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+                rigidbody2D.constraints            = RigidbodyConstraints2D.FreezeRotation;
+
+                SortingGroup sortingGroup = character.GetComponent<SortingGroup>() ?? character.gameObject.AddComponent<SortingGroup>();
+                sortingGroup.sortingLayerName = "Characters";
+
+                BoxCollider2D boxcollider2D = character.GetComponent<BoxCollider2D>() ?? character.gameObject.AddComponent<BoxCollider2D>();
+                boxcollider2D.isTrigger = false;
+
+                TopDownController2D topDownController2D = character.GetComponent<TopDownController2D>() ?? character.gameObject.AddComponent<TopDownController2D>();
+                topDownController2D.Gravity        = -30;
+                topDownController2D.GroundLayerMask = LayerMask.GetMask("Ground");
+                topDownController2D.HoleLayerMask   = LayerMask.GetMask("Hole");
+
+                if (character.GetComponent<CharacterOrientation2D>() == null) character.gameObject.AddComponent<CharacterOrientation2D>();
+                if (character.GetComponent<CharacterDash2D>()        == null) character.gameObject.AddComponent<CharacterDash2D>();
+                if (character.GetComponent<CharacterJump2D>()        == null) character.gameObject.AddComponent<CharacterJump2D>();
+            }
+
+            if (mode == Modes.ThreeD)
+            {
+                CharacterController characterController = character.GetComponent<CharacterController>() ?? character.gameObject.AddComponent<CharacterController>();
+                characterController.slopeLimit     = 45f;
+                characterController.stepOffset     = 0.3f;
+                characterController.skinWidth      = 0.08f;
+                characterController.minMoveDistance = 0.001f;
+                characterController.radius         = 0.5f;
+
+                Rigidbody rigidbody = character.GetComponent<Rigidbody>() ?? character.gameObject.AddComponent<Rigidbody>();
+                rigidbody.mass                   = 1;
+                rigidbody.linearDamping          = 0;
+                rigidbody.angularDamping         = 0.05f;
+                rigidbody.interpolation          = RigidbodyInterpolation.None;
+                rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                rigidbody.useGravity             = true;
+                rigidbody.isKinematic            = true;
+
+                TopDownController3D topDownController3D = character.GetComponent<TopDownController3D>() ?? character.gameObject.AddComponent<TopDownController3D>();
+                topDownController3D.Gravity              = 40;
+                topDownController3D.ObstaclesLayerMask   = LayerMask.GetMask("Obstacles", "Ground", "ObstaclesDoors", "MovingPlatform", "FallingPlatform");
+
+                if (character.GetComponent<CharacterOrientation3D>() == null) character.gameObject.AddComponent<CharacterOrientation3D>();
+                if (character.GetComponent<CharacterCrouch>()        == null) character.gameObject.AddComponent<CharacterCrouch>();
+                if (character.GetComponent<CharacterJump3D>()        == null) character.gameObject.AddComponent<CharacterJump3D>();
+                if (character.GetComponent<CharacterDash3D>()        == null) character.gameObject.AddComponent<CharacterDash3D>();
+            }
+
+            if (character.GetComponent<CharacterMovement>() == null) character.gameObject.AddComponent<CharacterMovement>();
+            if (character.GetComponent<CharacterRun>()      == null) character.gameObject.AddComponent<CharacterRun>();
+
+            if (type == Character.CharacterTypes.Player)
+            {
+                if (character.GetComponent<CharacterButtonActivation>() == null) character.gameObject.AddComponent<CharacterButtonActivation>();
+                if (character.GetComponent<CharacterPause>()            == null) character.gameObject.AddComponent<CharacterPause>();
+                if (character.GetComponent<CharacterTimeControl>()      == null) character.gameObject.AddComponent<CharacterTimeControl>();
+            }
+
+            Health health = character.GetComponent<Health>() ?? character.gameObject.AddComponent<Health>();
+            health.MaximumHealth = 100;
+            health.CurrentHealth = 100;
+
+            Debug.LogFormat(character.name + " : Character Autobuild Complete");
+        }
+    }
 }

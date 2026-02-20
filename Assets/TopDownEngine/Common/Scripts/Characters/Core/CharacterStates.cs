@@ -2,14 +2,20 @@ using UnityEngine;
 using System.Collections;
 using MoreMountains.Tools;
 
+#if UNITY_EDITOR
+using Sirenix.OdinInspector;
+#endif
+
 namespace MoreMountains.TopDownEngine
-{   
+{
     /// <summary>
-    /// The various states you can use to check if your character is doing something at the current frame
-    /// </summary>    
-    public class CharacterStates 
+    /// The various states you can use to check if your character is doing something at the current frame.
+    /// </summary>
+    public class CharacterStates
     {
-        /// The possible character conditions
+        /// <summary>
+        /// The possible character conditions — high-level "what is happening to the character".
+        /// </summary>
         public enum CharacterConditions
         {
             Normal,
@@ -20,9 +26,11 @@ namespace MoreMountains.TopDownEngine
             Stunned
         }
 
-        /// The possible Movement States the character can be in. These usually correspond to their own class, 
-        /// but it's not mandatory
-        public enum MovementStates 
+        /// <summary>
+        /// The possible movement states — what locomotion action is currently active.
+        /// These usually correspond to their own ability class, but it's not mandatory.
+        /// </summary>
+        public enum MovementStates
         {
             Null,
             Idle,
@@ -30,14 +38,14 @@ namespace MoreMountains.TopDownEngine
             Walking,
             Running,
             Crouching,
-            Crawling, 
+            Crawling,
             Dashing,
             Jetpacking,
             Jumping,
             Pushing,
             DoubleJumping,
             Attacking,
-            SpecialAttacking, // Added for abilities like block, parry, special moves
+            SpecialAttacking,
             FallingDownHole
         }
     }
