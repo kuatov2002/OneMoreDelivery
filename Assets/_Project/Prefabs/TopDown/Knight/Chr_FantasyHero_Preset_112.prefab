@@ -11743,7 +11743,7 @@ MonoBehaviour:
   UseMaterialPropertyBlocks: 0
   MasterHealth: {fileID: 0}
   TargetDamageResistanceProcessor: {fileID: 0}
-  TargetAnimator: {fileID: 0}
+  TargetAnimator: {fileID: 3752571547916384151}
   DisableAnimatorLogs: 1
 --- !u!114 &4602188654502583259
 MonoBehaviour:
@@ -11776,7 +11776,7 @@ MonoBehaviour:
   AmmoDisplayID: 0
   AutoIK: 1
   ContinuousPress: 0
-  GettingHitInterruptsAttack: 0
+  GettingHitInterruptsAttack: 1
   UseSecondaryAxisThresholdToShoot: 0
   ForceWeaponAimControl: 0
   ForcedWeaponAimControl: 1
@@ -11999,7 +11999,7 @@ MonoBehaviour:
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
   AbilityPermitted: 1
-  BlockingMovementStates: 
+  BlockingMovementStates: 07000000
   BlockingConditionStates: 
   BlockingWeaponStates: 
   ShieldDirection: {x: 0, y: 0, z: 1}
@@ -74699,7 +74699,7 @@ GameObject:
   - component: {fileID: 8291081094886004079}
   - component: {fileID: 6098394822155108195}
   m_Layer: 10
-  m_Name: CubeDamageFeedback
+  m_Name: DamageFeedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74943,7 +74943,7 @@ MonoBehaviour:
         PositionMode: 1
         TargetTransform: {fileID: 0}
         Direction: {x: 0, y: 0, z: 0}
-        TargetHealth: {fileID: 0}
+        TargetHealth: {fileID: 5582970741483675600}
         Formatting: 
         DamageDirectionImpactsTextDirection: 1
         DamageDirectionMultiplier: 0.5
@@ -80260,7 +80260,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: cefb2661e65fc8c4c9c9e8319d6e9912, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

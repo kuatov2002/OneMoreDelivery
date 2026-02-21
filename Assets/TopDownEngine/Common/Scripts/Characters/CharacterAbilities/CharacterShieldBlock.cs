@@ -85,15 +85,42 @@ namespace MoreMountains.TopDownEngine
         protected override void Initialization()
         {
             base.Initialization();
-            
+    
             _characterMovement = _character?.FindAbility<CharacterMovement>();
-            
+    
             BlockStartFeedback?.Initialization(gameObject);
             BlockStopFeedback?.Initialization(gameObject);
             BlockHitFeedback?.Initialization(gameObject);
             ParrySuccessFeedback?.Initialization(gameObject);
-        }
 
+            // Подписываемся на изменения стейта движения
+            if (_movement != null)
+            {
+                _movement.OnStateChange += OnMovementStateChanged;
+            }
+        }
+        protected virtual void OnMovementStateChanged()
+        {
+            if (_blocking && _movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
+            {
+                // Если оружие уже активно — weaponInterrupt
+                bool weaponActive = false;
+                if (_handleWeaponList != null)
+                {
+                    foreach (CharacterHandleWeapon hw in _handleWeaponList)
+                    {
+                        if (hw.CurrentWeapon == null) continue;
+                        var s = hw.CurrentWeapon.WeaponState.CurrentState;
+                        if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
+                        {
+                            weaponActive = true;
+                            break;
+                        }
+                    }
+                }
+                StopBlocking(weaponInterrupt: weaponActive);
+            }
+        }
         protected override void HandleInput()
         {
             if (!AbilityAuthorized 
@@ -120,17 +147,85 @@ namespace MoreMountains.TopDownEngine
         public override void ProcessAbility()
         {
             base.ProcessAbility();
-            
+    
             if (_blocking)
             {
                 UpdateParryWindow();
+                CheckForceStopConditions();
+            }
+        }
+        protected virtual void CheckForceStopConditions()
+        {
+            if (_movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
+            {
+                StopBlocking();
+                return;
+            }
+
+            if (_handleWeaponList != null)
+            {
+                foreach (CharacterHandleWeapon handleWeapon in _handleWeaponList)
+                {
+                    if (handleWeapon.CurrentWeapon == null) continue;
+
+                    Weapon.WeaponStates weaponState = handleWeapon.CurrentWeapon.WeaponState.CurrentState;
+                    bool weaponActive = weaponState != Weapon.WeaponStates.WeaponIdle
+                                        && weaponState != Weapon.WeaponStates.WeaponStop;
+
+                    if (weaponActive)
+                    {
+                        StopBlocking(weaponInterrupt: true);
+                        StartCoroutine(ResetMovementAfterWeapon());
+                        return;
+                    }
+                }
             }
         }
 
+        protected virtual IEnumerator ResetMovementAfterWeapon()
+        {
+            // Один кадр ждём чтобы оружие успело стартовать
+            yield return null;
+
+            // Ждём пока оружие не закончит
+            bool weaponStillActive = true;
+            while (weaponStillActive)
+            {
+                weaponStillActive = false;
+                if (_handleWeaponList != null)
+                {
+                    foreach (CharacterHandleWeapon hw in _handleWeaponList)
+                    {
+                        if (hw.CurrentWeapon == null) continue;
+                        Weapon.WeaponStates s = hw.CurrentWeapon.WeaponState.CurrentState;
+                        if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
+                        {
+                            weaponStillActive = true;
+                            break;
+                        }
+                    }
+                }
+                if (weaponStillActive) yield return null;
+            }
+
+            // Сбрасываем только если никто другой стейт не занял
+            if (_movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking)
+            {
+                _movement.ChangeState(CharacterStates.MovementStates.Idle);
+            }
+        }
         protected virtual void StartBlocking()
         {
             if (_blocking) return;
 
+            if (_handleWeaponList != null)
+            {
+                foreach (CharacterHandleWeapon handleWeapon in _handleWeaponList)
+                {
+                    handleWeapon?.ForceStop();
+                }
+            }
+            
             _blocking = true;
             _movement.ChangeState(CharacterStates.MovementStates.SpecialAttacking);
 
@@ -158,14 +253,21 @@ namespace MoreMountains.TopDownEngine
             BlockStartFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStartFeedbacks();
         }
-
-        protected virtual void StopBlocking()
+        
+        protected virtual void StopBlocking(bool weaponInterrupt = false)
         {
             if (!_blocking) return;
 
             _blocking = false;
             _parryWindowActive = false;
-            _movement.ChangeState(CharacterStates.MovementStates.Idle);
+
+            // Если прерываем ради оружия — не сбрасываем стейт в Idle,
+            // CharacterMovement сам перейдёт в Walking/Idle со следующего кадра,
+            // минуя конфликт с аниматором атаки
+            if (!weaponInterrupt && _movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking)
+            {
+                _movement.ChangeState(CharacterStates.MovementStates.Idle);
+            }
 
             if (_characterMovement != null)
             {
@@ -323,13 +425,19 @@ namespace MoreMountains.TopDownEngine
         protected override void OnDisable()
         {
             base.OnDisable();
+
+            if (_movement != null)
+            {
+                _movement.OnStateChange -= OnMovementStateChanged;
+            }
+
             if (_blocking)
             {
                 StopBlocking();
             }
         }
 
-        protected virtual void OnDrawGizmosSelected()
+        protected virtual void OnDrawGizmos()
         {
             if (!_blocking) return;
 

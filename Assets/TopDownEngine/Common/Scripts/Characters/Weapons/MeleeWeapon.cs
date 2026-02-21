@@ -264,7 +264,19 @@ namespace MoreMountains.TopDownEngine
 			}
 		}
 
+		public override void TurnWeaponOff()
+		{
+			base.TurnWeaponOff();
 
+			if (_attackCoroutine != null)
+			{
+				StopCoroutine(_attackCoroutine);
+				_attackCoroutine = null;
+			}
+
+			DisableDamageArea();
+			_attackInProgress = false;
+		}
 		/// <summary>
 		/// Disables the damage area.
 		/// </summary>

@@ -99,6 +99,15 @@ namespace MoreMountains.TopDownEngine
             if (!Cooldown.Ready()) return;
 
             Cooldown.Start();
+            
+            if (_handleWeaponList != null)
+            {
+                foreach (CharacterHandleWeapon handleWeapon in _handleWeaponList)
+                {
+                    handleWeapon?.ForceStop();
+                }
+            }
+            
             _movement.ChangeState(CharacterStates.MovementStates.Dashing);
             
             _dashing = true;

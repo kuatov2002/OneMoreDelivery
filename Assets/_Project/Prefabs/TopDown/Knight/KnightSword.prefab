@@ -109,7 +109,7 @@ MonoBehaviour:
   WeaponReloadNeededMMFeedback: {fileID: 0}
   WeaponReloadImpossibleMMFeedback: {fileID: 0}
   InitializeOnStart: 0
-  Interruptable: 0
+  Interruptable: 1
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
@@ -203,7 +203,7 @@ MonoBehaviour:
   WeaponReloadNeededMMFeedback: {fileID: 0}
   WeaponReloadImpossibleMMFeedback: {fileID: 0}
   InitializeOnStart: 0
-  Interruptable: 0
+  Interruptable: 1
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
@@ -297,7 +297,7 @@ MonoBehaviour:
   WeaponReloadNeededMMFeedback: {fileID: 0}
   WeaponReloadImpossibleMMFeedback: {fileID: 0}
   InitializeOnStart: 0
-  Interruptable: 0
+  Interruptable: 1
   Flipped: 0
   MeleeDamageAreaMode: 0
   DamageAreaShape: 2
@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DroppableCombo: 1
-  DropComboDelay: 1
+  DropComboDelay: 0.4
   InputMode: 0
   ComboInProgressAnimationParameter: ComboInProgress
   Weapons: []
