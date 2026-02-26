@@ -7,27 +7,33 @@ using MoreMountains.Feedbacks;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Shield block ability with parry mechanic
-    /// 
+    /// Shield block ability with parry mechanic and input buffering.
+    ///
+    /// When the player presses the block button while the ability is temporarily
+    /// unavailable (e.g. the character is in a blocking movement state), the input
+    /// is buffered and the block activates as soon as the restriction lifts.
+    ///
     /// Animation parameters:
-    /// Blocking (bool) - true while holding block
-    /// BlockStarted (trigger) - triggered on block start
-    /// Parried (trigger) - triggered on successful parry
-    /// ParryWindow (bool) - true during parry window
+    ///   Blocking      (bool)    – true while holding block
+    ///   BlockStarted  (trigger) – triggered on block start
+    ///   Parried       (trigger) – triggered on successful parry
+    ///   ParryWindow   (bool)    – true during parry window
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/Abilities/Character Shield Block")]
     public class CharacterShieldBlock : CharacterAbility
     {
+        // ── Inspector ─────────────────────────────────────────────────────────
+
         [Header("Block Settings")]
         [Tooltip("Direction the shield protects (local space)")]
         public Vector3 ShieldDirection = Vector3.forward;
-        
+
         [Tooltip("Protection arc angle in degrees (180 = half circle)")]
         public float ProtectionArc = 120f;
-        
+
         [Tooltip("Can move while blocking?")]
         public bool AllowMovementWhileBlocking = true;
-        
+
         [Tooltip("Movement speed multiplier while blocking")]
         [MMCondition("AllowMovementWhileBlocking", true)]
         public float MovementSpeedMultiplier = 0.3f;
@@ -36,29 +42,33 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Damage reduction percentage (0-1)")]
         [Range(0f, 1f)]
         public float DamageReduction = 0.8f;
-        
+
         [Tooltip("Block all damage from protected direction?")]
         public bool PerfectBlock = false;
 
         [Header("Parry")]
         [Tooltip("Enable parry mechanic?")]
         public bool ParryEnabled = true;
-        
+
         [Tooltip("Parry window duration after block starts (seconds)")]
         [MMCondition("ParryEnabled", true)]
         public float ParryWindowDuration = 0.3f;
-        
+
         [Tooltip("Damage multiplier returned to attacker on parry")]
         [MMCondition("ParryEnabled", true)]
         public float ParryDamageMultiplier = 1.5f;
-        
+
         [Tooltip("Stun attacker on successful parry?")]
         [MMCondition("ParryEnabled", true)]
         public bool StunOnParry = true;
-        
+
         [Tooltip("Stun duration in seconds")]
         [MMCondition("StunOnParry", true)]
         public float StunDuration = 1.5f;
+
+        [Header("Input Buffer")]
+        [Tooltip("Buffer a block request made while the ability is temporarily unavailable")]
+        public AbilityInputBuffer InputBuffer = new AbilityInputBuffer { BufferDuration = 0.25f };
 
         [Header("Feedbacks")]
         public MMFeedbacks BlockStartFeedback;
@@ -66,94 +76,128 @@ namespace MoreMountains.TopDownEngine
         public MMFeedbacks BlockHitFeedback;
         public MMFeedbacks ParrySuccessFeedback;
 
+        // ── State ─────────────────────────────────────────────────────────────
+
         protected bool _blocking;
         protected bool _parryWindowActive;
         protected float _parryWindowTimer;
         protected float _originalMovementSpeed;
         protected CharacterMovement _characterMovement;
-        
-        protected const string _blockingParameterName = "Blocking";
+
+        // ── Animator parameters ───────────────────────────────────────────────
+
+        protected const string _blockingParameterName    = "Blocking";
         protected const string _blockStartedParameterName = "BlockStarted";
-        protected const string _parriedParameterName = "Parried";
+        protected const string _parriedParameterName     = "Parried";
         protected const string _parryWindowParameterName = "ParryWindow";
-        
+
         protected int _blockingParameter;
         protected int _blockStartedParameter;
         protected int _parriedParameter;
         protected int _parryWindowParameter;
 
+        // ── Initialization ────────────────────────────────────────────────────
+
         protected override void Initialization()
         {
             base.Initialization();
-    
+
             _characterMovement = _character?.FindAbility<CharacterMovement>();
-    
+
             BlockStartFeedback?.Initialization(gameObject);
             BlockStopFeedback?.Initialization(gameObject);
             BlockHitFeedback?.Initialization(gameObject);
             ParrySuccessFeedback?.Initialization(gameObject);
 
-            // Подписываемся на изменения стейта движения
             if (_movement != null)
             {
                 _movement.OnStateChange += OnMovementStateChanged;
             }
         }
+
+        // ── Movement state change ─────────────────────────────────────────────
+
         protected virtual void OnMovementStateChanged()
         {
-            if (_blocking && _movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
-            {
-                // Если оружие уже активно — weaponInterrupt
-                bool weaponActive = false;
-                if (_handleWeaponList != null)
-                {
-                    foreach (CharacterHandleWeapon hw in _handleWeaponList)
-                    {
-                        if (hw.CurrentWeapon == null) continue;
-                        var s = hw.CurrentWeapon.WeaponState.CurrentState;
-                        if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
-                        {
-                            weaponActive = true;
-                            break;
-                        }
-                    }
-                }
-                StopBlocking(weaponInterrupt: weaponActive);
-            }
+            if (!_blocking) return;
+            if (_movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking) return;
+
+            bool weaponActive = IsAnyWeaponActive();
+            StopBlocking(weaponInterrupt: weaponActive);
         }
+
+        // ── Input ─────────────────────────────────────────────────────────────
+
         protected override void HandleInput()
         {
-            if (!AbilityAuthorized 
-                || _condition.CurrentState != CharacterStates.CharacterConditions.Normal)
+            if (_inputManager == null) return;
+
+            bool buttonDown = _inputManager.SecondaryShootButton.State.CurrentState
+                              == MMInput.ButtonStates.ButtonDown;
+            bool buttonUp   = _inputManager.SecondaryShootButton.State.CurrentState
+                              == MMInput.ButtonStates.ButtonUp;
+
+            if (buttonDown)
             {
+                // Ability is fully available — start immediately.
+                if (AbilityAuthorized
+                    && _condition.CurrentState == CharacterStates.CharacterConditions.Normal)
+                {
+                    StartBlocking();
+                }
+                else
+                {
+                    // Temporarily blocked — store the request.
+                    InputBuffer.Request();
+                }
+            }
+
+            if (buttonUp)
+            {
+                InputBuffer.Clear();
+
                 if (_blocking)
                 {
                     StopBlocking();
                 }
+            }
 
-                return;
-            }
-            
-            if (_inputManager.SecondaryShootButton.State.CurrentState == MMInput.ButtonStates.ButtonDown)
-            {
-                StartBlocking();
-            }
-            else if (_inputManager.SecondaryShootButton.State.CurrentState == MMInput.ButtonStates.ButtonUp)
+            // Not Authorized and currently blocking — force-stop.
+            if (_blocking
+                && (!AbilityAuthorized
+                    || _condition.CurrentState != CharacterStates.CharacterConditions.Normal))
             {
                 StopBlocking();
             }
         }
 
+        // ── Process ───────────────────────────────────────────────────────────
+
         public override void ProcessAbility()
         {
             base.ProcessAbility();
-    
+
+            // Try to flush a buffered block request.
+            if (!_blocking
+                && InputBuffer.IsActive
+                && AbilityAuthorized
+                && _condition.CurrentState == CharacterStates.CharacterConditions.Normal)
+            {
+                if (InputBuffer.ConsumeIfActive())
+                {
+                    StartBlocking();
+                }
+            }
+
             if (_blocking)
             {
                 UpdateParryWindow();
                 CheckForceStopConditions();
             }
         }
+
+        // ── Force-stop conditions ─────────────────────────────────────────────
+
         protected virtual void CheckForceStopConditions()
         {
             if (_movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
@@ -162,126 +206,75 @@ namespace MoreMountains.TopDownEngine
                 return;
             }
 
-            if (_handleWeaponList != null)
+            if (IsAnyWeaponActive())
             {
-                foreach (CharacterHandleWeapon handleWeapon in _handleWeaponList)
-                {
-                    if (handleWeapon.CurrentWeapon == null) continue;
-
-                    Weapon.WeaponStates weaponState = handleWeapon.CurrentWeapon.WeaponState.CurrentState;
-                    bool weaponActive = weaponState != Weapon.WeaponStates.WeaponIdle
-                                        && weaponState != Weapon.WeaponStates.WeaponStop;
-
-                    if (weaponActive)
-                    {
-                        StopBlocking(weaponInterrupt: true);
-                        StartCoroutine(ResetMovementAfterWeapon());
-                        return;
-                    }
-                }
+                StopBlocking(weaponInterrupt: true);
+                StartCoroutine(ResetMovementAfterWeaponRoutine());
             }
         }
 
-        protected virtual IEnumerator ResetMovementAfterWeapon()
+        protected virtual IEnumerator ResetMovementAfterWeaponRoutine()
         {
-            // Один кадр ждём чтобы оружие успело стартовать
-            yield return null;
+            yield return null; // let the weapon start
 
-            // Ждём пока оружие не закончит
-            bool weaponStillActive = true;
-            while (weaponStillActive)
+            while (IsAnyWeaponActive())
             {
-                weaponStillActive = false;
-                if (_handleWeaponList != null)
-                {
-                    foreach (CharacterHandleWeapon hw in _handleWeaponList)
-                    {
-                        if (hw.CurrentWeapon == null) continue;
-                        Weapon.WeaponStates s = hw.CurrentWeapon.WeaponState.CurrentState;
-                        if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
-                        {
-                            weaponStillActive = true;
-                            break;
-                        }
-                    }
-                }
-                if (weaponStillActive) yield return null;
+                yield return null;
             }
 
-            // Сбрасываем только если никто другой стейт не занял
             if (_movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking)
             {
                 _movement.ChangeState(CharacterStates.MovementStates.Idle);
             }
         }
+
+        // ── Block / Stop ──────────────────────────────────────────────────────
+
         protected virtual void StartBlocking()
         {
             if (_blocking) return;
 
-            if (_handleWeaponList != null)
-            {
-                foreach (CharacterHandleWeapon handleWeapon in _handleWeaponList)
-                {
-                    handleWeapon?.ForceStop();
-                }
-            }
-            
+            StopAllWeapons();
+
             _blocking = true;
             _movement.ChangeState(CharacterStates.MovementStates.SpecialAttacking);
 
             if (ParryEnabled)
             {
                 _parryWindowActive = true;
-                _parryWindowTimer = 0f;
+                _parryWindowTimer  = 0f;
             }
 
-            if (!AllowMovementWhileBlocking && _characterMovement != null)
-            {
-                _characterMovement.MovementForbidden = true;
-            }
-            else if (_characterMovement != null)
-            {
-                _originalMovementSpeed = _characterMovement.MovementSpeedMultiplier;
-                _characterMovement.MovementSpeedMultiplier = MovementSpeedMultiplier;
-            }
+            ApplyMovementRestriction();
 
             MMAnimatorExtensions.UpdateAnimatorTrigger(
-                _animator, 
-                _blockStartedParameter, 
-                _character._animatorParameters
-            );
+                _animator, _blockStartedParameter, _character._animatorParameters);
+
             BlockStartFeedback?.PlayFeedbacks(transform.position);
             PlayAbilityStartFeedbacks();
         }
-        
+
         protected virtual void StopBlocking(bool weaponInterrupt = false)
         {
             if (!_blocking) return;
 
-            _blocking = false;
+            _blocking          = false;
             _parryWindowActive = false;
 
-            // Если прерываем ради оружия — не сбрасываем стейт в Idle,
-            // CharacterMovement сам перейдёт в Walking/Idle со следующего кадра,
-            // минуя конфликт с аниматором атаки
-            if (!weaponInterrupt && _movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking)
+            if (!weaponInterrupt
+                && _movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking)
             {
                 _movement.ChangeState(CharacterStates.MovementStates.Idle);
             }
 
-            if (_characterMovement != null)
-            {
-                _characterMovement.MovementForbidden = false;
-                if (AllowMovementWhileBlocking)
-                {
-                    _characterMovement.MovementSpeedMultiplier = _originalMovementSpeed;
-                }
-            }
+            RestoreMovement();
 
             BlockStopFeedback?.PlayFeedbacks(transform.position);
             StopStartFeedbacks();
             PlayAbilityStopFeedbacks();
         }
+
+        // ── Parry ─────────────────────────────────────────────────────────────
 
         protected virtual void UpdateParryWindow()
         {
@@ -294,128 +287,165 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
+        // ── Public damage API ─────────────────────────────────────────────────
+
         /// <summary>
-        /// Call this from Health component when taking damage
-        /// Returns modified damage value
+        /// Call this from the Health component when taking damage.
+        /// Returns the modified damage value after block / parry processing.
         /// </summary>
-        public virtual float ProcessIncomingDamage(float damage, Vector3 damageDirection, GameObject instigator)
+        public virtual float ProcessIncomingDamage(
+            float damage, Vector3 damageDirection, GameObject instigator)
         {
             if (!_blocking) return damage;
 
-            // Check if attack is from protected direction
-            Vector3 attackDirection = (damageDirection - transform.position).normalized;
-            Vector3 shieldWorldDirection = transform.TransformDirection(ShieldDirection);
-            float angle = Vector3.Angle(shieldWorldDirection, attackDirection);
+            Vector3 attackDir       = (damageDirection - transform.position).normalized;
+            Vector3 shieldWorldDir  = transform.TransformDirection(ShieldDirection);
+            float   angle           = Vector3.Angle(shieldWorldDir, attackDir);
 
             if (angle > ProtectionArc / 2f)
             {
-                return damage; // Attack from unprotected side
+                return damage; // unprotected side
             }
 
-            // Check for parry
             if (_parryWindowActive && ParryEnabled)
             {
                 return ExecuteParry(damage, instigator);
             }
 
-            // Regular block
             BlockHitFeedback?.PlayFeedbacks(transform.position);
-            
-            float finalDamage = PerfectBlock ? 0f : damage * (1f - DamageReduction);
-            return finalDamage;
+            return PerfectBlock ? 0f : damage * (1f - DamageReduction);
         }
 
         protected virtual float ExecuteParry(float damage, GameObject attacker)
         {
             _parryWindowActive = false;
-            
+
             ParrySuccessFeedback?.PlayFeedbacks(transform.position);
             MMAnimatorExtensions.UpdateAnimatorTrigger(
-                _animator, 
-                _parriedParameter, 
-                _character._animatorParameters
-            );
+                _animator, _parriedParameter, _character._animatorParameters);
 
-            // Return damage to attacker
             if (attacker != null)
             {
                 Health attackerHealth = attacker.GetComponent<Health>();
                 if (attackerHealth != null)
                 {
-                    float returnDamage = damage * ParryDamageMultiplier;
                     attackerHealth.Damage(
-                        returnDamage, 
-                        gameObject, 
-                        0.2f, 
-                        0.2f, 
-                        -ShieldDirection
-                    );
+                        damage * ParryDamageMultiplier,
+                        gameObject, 0.2f, 0.2f, -ShieldDirection);
 
                     if (StunOnParry)
                     {
                         Character attackerCharacter = attacker.GetComponent<Character>();
-                        if (attackerCharacter != null)
-                        {
-                            attackerCharacter.ChangeCharacterConditionTemporarily(
-                                CharacterStates.CharacterConditions.Stunned,
-                                StunDuration,
-                                true,
-                                false
-                            );
-                        }
+                        attackerCharacter?.ChangeCharacterConditionTemporarily(
+                            CharacterStates.CharacterConditions.Stunned,
+                            StunDuration, true, false);
                     }
                 }
             }
 
-            return 0f; // Perfect parry = no damage
+            return 0f;
         }
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+
+        private bool IsAnyWeaponActive()
+        {
+            if (_handleWeaponList == null) return false;
+
+            foreach (CharacterHandleWeapon hw in _handleWeaponList)
+            {
+                if (hw.CurrentWeapon == null) continue;
+
+                Weapon.WeaponStates s = hw.CurrentWeapon.WeaponState.CurrentState;
+                if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void StopAllWeapons()
+        {
+            if (_handleWeaponList == null) return;
+
+            foreach (CharacterHandleWeapon hw in _handleWeaponList)
+            {
+                hw?.ForceStop();
+            }
+        }
+
+        private void ApplyMovementRestriction()
+        {
+            if (_characterMovement == null) return;
+
+            if (!AllowMovementWhileBlocking)
+            {
+                _characterMovement.MovementForbidden = true;
+            }
+            else
+            {
+                _originalMovementSpeed = _characterMovement.MovementSpeedMultiplier;
+                _characterMovement.MovementSpeedMultiplier = MovementSpeedMultiplier;
+            }
+        }
+
+        private void RestoreMovement()
+        {
+            if (_characterMovement == null) return;
+
+            _characterMovement.MovementForbidden = false;
+
+            if (AllowMovementWhileBlocking)
+            {
+                _characterMovement.MovementSpeedMultiplier = _originalMovementSpeed;
+            }
+        }
+
+        // ── Animator ─────────────────────────────────────────────────────────
 
         protected override void InitializeAnimatorParameters()
         {
             RegisterAnimatorParameter(
-                _blockingParameterName, 
-                AnimatorControllerParameterType.Bool, 
-                out _blockingParameter
-            );
+                _blockingParameterName,
+                AnimatorControllerParameterType.Bool,
+                out _blockingParameter);
+
             RegisterAnimatorParameter(
-                _blockStartedParameterName, 
-                AnimatorControllerParameterType.Trigger, 
-                out _blockStartedParameter
-            );
+                _blockStartedParameterName,
+                AnimatorControllerParameterType.Trigger,
+                out _blockStartedParameter);
+
             RegisterAnimatorParameter(
-                _parriedParameterName, 
-                AnimatorControllerParameterType.Trigger, 
-                out _parriedParameter
-            );
+                _parriedParameterName,
+                AnimatorControllerParameterType.Trigger,
+                out _parriedParameter);
+
             RegisterAnimatorParameter(
-                _parryWindowParameterName, 
-                AnimatorControllerParameterType.Bool, 
-                out _parryWindowParameter
-            );
+                _parryWindowParameterName,
+                AnimatorControllerParameterType.Bool,
+                out _parryWindowParameter);
         }
 
         public override void UpdateAnimator()
         {
             MMAnimatorExtensions.UpdateAnimatorBool(
-                _animator, 
-                _blockingParameter, 
-                _blocking, 
-                _character._animatorParameters, 
-                _character.RunAnimatorSanityChecks
-            );
-            
+                _animator, _blockingParameter, _blocking,
+                _character._animatorParameters, _character.RunAnimatorSanityChecks);
+
             MMAnimatorExtensions.UpdateAnimatorBool(
-                _animator, 
-                _parryWindowParameter, 
-                _parryWindowActive, 
-                _character._animatorParameters, 
-                _character.RunAnimatorSanityChecks
-            );
+                _animator, _parryWindowParameter, _parryWindowActive,
+                _character._animatorParameters, _character.RunAnimatorSanityChecks);
         }
+
+        // ── Lifecycle ─────────────────────────────────────────────────────────
 
         protected override void OnDeath()
         {
             base.OnDeath();
+            InputBuffer.Clear();
+
             if (_blocking)
             {
                 StopBlocking();
@@ -431,25 +461,28 @@ namespace MoreMountains.TopDownEngine
                 _movement.OnStateChange -= OnMovementStateChanged;
             }
 
+            InputBuffer.Clear();
+
             if (_blocking)
             {
                 StopBlocking();
             }
         }
 
+        // ── Gizmos ────────────────────────────────────────────────────────────
+
         protected virtual void OnDrawGizmos()
         {
             if (!_blocking) return;
 
             Gizmos.color = _parryWindowActive ? Color.yellow : Color.blue;
-            
-            Vector3 worldDirection = transform.TransformDirection(ShieldDirection);
-            Vector3 arcStart = Quaternion.Euler(0, -ProtectionArc / 2f, 0) * worldDirection;
-            
+
+            Vector3 worldDir = transform.TransformDirection(ShieldDirection);
+
             for (int i = 0; i <= 20; i++)
             {
-                float angle = (ProtectionArc / 20f) * i;
-                Vector3 direction = Quaternion.Euler(0, angle - ProtectionArc / 2f, 0) * worldDirection;
+                float   angle     = (ProtectionArc / 20f) * i;
+                Vector3 direction = Quaternion.Euler(0, angle - ProtectionArc / 2f, 0) * worldDir;
                 Gizmos.DrawRay(transform.position, direction * 2f);
             }
         }
