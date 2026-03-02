@@ -84,6 +84,9 @@ namespace MoreMountains.TopDownEngine
         protected int _chargeDashingParameter;
         protected int _chargeDashStartedParameter;
 
+        private Vector3 _intentionDirection;
+        private float _intentionRefreshRate = 0.05f; // обновляем каждые 50мс
+        private float _intentionTimer;
         // ── Initialization ────────────────────────────────────────────────────
 
         protected override void Initialization()
@@ -130,7 +133,16 @@ namespace MoreMountains.TopDownEngine
         public override void ProcessAbility()
         {
             base.ProcessAbility();
-
+            
+            _intentionTimer -= Time.deltaTime;
+            if (_intentionTimer <= 0f)
+            {
+                var dir = _controller.CurrentDirection;
+                if (dir.magnitude > 0.1f)
+                    _intentionDirection = dir.normalized;
+                _intentionTimer = _intentionRefreshRate;
+            }
+            
             Cooldown.Update();
 
             // Flush a buffered dash as soon as all conditions are met.
@@ -167,6 +179,17 @@ namespace MoreMountains.TopDownEngine
 
         protected virtual void StartDash()
         {
+            if (!_character.RequestAbilityActivation(this))
+            {
+                // Можно положить в buffer вместо полного отказа
+                InputBuffer.Request();
+                return;
+            }
+            
+            _dashDirection = _intentionDirection.magnitude > 0.1f
+                ? _intentionDirection
+                : transform.forward;
+            
             if (!Cooldown.Ready()) return;
 
             Cooldown.Start();

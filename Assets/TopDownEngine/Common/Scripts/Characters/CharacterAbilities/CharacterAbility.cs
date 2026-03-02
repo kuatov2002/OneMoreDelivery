@@ -30,6 +30,73 @@ namespace MoreMountains.TopDownEngine
 		[Tooltip("the feedbacks to play when the ability stops")]
 		public MMFeedbacks AbilityStopFeedbacks;
                 
+		[Header("Interrupt")]
+		[Tooltip("Ability with higher priority can interrupt this one. 0 = highest priority.")]
+		public int InterruptPriority = 5;
+
+		
+		// По умолчанию: способность активна если movement state не Idle.
+		// Подклассы переопределяют по своей логике.
+		public virtual bool IsActive => 
+			_movement?.CurrentState != CharacterStates.MovementStates.Idle;
+		
+		// Проверяет: может ли incoming прервать эту способность?
+		// Проверяем ОБА направления: incoming должен иметь право прерывать,
+		// И эта способность должна допускать прерывание от такого тега.
+		public virtual bool CanBeInterruptedBy(CharacterAbility incoming)
+		{
+			// Проверяем InterruptibleByTags этой способности:
+			// есть ли у incoming хотя бы один тег из списка?
+			foreach (AbilityTag myTag in InterruptibleByTags)
+			{
+				foreach (AbilityTag incomingTag in incoming.OwnTags)
+				{
+					if (myTag == incomingTag) return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		// Проверяет: хочет ли эта способность прервать target при своей активации?
+		public virtual bool WantsToInterrupt(CharacterAbility target)
+		{
+			foreach (AbilityTag myCanInterrupt in CanInterruptTags)
+			{
+				foreach (AbilityTag targetTag in target.OwnTags)
+				{
+					if (myCanInterrupt == targetTag) return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		// Вызывается когда эта способность была прервана.
+		// Виртуальный — каждый подкласс сам убирает свой стейт.
+		public virtual void OnInterruptedBy(CharacterAbility interruptor)
+		{
+			// Базовая реализация: ничего не делает.
+			// CharacterShieldBlock переопределит чтобы вызвать StopBlocking().
+			// CharacterChargeDash3D переопределит чтобы вызвать StopDash() если нужно.
+		}
+		
+		// Теги, которые описывают эту способность.
+		// Например, CharacterChargeDash3D получает тег "Evasion" и "Movement".
+		// CharacterRoll тоже получает "Evasion" и "Movement" — и они автоматически
+		// ведут себя одинаково в системе без изменений в других классах.
+		public AbilityTag[] OwnTags;
+        
+		// Теги способностей, которые ЭТА способность может прервать при активации.
+		// CharacterChargeDash3D указывает здесь "Block", "Attack_Melee", "Attack_Ranged".
+		// Это значит: дэш прерывает блок и ближний бой.
+		public AbilityTag[] CanInterruptTags;
+        
+		// Теги способностей, которые могут прервать ЭТУ способность.
+		// CharacterShieldBlock указывает "Evasion", "Counter".
+		// Это значит: блок прерывается любой уклонительной механикой.
+		public AbilityTag[] InterruptibleByTags;
+		
 		[Header("Permission")]
 		/// if true, this ability can perform as usual, if not, it'll be ignored. You can use this to unlock abilities over time for example
 		[Tooltip("if true, this ability can perform as usual, if not, it'll be ignored. You can use this to unlock abilities over time for example")]

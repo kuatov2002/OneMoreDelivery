@@ -438,15 +438,20 @@ namespace MoreMountains.TopDownEngine
 		/// <param name="invincibilityDuration">The duration of the short invincibility following the hit.</param>
 		public virtual void Damage(float damage, GameObject instigator, float flickerDuration, float invincibilityDuration, Vector3 damageDirection, List<TypedDamage> typedDamages = null)
 		{
+			CharacterShieldBlock shieldBlock = _character?.FindAbility<CharacterShieldBlock>();
+			if (shieldBlock != null)
+			{
+				float processed = shieldBlock.ProcessIncomingDamage(damage, damageDirection, instigator);
+				if (processed < 0f) return;
+				
+				damage = processed;
+			}
+
 			if (!CanTakeDamageThisFrame())
 			{
 				return;
 			}
-			CharacterShieldBlock shieldBlock = _character?.FindAbility<CharacterShieldBlock>();
-			if (shieldBlock != null)
-			{
-				damage = shieldBlock.ProcessIncomingDamage(damage, damageDirection, instigator);
-			}
+
 			damage = ComputeDamageOutput(damage, typedDamages, true);
 			
 			// we decrease the character's health by the damage

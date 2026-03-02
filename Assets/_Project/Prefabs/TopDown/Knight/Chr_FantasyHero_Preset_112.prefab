@@ -11641,6 +11641,10 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
+  InterruptPriority: 5
+  OwnTags: []
+  CanInterruptTags: []
+  InterruptibleByTags: []
   AbilityPermitted: 1
   BlockingMovementStates: 07000000
   BlockingConditionStates: 
@@ -11681,6 +11685,10 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
+  InterruptPriority: 5
+  OwnTags: []
+  CanInterruptTags: []
+  InterruptibleByTags: []
   AbilityPermitted: 1
   BlockingMovementStates: 07000000
   BlockingConditionStates: 
@@ -11891,6 +11899,13 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
+  InterruptPriority: 5
+  OwnTags:
+  - {fileID: 11400000, guid: 52728816ba3465145ab8cf13be18214d, type: 2}
+  CanInterruptTags:
+  - {fileID: 11400000, guid: 6c4cbd3205708f84b985dcff214f9d9c, type: 2}
+  - {fileID: 11400000, guid: 615a550234e92554bbbe0acde2f15b94, type: 2}
+  InterruptibleByTags: []
   AbilityPermitted: 1
   BlockingMovementStates: 
   BlockingConditionStates: 
@@ -11960,6 +11975,14 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
+  InterruptPriority: 5
+  OwnTags:
+  - {fileID: 11400000, guid: 6c4cbd3205708f84b985dcff214f9d9c, type: 2}
+  CanInterruptTags:
+  - {fileID: 11400000, guid: 615a550234e92554bbbe0acde2f15b94, type: 2}
+  InterruptibleByTags:
+  - {fileID: 11400000, guid: 52728816ba3465145ab8cf13be18214d, type: 2}
+  - {fileID: 11400000, guid: 615a550234e92554bbbe0acde2f15b94, type: 2}
   AbilityPermitted: 1
   BlockingMovementStates: 07000000
   BlockingConditionStates: 
@@ -11999,6 +12022,10 @@ MonoBehaviour:
   AbilityStopSfx: {fileID: 0}
   AbilityStartFeedbacks: {fileID: 0}
   AbilityStopFeedbacks: {fileID: 0}
+  InterruptPriority: 5
+  OwnTags: []
+  CanInterruptTags: []
+  InterruptibleByTags: []
   AbilityPermitted: 1
   BlockingMovementStates: 07000000
   BlockingConditionStates: 

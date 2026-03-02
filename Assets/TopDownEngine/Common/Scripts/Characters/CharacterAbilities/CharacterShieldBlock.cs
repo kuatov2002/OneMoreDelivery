@@ -108,22 +108,6 @@ namespace MoreMountains.TopDownEngine
             BlockStopFeedback?.Initialization(gameObject);
             BlockHitFeedback?.Initialization(gameObject);
             ParrySuccessFeedback?.Initialization(gameObject);
-
-            if (_movement != null)
-            {
-                _movement.OnStateChange += OnMovementStateChanged;
-            }
-        }
-
-        // ── Movement state change ─────────────────────────────────────────────
-
-        protected virtual void OnMovementStateChanged()
-        {
-            if (!_blocking) return;
-            if (_movement.CurrentState == CharacterStates.MovementStates.SpecialAttacking) return;
-
-            bool weaponActive = IsAnyWeaponActive();
-            StopBlocking(weaponInterrupt: weaponActive);
         }
 
         // ── Input ─────────────────────────────────────────────────────────────
@@ -198,6 +182,13 @@ namespace MoreMountains.TopDownEngine
 
         // ── Force-stop conditions ─────────────────────────────────────────────
 
+        public override void OnInterruptedBy(CharacterAbility interruptor)
+        {
+            // Нас прервали — убираем блок без cooldown penalty,
+            // потому что это намеренное прерывание игрока, а не таймаут
+            StopBlocking();
+        }
+        
         protected virtual void CheckForceStopConditions()
         {
             if (_movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
@@ -343,7 +334,7 @@ namespace MoreMountains.TopDownEngine
                 }
             }
 
-            return 0f;
+            return -1f;
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
@@ -455,11 +446,6 @@ namespace MoreMountains.TopDownEngine
         protected override void OnDisable()
         {
             base.OnDisable();
-
-            if (_movement != null)
-            {
-                _movement.OnStateChange -= OnMovementStateChanged;
-            }
 
             InputBuffer.Clear();
 

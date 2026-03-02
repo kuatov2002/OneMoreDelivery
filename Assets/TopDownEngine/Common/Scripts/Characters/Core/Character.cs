@@ -224,6 +224,49 @@ namespace MoreMountains.TopDownEngine
 			}            
 		}
 		
+		// В Character.cs:
+
+		// Вызывается способностью ДО её активации.
+		// Возвращает true если активация разрешена (все конфликты разрешены),
+		// false если кто-то заблокировал и прерывать нельзя.
+		public virtual bool RequestAbilityActivation(CharacterAbility requestor)
+		{
+			// Собираем все активные способности которые конфликтуют с requestor
+			List<CharacterAbility> toInterrupt = new List<CharacterAbility>();
+    
+			foreach (CharacterAbility active in _characterAbilities)
+			{
+				if (active == requestor || !active.enabled) continue;
+        
+				// Способность считается "активной" если она не в idle-состоянии.
+				// Каждая способность сама определяет это через IsActive property.
+				if (!active.IsActive) continue;
+        
+				bool requestorWants = requestor.WantsToInterrupt(active);
+				bool targetAllows = active.CanBeInterruptedBy(requestor);
+        
+				if (requestorWants && targetAllows)
+				{
+					toInterrupt.Add(active);
+				}
+				else if (requestorWants && !targetAllows)
+				{
+					// Requestor хочет прервать, но target не позволяет.
+					// Это блокирует всю активацию requestor.
+					// Пример: попытка дэшнуться во время способности с тегом "Uninterruptible".
+					return false;
+				}
+			}
+    
+			// Всё разрешено — прерываем
+			foreach (CharacterAbility ability in toInterrupt)
+			{
+				ability.OnInterruptedBy(requestor);
+			}
+    
+			return true;
+		}
+		
 		/// <summary>
 		/// Caches abilities if necessary
 		/// </summary>
