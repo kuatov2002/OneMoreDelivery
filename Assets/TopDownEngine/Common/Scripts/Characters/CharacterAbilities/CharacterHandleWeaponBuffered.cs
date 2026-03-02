@@ -4,22 +4,30 @@ using MoreMountains.Tools;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Drop-in replacement for CharacterHandleWeapon that adds broad input buffering.
+    /// Drop-in replacement for CharacterHandleWeapon that adds broad input buffering
+    /// and full participation in the ability interrupt system.
     ///
     /// The stock CharacterHandleWeapon already buffers input when the WEAPON itself
-    /// is busy (WeaponState != Idle). This subclass adds a second, outer buffer that
+    /// is busy (WeaponState != Idle).  This subclass adds a second, outer buffer that
     /// activates when the CHARACTER is unavailable — i.e. AbilityAuthorized is false
     /// (due to BlockingMovementStates, BlockingConditionStates, BlockingWeaponStates)
     /// or the character condition is not Normal.
     ///
     /// As soon as both the character AND the weapon are free the buffered shot fires.
     ///
+    /// Interrupt system participation:
+    ///   • OwnTags          → assign "Attack_Ranged" in the Inspector.
+    ///   • CanInterruptTags → assign tags you want shooting to cancel (e.g. "Block"),
+    ///                        or leave empty if shooting cannot initiate interrupts.
+    ///   • InterruptibleByTags → assign "Evasion", "Counter", etc.
+    ///
     /// Behaviour:
     ///   • Shoot pressed, character blocked  → outer buffer stores the request.
     ///   • Every frame the character becomes available → ConsumeIfActive → ShootStart().
     ///   • Shoot released while buffering    → outer buffer is cleared (intent cancelled).
     ///   • Outer buffer expires on its own if the window passes without opportunity.
-    ///   • Death / Disable                  → outer buffer is cleared immediately.
+    ///   • Death / Disable                   → outer buffer is cleared immediately.
+    ///   • Interrupted by another ability    → weapon force-stopped.
     ///
     /// The existing per-weapon BufferInput / MaximumBufferDuration settings continue
     /// to work exactly as before and are orthogonal to this mechanism.
@@ -34,6 +42,43 @@ namespace MoreMountains.TopDownEngine
             "This is separate from the per-weapon BufferInput setting above.")]
         public AbilityInputBuffer OuterInputBuffer = new AbilityInputBuffer { BufferDuration = 0.3f };
 
+        // ── IsActive ──────────────────────────────────────────────────────────
+
+        // FIX: The base class returns (_movement.CurrentState != Idle).
+        // Firing a weapon does NOT change the movement state — the character keeps
+        // Walking or Idle — so the base implementation always returns false while
+        // shooting. This means the interrupt system never sees this ability as active,
+        // so nothing can interrupt an ongoing attack via tags.
+        // Override to inspect the weapon state directly.
+        public override bool IsActive
+        {
+            get
+            {
+                if (CurrentWeapon == null) return false;
+                Weapon.WeaponStates state = CurrentWeapon.WeaponState.CurrentState;
+                return state != Weapon.WeaponStates.WeaponIdle
+                    && state != Weapon.WeaponStates.WeaponStop;
+            }
+        }
+
+        // ── Interrupt system ──────────────────────────────────────────────────
+
+        // FIX: When another ability (e.g. a dash with CanInterruptTags containing
+        // "Attack_Ranged") interrupts us, we must stop the weapon.
+        // Without this override the base implementation does nothing, meaning the
+        // weapon would continue firing through the interruption.
+        public override void OnInterruptedBy(CharacterAbility interruptor)
+        {
+            OuterInputBuffer.Clear();
+            ForceStop();
+        }
+        
+        public override void ForceStop()
+        {
+            _buffering = false;          // kill the base-class per-weapon buffer
+            OuterInputBuffer.Clear();    // kill the outer (character-level) buffer
+            base.ForceStop();
+        }
         // ── Input ─────────────────────────────────────────────────────────────
 
         protected override void HandleInput()
@@ -61,7 +106,7 @@ namespace MoreMountains.TopDownEngine
                 AbilityAuthorized
                 && _condition.CurrentState == CharacterStates.CharacterConditions.Normal;
 
-            // ── Button released — cancel any pending buffer ───────────────────
+            // ── Button released — cancel any pending outer buffer ─────────────
             if (shootReleased)
             {
                 OuterInputBuffer.Clear();
@@ -72,8 +117,8 @@ namespace MoreMountains.TopDownEngine
             {
                 if (characterAvailable)
                 {
-                    // Character is free; delegate to the normal shoot path.
-                    // The base class will handle its own inner (per-weapon) buffering.
+                    // Character is free — delegate to the normal shoot path which
+                    // calls RequestAbilityActivation internally.
                     ShootStart();
                 }
                 else
@@ -137,6 +182,38 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
+        // ── ShootStart ────────────────────────────────────────────────────────
+
+        // FIX: The base ShootStart never calls RequestAbilityActivation, so firing
+        // does not participate in the interrupt system as an initiator.
+        // If CanInterruptTags is populated (e.g. "Block"), shooting will now
+        // correctly signal intent to interrupt, and the target ability will decide
+        // whether to allow it based on its own InterruptibleByTags.
+        public override void ShootStart()
+        {
+            if (!AbilityAuthorized
+                || CurrentWeapon == null
+                || _condition.CurrentState != CharacterStates.CharacterConditions.Normal)
+            {
+                return;
+            }
+
+            // Announce intent to the interrupt system.
+            // If CanInterruptTags is empty this is a no-op (no abilities are checked).
+            // If CanInterruptTags contains e.g. "Block" and the shield is active, this
+            // will either interrupt the shield (if it allows it) or return false (if not).
+            if (!_character.RequestAbilityActivation(this))
+            {
+                // Something uninterruptible is blocking us — buffer for retry.
+                OuterInputBuffer.Request();
+                return;
+            }
+
+            // Delegate the actual firing to the base implementation which handles
+            // the per-weapon buffer (BufferInput / MaximumBufferDuration).
+            base.ShootStart();
+        }
+
         // ── Process ───────────────────────────────────────────────────────────
 
         public override void ProcessAbility()
@@ -154,6 +231,7 @@ namespace MoreMountains.TopDownEngine
         private void FlushOuterBuffer()
         {
             if (!OuterInputBuffer.IsActive) return;
+
             if (CurrentWeapon == null)
             {
                 OuterInputBuffer.Clear();
@@ -168,6 +246,8 @@ namespace MoreMountains.TopDownEngine
 
             if (OuterInputBuffer.ConsumeIfActive())
             {
+                // ShootStart now calls RequestAbilityActivation, which may re-buffer
+                // if something uninterruptible is still in the way — that is correct.
                 ShootStart();
             }
         }

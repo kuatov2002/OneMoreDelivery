@@ -13,6 +13,11 @@ namespace MoreMountains.TopDownEngine
     /// unavailable (e.g. the character is in a blocking movement state), the input
     /// is buffered and the block activates as soon as the restriction lifts.
     ///
+    /// Interrupt system participation:
+    ///   • OwnTags         → assign "Block" in the Inspector.
+    ///   • CanInterruptTags → leave empty (block does not proactively interrupt others).
+    ///   • InterruptibleByTags → assign "Evasion", "Counter", etc.
+    ///
     /// Animation parameters:
     ///   Blocking      (bool)    – true while holding block
     ///   BlockStarted  (trigger) – triggered on block start
@@ -84,12 +89,21 @@ namespace MoreMountains.TopDownEngine
         protected float _originalMovementSpeed;
         protected CharacterMovement _characterMovement;
 
+        // ── IsActive ──────────────────────────────────────────────────────────
+
+        // FIX: Override explicitly so the interrupt system has a precise, 
+        // intention-revealing contract — not an implicit movement state check.
+        // The base class returns (_movement.CurrentState != Idle), which 
+        // accidentally works because we set SpecialAttacking while blocking.
+        // This override is explicit, readable, and immune to future state changes.
+        public override bool IsActive => _blocking;
+
         // ── Animator parameters ───────────────────────────────────────────────
 
-        protected const string _blockingParameterName    = "Blocking";
+        protected const string _blockingParameterName     = "Blocking";
         protected const string _blockStartedParameterName = "BlockStarted";
-        protected const string _parriedParameterName     = "Parried";
-        protected const string _parryWindowParameterName = "ParryWindow";
+        protected const string _parriedParameterName      = "Parried";
+        protected const string _parryWindowParameterName  = "ParryWindow";
 
         protected int _blockingParameter;
         protected int _blockStartedParameter;
@@ -123,7 +137,6 @@ namespace MoreMountains.TopDownEngine
 
             if (buttonDown)
             {
-                // Ability is fully available — start immediately.
                 if (AbilityAuthorized
                     && _condition.CurrentState == CharacterStates.CharacterConditions.Normal)
                 {
@@ -131,13 +144,16 @@ namespace MoreMountains.TopDownEngine
                 }
                 else
                 {
-                    // Temporarily blocked — store the request.
+                    // Character blocked — remember the intent.
                     InputBuffer.Request();
                 }
             }
 
             if (buttonUp)
             {
+                // Player released the button: discard any pending buffer regardless
+                // of whether we were actually blocking. This prevents a buffered block
+                // from firing after a quick tap-and-release.
                 InputBuffer.Clear();
 
                 if (_blocking)
@@ -146,7 +162,7 @@ namespace MoreMountains.TopDownEngine
                 }
             }
 
-            // Not Authorized and currently blocking — force-stop.
+            // External condition stripped our authority mid-block — force stop.
             if (_blocking
                 && (!AbilityAuthorized
                     || _condition.CurrentState != CharacterStates.CharacterConditions.Normal))
@@ -161,7 +177,7 @@ namespace MoreMountains.TopDownEngine
         {
             base.ProcessAbility();
 
-            // Try to flush a buffered block request.
+            // Flush a buffered block request as soon as conditions allow.
             if (!_blocking
                 && InputBuffer.IsActive
                 && AbilityAuthorized
@@ -180,23 +196,37 @@ namespace MoreMountains.TopDownEngine
             }
         }
 
-        // ── Force-stop conditions ─────────────────────────────────────────────
-
+        // ── Interrupt system ──────────────────────────────────────────────────
+        
+        // FIX: The block must participate as a target in the interrupt system.
+        // OnInterruptedBy is already defined here, but StartBlocking never
+        // registered itself as an initiator via RequestAbilityActivation.
+        // The two are now consistent: we both announce ourselves AND accept
+        // being interrupted cleanly.
         public override void OnInterruptedBy(CharacterAbility interruptor)
         {
-            // Нас прервали — убираем блок без cooldown penalty,
-            // потому что это намеренное прерывание игрока, а не таймаут
+            // Interrupted from outside — stop without a cooldown penalty.
+            // This is an intentional player-driven interruption (e.g. rolling out
+            // of a block), not a timeout, so no negative consequences.
             StopBlocking();
         }
-        
+
+        // ── Force-stop conditions ─────────────────────────────────────────────
+
         protected virtual void CheckForceStopConditions()
         {
+            // If something external changed the movement state away from
+            // SpecialAttacking (which we set in StartBlocking), the block is
+            // no longer in control of that state — stop cleanly.
             if (_movement.CurrentState != CharacterStates.MovementStates.SpecialAttacking)
             {
                 StopBlocking();
                 return;
             }
 
+            // We are still in SpecialAttacking. If a weapon somehow became active
+            // (should not happen under normal flow since StartBlocking calls
+            // StopAllWeapons, but guarding against runtime edge cases), yield to it.
             if (IsAnyWeaponActive())
             {
                 StopBlocking(weaponInterrupt: true);
@@ -206,7 +236,7 @@ namespace MoreMountains.TopDownEngine
 
         protected virtual IEnumerator ResetMovementAfterWeaponRoutine()
         {
-            yield return null; // let the weapon start
+            yield return null; // let the weapon start its first frame
 
             while (IsAnyWeaponActive())
             {
@@ -224,6 +254,16 @@ namespace MoreMountains.TopDownEngine
         protected virtual void StartBlocking()
         {
             if (_blocking) return;
+
+            // FIX: Announce activation to the interrupt system.
+            // This allows us to proactively interrupt abilities listed in
+            // CanInterruptTags (e.g. if we configure block to cancel a melee windup).
+            // It also gives other active abilities the chance to resist via their
+            // own InterruptibleByTags — returning false means someone vetoed us.
+            if (!_character.RequestAbilityActivation(this))
+            {
+                return;
+            }
 
             StopAllWeapons();
 
@@ -289,9 +329,9 @@ namespace MoreMountains.TopDownEngine
         {
             if (!_blocking) return damage;
 
-            Vector3 attackDir       = (damageDirection - transform.position).normalized;
-            Vector3 shieldWorldDir  = transform.TransformDirection(ShieldDirection);
-            float   angle           = Vector3.Angle(shieldWorldDir, attackDir);
+            Vector3 attackDir      = (damageDirection - transform.position).normalized;
+            Vector3 shieldWorldDir = transform.TransformDirection(ShieldDirection);
+            float   angle          = Vector3.Angle(shieldWorldDir, attackDir);
 
             if (angle > ProtectionArc / 2f)
             {
@@ -348,7 +388,8 @@ namespace MoreMountains.TopDownEngine
                 if (hw.CurrentWeapon == null) continue;
 
                 Weapon.WeaponStates s = hw.CurrentWeapon.WeaponState.CurrentState;
-                if (s != Weapon.WeaponStates.WeaponIdle && s != Weapon.WeaponStates.WeaponStop)
+                if (s != Weapon.WeaponStates.WeaponIdle
+                    && s != Weapon.WeaponStates.WeaponStop)
                 {
                     return true;
                 }
@@ -446,7 +487,6 @@ namespace MoreMountains.TopDownEngine
         protected override void OnDisable()
         {
             base.OnDisable();
-
             InputBuffer.Clear();
 
             if (_blocking)

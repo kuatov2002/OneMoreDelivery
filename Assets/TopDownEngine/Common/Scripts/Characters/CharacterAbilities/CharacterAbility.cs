@@ -31,10 +31,6 @@ namespace MoreMountains.TopDownEngine
 		public MMFeedbacks AbilityStopFeedbacks;
                 
 		[Header("Interrupt")]
-		[Tooltip("Ability with higher priority can interrupt this one. 0 = highest priority.")]
-		public int InterruptPriority = 5;
-
-		
 		// По умолчанию: способность активна если movement state не Idle.
 		// Подклассы переопределяют по своей логике.
 		public virtual bool IsActive => 
