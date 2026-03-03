@@ -12257,6 +12257,13 @@ GameObject:
   - component: {fileID: 5500000000000000009}
   - component: {fileID: 5500000000000000010}
   - component: {fileID: 5500000000000000011}
+  - component: {fileID: 1465773550364837945}
+  - component: {fileID: 1935125327831215180}
+  - component: {fileID: 2148861368613856786}
+  - component: {fileID: 5623571164582493887}
+  - component: {fileID: 6577133559395143116}
+  - component: {fileID: 6795814714251939123}
+  - component: {fileID: 7147998562183640594}
   m_Layer: 13
   m_Name: MeleeEnemy
   m_TagString: Untagged
@@ -12518,50 +12525,6 @@ MonoBehaviour:
   TouchTheGroundParticles:
   - {fileID: 4712872726537719308}
   TouchTheGroundSfx: []
---- !u!114 &5623571164582493887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a07c6668aa55403790d27b575279549, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AbilityStartSfx: {fileID: 0}
-  AbilityInProgressSfx: {fileID: 0}
-  AbilityStopSfx: {fileID: 0}
-  AbilityStartFeedbacks: {fileID: 0}
-  AbilityStopFeedbacks: {fileID: 0}
-  OwnTags: []
-  CanInterruptTags: []
-  InterruptibleByTags: []
-  AbilityPermitted: 1
-  BlockingMovementStates: 
-  BlockingConditionStates: 
-  BlockingWeaponStates: 
-  InitialWeapon: {fileID: 114594623923584052, guid: 150d865acc9585d4c8061a78068ce740,
-    type: 3}
-  CanPickupWeapons: 1
-  WeaponUseFeedback: {fileID: 0}
-  WeaponAttachment: {fileID: 6786544094750392632}
-  ProjectileSpawn: {fileID: 0}
-  AutomaticallyBindAnimator: 1
-  AmmoDisplayID: 0
-  AutoIK: 1
-  ContinuousPress: 0
-  GettingHitInterruptsAttack: 0
-  UseSecondaryAxisThresholdToShoot: 0
-  ForceWeaponAimControl: 0
-  ForcedWeaponAimControl: 1
-  ForceAlwaysShoot: 0
-  BufferInput: 0
-  NewInputExtendsBuffer: 0
-  MaximumBufferDuration: 0.25
-  RequiresPerfectTile: 0
-  CurrentWeapon: {fileID: 0}
 --- !u!114 &3504876610521730920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12842,22 +12805,23 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 8545942363544322565}
         TrueState: Chase
-        FalseState:
+        FalseState: 
       - Decision: {fileID: 5500000000000000007}
         TrueState: Staggered
-        FalseState:
+        FalseState: 
   - StateName: Chase
     Actions:
       array:
       - {fileID: 238350717109558247}
+      - {fileID: 7147998562183640594}
     Transitions:
       array:
       - Decision: {fileID: 5500000000000000006}
         TrueState: Telegraph
-        FalseState:
+        FalseState: 
       - Decision: {fileID: 5500000000000000007}
         TrueState: Staggered
-        FalseState:
+        FalseState: 
   - StateName: Telegraph
     Actions:
       array:
@@ -12866,7 +12830,7 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 5500000000000000008}
         TrueState: Attack
-        FalseState:
+        FalseState: 
   - StateName: Attack
     Actions:
       array:
@@ -12875,7 +12839,7 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 5500000000000000009}
         TrueState: Recovery
-        FalseState:
+        FalseState: 
   - StateName: Recovery
     Actions:
       array:
@@ -12884,10 +12848,10 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 5500000000000000010}
         TrueState: Chase
-        FalseState:
+        FalseState: 
       - Decision: {fileID: 5500000000000000007}
         TrueState: Staggered
-        FalseState:
+        FalseState: 
   - StateName: Staggered
     Actions:
       array:
@@ -12896,7 +12860,7 @@ MonoBehaviour:
       array:
       - Decision: {fileID: 5500000000000000011}
         TrueState: Chase
-        FalseState:
+        FalseState: 
   TimeInThisState: 0
   Target: {fileID: 0}
   _lastKnownTargetPosition: {x: 0, y: 0, z: 0}
@@ -12932,6 +12896,216 @@ MonoBehaviour:
   TargetCheckFrequency: 1
   CanTargetSelf: 0
   OverlapMaximum: 10
+--- !u!114 &2148778931786118099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 561ab803e1e9aa94ab096724696e5475, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+--- !u!114 &238350717109558247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97230edd623230e4ea486ef91a6d23e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIActionMoveTowardsTarget3D
+  InitializationMode: 0
+  Label: 
+  MinimumDistance: 0
+--- !u!114 &5500000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f6d440afc0f89c419b5c105a3cc60ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cooldown: 2
+  MaxDesyncOffset: 2
+  LastAttackEndTime: 0
+--- !u!114 &5500000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75de8f4de89ad344ca8370be677001a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+--- !u!114 &5500000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a56f4da16b69a34897f74955419cce6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+  ConeAngle: 60
+  AttackRange: 4
+  Damage: 20
+  KnockbackForce: 8
+  InvincibilityDuration: 0.2
+  TargetLayers:
+    serializedVersion: 2
+    m_Bits: 1024
+  ActiveStartTime: 0.1
+  ActiveDuration: 0.1
+--- !u!114 &5500000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d41cc641d6eb6ad498362ca71c22fea2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+--- !u!114 &5500000000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea813950269f2e948a03ea7d9657ead9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+  KnockbackForce: 5
+--- !u!114 &5500000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a748862fe7faa24cbdac50da0a7ed9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  AttackRange: 4
+--- !u!114 &5500000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cecd41409ea0af54481893fe71065025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  NumberOfHits: 1
+--- !u!114 &5500000000000000008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  TimeThreshold: 0.6
+--- !u!114 &5500000000000000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  TimeThreshold: 0.3
+--- !u!114 &5500000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  TimeThreshold: 0.8
+--- !u!114 &5500000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  TimeThreshold: 0.4
+--- !u!114 &1465773550364837945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 206825d6db9c84741810b9da915cfb9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIDecisionDistanceToTarget
+  Label: 
+  ComparisonMode: 1
+  Distance: 4
 --- !u!114 &1935125327831215180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12986,6 +13160,74 @@ MonoBehaviour:
   LockHandlesOnXAxis: 0
   LockHandlesOnYAxis: 0
   LockHandlesOnZAxis: 0
+--- !u!114 &5623571164582493887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a07c6668aa55403790d27b575279549, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  OwnTags: []
+  CanInterruptTags: []
+  InterruptibleByTags: []
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  InitialWeapon: {fileID: 114594623923584052, guid: 150d865acc9585d4c8061a78068ce740,
+    type: 3}
+  CanPickupWeapons: 1
+  WeaponUseFeedback: {fileID: 0}
+  WeaponAttachment: {fileID: 6786544094750392632}
+  ProjectileSpawn: {fileID: 0}
+  AutomaticallyBindAnimator: 1
+  AmmoDisplayID: 0
+  AutoIK: 1
+  ContinuousPress: 0
+  GettingHitInterruptsAttack: 0
+  UseSecondaryAxisThresholdToShoot: 0
+  ForceWeaponAimControl: 0
+  ForcedWeaponAimControl: 1
+  ForceAlwaysShoot: 0
+  BufferInput: 0
+  NewInputExtendsBuffer: 0
+  MaximumBufferDuration: 0.25
+  RequiresPerfectTile: 0
+  CurrentWeapon: {fileID: 0}
+--- !u!114 &6577133559395143116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 210ecb3d02181d244935dc0092d62a8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  Radius: 3
+  DetectionOriginOffset: {x: 0, y: 0, z: 0}
+  TargetLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  ObstacleMask:
+    serializedVersion: 2
+    m_Bits: 6400
+  TargetCheckFrequency: 1
+  CanTargetSelf: 0
+  OverlapMaximum: 10
 --- !u!114 &6795814714251939123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13005,20 +13247,6 @@ MonoBehaviour:
   AimOrigin: 0
   ShootOffset: {x: 0, y: 1.8, z: 0}
   LockVerticalAim: 0
---- !u!114 &2148778931786118099
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 561ab803e1e9aa94ab096724696e5475, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InitializationMode: 0
-  Label: 
 --- !u!114 &7147998562183640594
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13034,60 +13262,6 @@ MonoBehaviour:
   InitializationMode: 0
   Label: 
   OnlyIfTargetIsNull: 0
---- !u!114 &238350717109558247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97230edd623230e4ea486ef91a6d23e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIActionMoveTowardsTarget3D
-  InitializationMode: 0
-  Label: 
-  MinimumDistance: 0
---- !u!114 &1465773550364837945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 206825d6db9c84741810b9da915cfb9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIDecisionDistanceToTarget
-  Label: 
-  ComparisonMode: 1
-  Distance: 3
---- !u!114 &6577133559395143116
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 210ecb3d02181d244935dc0092d62a8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Label: 
-  Radius: 2
-  DetectionOriginOffset: {x: 0, y: 0, z: 0}
-  TargetLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  ObstacleMask:
-    serializedVersion: 2
-    m_Bits: 6400
-  TargetCheckFrequency: 1
-  CanTargetSelf: 0
-  OverlapMaximum: 10
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0
@@ -13708,168 +13882,3 @@ Transform:
   - {fileID: 6839794692991653263}
   m_Father: {fileID: 19610465467738846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5500000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f6d440afc0f89c419b5c105a3cc60ad, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Cooldown: 2
-  MaxDesyncOffset: 2
---- !u!114 &5500000000000000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75de8f4de89ad344ca8370be677001a1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  InitializationMode: 0
-  Label:
---- !u!114 &5500000000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a56f4da16b69a34897f74955419cce6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  InitializationMode: 0
-  Label:
-  ConeAngle: 60
-  AttackRange: 2.5
-  Damage: 20
-  KnockbackForce: 8
-  InvincibilityDuration: 0.2
-  TargetLayers:
-    serializedVersion: 2
-    m_Bits: 1024
-  ActiveStartTime: 0.1
-  ActiveDuration: 0.1
---- !u!114 &5500000000000000004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d41cc641d6eb6ad498362ca71c22fea2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  InitializationMode: 0
-  Label:
---- !u!114 &5500000000000000005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea813950269f2e948a03ea7d9657ead9, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  InitializationMode: 0
-  Label:
-  KnockbackForce: 5
---- !u!114 &5500000000000000006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a748862fe7faa24cbdac50da0a7ed9c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  AttackRange: 2.5
---- !u!114 &5500000000000000007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cecd41409ea0af54481893fe71065025, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  NumberOfHits: 1
---- !u!114 &5500000000000000008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  TimeThreshold: 0.6
---- !u!114 &5500000000000000009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  TimeThreshold: 0.3
---- !u!114 &5500000000000000010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  TimeThreshold: 0.8
---- !u!114 &5500000000000000011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Label:
-  TimeThreshold: 0.4
