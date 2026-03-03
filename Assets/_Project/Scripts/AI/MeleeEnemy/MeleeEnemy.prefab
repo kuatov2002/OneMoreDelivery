@@ -12258,7 +12258,6 @@ GameObject:
   - component: {fileID: 5500000000000000010}
   - component: {fileID: 5500000000000000011}
   - component: {fileID: 1465773550364837945}
-  - component: {fileID: 1935125327831215180}
   - component: {fileID: 2148861368613856786}
   - component: {fileID: 5623571164582493887}
   - component: {fileID: 6577133559395143116}
@@ -12937,8 +12936,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6d440afc0f89c419b5c105a3cc60ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cooldown: 2
-  MaxDesyncOffset: 2
+  Cooldown: 0
+  MaxDesyncOffset: 0
   LastAttackEndTime: 0
 --- !u!114 &5500000000000000002
 MonoBehaviour:
@@ -13048,7 +13047,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Label: 
-  TimeThreshold: 0.6
+  TimeThreshold: 0.7
 --- !u!114 &5500000000000000009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13076,7 +13075,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Label: 
-  TimeThreshold: 0.8
+  TimeThreshold: 1.2
 --- !u!114 &5500000000000000011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13106,27 +13105,6 @@ MonoBehaviour:
   Label: 
   ComparisonMode: 1
   Distance: 4
---- !u!114 &1935125327831215180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab38fb8d19ed4db48b4e6216a171c08f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InitializationMode: 0
-  Label: 
-  ChangeDirectionOnObstacle: 1
-  ObstacleDetectionDistance: 1
-  ObstaclesCheckFrequency: 1
-  ObstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 6400
-  CurrentPathIndex: 0
 --- !u!114 &2148861368613856786
 MonoBehaviour:
   m_ObjectHideFlags: 0
