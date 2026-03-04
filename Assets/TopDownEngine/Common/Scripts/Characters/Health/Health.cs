@@ -438,29 +438,6 @@ namespace MoreMountains.TopDownEngine
 		/// <param name="invincibilityDuration">The duration of the short invincibility following the hit.</param>
 		public virtual void Damage(float damage, GameObject instigator, float flickerDuration, float invincibilityDuration, Vector3 damageDirection, List<TypedDamage> typedDamages = null)
 		{
-			CharacterShieldBlock shieldBlock = _character?.FindAbility<CharacterShieldBlock>();
-			if (shieldBlock != null)
-			{
-				float processed = shieldBlock.ProcessIncomingDamage(damage, damageDirection, instigator);
-				if (processed < 0f) return; // parry consumed the hit
-
-				if (processed < damage) // shield blocked — apply chip damage without breaking the block
-				{
-					if (!CanTakeDamageThisFrame()) return;
-					float chipDamage = ComputeDamageOutput(processed, typedDamages, true);
-					if (MasterHealth != null)
-						MasterHealth.SetHealth(MasterHealth.CurrentHealth - chipDamage);
-					else
-						SetHealth(CurrentHealth - chipDamage);
-					LastDamage = chipDamage;
-					LastDamageDirection = damageDirection;
-					UpdateHealthBar(true);
-					return; // skip OnHit, "Damage" animation, invincibility — shield handles feedback
-				}
-
-				damage = processed;
-			}
-
 			if (!CanTakeDamageThisFrame())
 			{
 				return;
