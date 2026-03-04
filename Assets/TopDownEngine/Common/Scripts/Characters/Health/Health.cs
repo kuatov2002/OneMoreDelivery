@@ -442,8 +442,22 @@ namespace MoreMountains.TopDownEngine
 			if (shieldBlock != null)
 			{
 				float processed = shieldBlock.ProcessIncomingDamage(damage, damageDirection, instigator);
-				if (processed < 0f) return;
-				
+				if (processed < 0f) return; // parry consumed the hit
+
+				if (processed < damage) // shield blocked — apply chip damage without breaking the block
+				{
+					if (!CanTakeDamageThisFrame()) return;
+					float chipDamage = ComputeDamageOutput(processed, typedDamages, true);
+					if (MasterHealth != null)
+						MasterHealth.SetHealth(MasterHealth.CurrentHealth - chipDamage);
+					else
+						SetHealth(CurrentHealth - chipDamage);
+					LastDamage = chipDamage;
+					LastDamageDirection = damageDirection;
+					UpdateHealthBar(true);
+					return; // skip OnHit, "Damage" animation, invincibility — shield handles feedback
+				}
+
 				damage = processed;
 			}
 

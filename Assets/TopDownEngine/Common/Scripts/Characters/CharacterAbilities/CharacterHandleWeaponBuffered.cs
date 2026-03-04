@@ -79,6 +79,25 @@ namespace MoreMountains.TopDownEngine
             OuterInputBuffer.Clear();    // kill the outer (character-level) buffer
             base.ForceStop();
         }
+
+        // ── Hit reaction ────────────────────────────────────────────────────
+
+        // FIX: The base OnHit calls CurrentWeapon.Interrupt() which only changes
+        // the weapon state to WeaponInterrupted and (in MeleeWeapon) stops the
+        // attack coroutine. But DisableDamageArea() is deferred to the next
+        // LateUpdate when CaseWeaponInterrupted runs. This leaves the melee
+        // damage area collider enabled until then — the weapon hitbox stays
+        // active even though the stagger animation is already playing.
+        // Calling ForceStop() immediately invokes TurnWeaponOff → DisableDamageArea,
+        // ensuring the hitbox is killed the same frame the character gets hit.
+        protected override void OnHit()
+        {
+            base.OnHit();  // fires Interrupt() via CharacterHandleWeapon.OnHit
+            if (GettingHitInterruptsAttack && CurrentWeapon != null)
+            {
+                ForceStop();
+            }
+        }
         // ── Input ─────────────────────────────────────────────────────────────
 
         protected override void HandleInput()

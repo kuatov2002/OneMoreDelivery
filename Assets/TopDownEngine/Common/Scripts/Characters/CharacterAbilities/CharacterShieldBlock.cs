@@ -329,7 +329,7 @@ namespace MoreMountains.TopDownEngine
         {
             if (!_blocking) return damage;
 
-            Vector3 attackDir      = (damageDirection - transform.position).normalized;
+            Vector3 attackDir      = -damageDirection.normalized;
             Vector3 shieldWorldDir = transform.TransformDirection(ShieldDirection);
             float   angle          = Vector3.Angle(shieldWorldDir, attackDir);
 

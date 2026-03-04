@@ -55,7 +55,7 @@ MonoBehaviour:
   TriggerMode: 0
   DelayBeforeUse: 0
   DelayBeforeUseReleaseInterruption: 0
-  TimeBetweenUses: 0.5
+  TimeBetweenUses: 0.4
   TimeBetweenUsesReleaseInterruption: 0
   UseBurstMode: 0
   BurstLength: 3
@@ -119,8 +119,8 @@ MonoBehaviour:
   HitDamageableFeedback: {fileID: 1492783363290899349}
   HitNonDamageableFeedback: {fileID: 0}
   ExistingDamageArea: {fileID: 0}
-  InitialDelay: 0.3
-  ActiveDuration: 0.2
+  InitialDelay: 0.2
+  ActiveDuration: 0.15
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 8448
@@ -149,7 +149,7 @@ MonoBehaviour:
   TriggerMode: 0
   DelayBeforeUse: 0
   DelayBeforeUseReleaseInterruption: 0
-  TimeBetweenUses: 0.5
+  TimeBetweenUses: 0.4
   TimeBetweenUsesReleaseInterruption: 0
   UseBurstMode: 0
   BurstLength: 3
@@ -213,8 +213,8 @@ MonoBehaviour:
   HitDamageableFeedback: {fileID: 1492783363290899349}
   HitNonDamageableFeedback: {fileID: 0}
   ExistingDamageArea: {fileID: 0}
-  InitialDelay: 0.15
-  ActiveDuration: 0.35
+  InitialDelay: 0.12
+  ActiveDuration: 0.18
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 8448
@@ -243,7 +243,7 @@ MonoBehaviour:
   TriggerMode: 0
   DelayBeforeUse: 0
   DelayBeforeUseReleaseInterruption: 0
-  TimeBetweenUses: 0.8
+  TimeBetweenUses: 0.7
   TimeBetweenUsesReleaseInterruption: 0
   UseBurstMode: 0
   BurstLength: 3
@@ -308,7 +308,7 @@ MonoBehaviour:
   HitNonDamageableFeedback: {fileID: 0}
   ExistingDamageArea: {fileID: 0}
   InitialDelay: 0.2
-  ActiveDuration: 0.4
+  ActiveDuration: 0.3
   TargetLayerMask:
     serializedVersion: 2
     m_Bits: 8448
@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DroppableCombo: 1
-  DropComboDelay: 0.4
+  DropComboDelay: 0.6
   InputMode: 0
   ComboInProgressAnimationParameter: ComboInProgress
   Weapons: []
