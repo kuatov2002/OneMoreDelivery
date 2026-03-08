@@ -74,7 +74,7 @@ Material:
     - _Mode: 2
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Progress: 0.874
+    - _Progress: 1
     - _Range: 0.089
     - _Size: 2
     - _SmoothnessTextureChannel: 0
@@ -83,8 +83,8 @@ Material:
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 0.9056604, g: 0.34509805, b: 0.45490196, a: 1}
+    - _Color: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FillColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+    - _FillColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
