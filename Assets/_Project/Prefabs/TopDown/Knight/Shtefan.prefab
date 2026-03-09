@@ -11525,6 +11525,7 @@ GameObject:
   - component: {fileID: 2162761560393666071}
   - component: {fileID: -1401794074617665211}
   - component: {fileID: 4973470317262525608}
+  - component: {fileID: 7929217264002753757}
   m_Layer: 10
   m_Name: Shtefan
   m_TagString: Player
@@ -12035,6 +12036,34 @@ MonoBehaviour:
   TargetDamageResistanceProcessor: {fileID: 0}
   TargetAnimator: {fileID: 3752571547916384151}
   DisableAnimatorLogs: 1
+--- !u!114 &7929217264002753757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3838246324168178313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b94352a73000c418487451ede307a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.CharacterStats
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  OwnTags: []
+  CanInterruptTags: []
+  InterruptibleByTags: []
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  _attackPowerDisplay: 100
+  _attackSpeedDisplay: 100
+  _movementSpeedDisplay: 100
+  _maxHealthDisplay: 100
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0
