@@ -1,4 +1,3 @@
-using DTT.AreaOfEffectRegions;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -6,17 +5,22 @@ namespace MoreMountains.TopDownEngine
 {
     /// <summary>
     /// Telegraph action: stops movement, locks facing direction toward target,
-    /// plays windup animation. Shows an ArcRegion attack indicator during the windup
-    /// so the player can see the incoming attack area.
+    /// plays windup animation. Shows a ground circle telegraph indicator
+    /// and a glowing sphere on the hand so the player can read the attack.
     /// Direction stays locked for the subsequent Attack state.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Telegraph")]
     public class AIActionTelegraph : AIAction
     {
-        [Header("Attack Indicator")]
-        [Tooltip("Reference to the ArcRegion indicator (child of this enemy)")]
-        [SerializeField] private ArcRegionBase _attackIndicator;
+        [Header("Ground Indicator")]
+        [Tooltip("Reference to the AttackTelegraphCircle (child of this enemy)")]
+        [SerializeField] private AttackTelegraphCircle _telegraphCircle;
 
+        [Header("Hand Glow")]
+        [Tooltip("Reference to the AttackTelegraphGlow placed on a hand bone")]
+        [SerializeField] private AttackTelegraphGlow _telegraphGlow;
+
+        [Header("Timing")]
         [Tooltip("Duration of the telegraph phase in seconds (should match the state transition threshold)")]
         [SerializeField] private float _telegraphDuration = 0.7f;
 
@@ -25,7 +29,6 @@ namespace MoreMountains.TopDownEngine
         protected Animator _animator;
 
         private AIActionMeleeAttackCone _attackCone;
-        private ArcRegion _arcRegion;
         private float _enterTime;
 
         public override void Initialization()
@@ -39,10 +42,6 @@ namespace MoreMountains.TopDownEngine
             _animator = character?.CharacterAnimator;
 
             _attackCone = GetComponent<AIActionMeleeAttackCone>();
-            _arcRegion = _attackIndicator as ArcRegion;
-
-            if (_attackIndicator != null)
-                _attackIndicator.gameObject.SetActive(false);
         }
 
         public override void OnEnterState()
@@ -65,7 +64,7 @@ namespace MoreMountains.TopDownEngine
             if (_animator != null)
                 _animator.SetTrigger("Telegraph");
 
-            ShowAttackIndicator();
+            ShowTelegraph();
             _enterTime = Time.time;
         }
 
@@ -73,42 +72,50 @@ namespace MoreMountains.TopDownEngine
         {
             _characterMovement?.SetMovement(Vector2.zero);
 
-            if (_arcRegion != null && _telegraphDuration > 0f)
+            float progress = 0f;
+            if (_telegraphDuration > 0f)
             {
                 float elapsed = Time.time - _enterTime;
-                _arcRegion.FillProgress = Mathf.Clamp01(elapsed / _telegraphDuration);
+                progress = Mathf.Clamp01(elapsed / _telegraphDuration);
             }
+
+            // Drive both effects with the same progress
+            if (_telegraphCircle != null)
+                _telegraphCircle.FillProgress = progress;
+
+            if (_telegraphGlow != null)
+                _telegraphGlow.Progress = progress;
         }
 
         public override void OnExitState()
         {
             base.OnExitState();
 
-            if (_attackIndicator != null)
-                _attackIndicator.gameObject.SetActive(false);
+            if (_telegraphCircle != null)
+                _telegraphCircle.Hide();
+
+            if (_telegraphGlow != null)
+                _telegraphGlow.Hide();
         }
 
-        private void ShowAttackIndicator()
+        private void ShowTelegraph()
         {
-            if (_attackIndicator == null) return;
-
-            if (_attackCone != null)
+            // Ground circle
+            if (_telegraphCircle != null)
             {
-                _attackIndicator.Arc = _attackCone.ConeAngle;
-                _attackIndicator.Radius = _attackCone.AttackRange;
+                float arc = _attackCone != null ? _attackCone.ConeAngle : 60f;
+                float radius = _attackCone != null ? _attackCone.AttackRange : 2.5f;
+
+                Vector3 dir = _orientation != null
+                    ? _orientation.ForcedRotationDirection
+                    : transform.forward;
+
+                _telegraphCircle.Show(arc, radius, dir);
             }
 
-            if (_orientation != null)
-            {
-                Vector3 dir = _orientation.ForcedRotationDirection;
-                float worldAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                _attackIndicator.Angle = worldAngle - _attackIndicator.transform.eulerAngles.y;
-            }
-
-            if (_arcRegion != null)
-                _arcRegion.FillProgress = 0f;
-
-            _attackIndicator.gameObject.SetActive(true);
+            // Hand glow
+            if (_telegraphGlow != null)
+                _telegraphGlow.Show();
         }
     }
 }

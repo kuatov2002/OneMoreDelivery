@@ -63,6 +63,7 @@ Transform:
   m_Children:
   - {fileID: 4614462307555770840}
   - {fileID: 3580493499478757798}
+  - {fileID: 1797135072523464399}
   m_Father: {fileID: 3729590336306402427}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &317289858423043672
@@ -874,6 +875,54 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.0044270456, y: 0.01088427, z: 0.18060994}
     m_Extent: {x: 0.54192746, y: 0.4348423, z: 0.2737875}
   m_DirtyAABB: 0
+--- !u!1 &3922365130400495286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6044548653521216601}
+  - component: {fileID: 3066008717770615549}
+  m_Layer: 0
+  m_Name: Sphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6044548653521216601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922365130400495286}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3967865621824164543}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3066008717770615549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3922365130400495286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4be97d72cace333499b31e831d0651bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphCircle
+  _telegraphMaterial: {fileID: 2100000, guid: f3ff1db36b3eecf418142752b2567fe2, type: 2}
+  _edgeColor: {r: 1, g: 0.2, b: 0.1, a: 0.35}
+  _fillColor: {r: 1, g: 0.1, b: 0, a: 0.55}
+  _groundOffset: 0.05
 --- !u!1 &3930468476053323020
 GameObject:
   m_ObjectHideFlags: 0
@@ -1843,6 +1892,100 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.036849424, y: 0.26211464, z: 0.053276658}
     m_Extent: {x: 0.2654122, y: 0.29369652, z: 0.21194384}
   m_DirtyAABB: 0
+--- !u!1 &5750535830052073751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1797135072523464399}
+  - component: {fileID: 1505604880390723839}
+  m_Layer: 13
+  m_Name: TelegraphGlow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1797135072523464399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5750535830052073751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1538026140134920828}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1505604880390723839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5750535830052073751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 748d42bffded13d49a607b99a7d8be4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphGlow
+  _glowMaterial: {fileID: 2100000, guid: e1a411ddaa042104baada1270d5b9520, type: 2}
+  _minScale: 0.05
+  _maxScale: 0.35
+  _lightColor: {r: 1, g: 0.25, b: 0.05, a: 1}
+  _maxLightIntensity: 3
+  _maxLightRange: 4
+  _sparkColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  _maxParticles: 20
+  _intensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3
+      value: 1
+      inSlope: -0.0020688053
+      outSlope: -0.0020688053
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7
+      value: 0.5
+      inSlope: 0.51693076
+      outSlope: 0.51693076
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.9874878
+      value: -0.002380371
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &5832461023998492932
 GameObject:
   m_ObjectHideFlags: 0
@@ -12315,7 +12458,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8665004527353708632}
+  - {fileID: 6044548653521216601}
   - {fileID: 2447424298856391857}
   - {fileID: 8186144642033344372}
   - {fileID: 4465551059789687291}
@@ -12986,7 +13129,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InitializationMode: 0
   Label: 
-  _attackIndicator: {fileID: 8665004527353708633}
+  _telegraphCircle: {fileID: 3066008717770615549}
+  _telegraphGlow: {fileID: 1505604880390723839}
   _telegraphDuration: 0.7
 --- !u!114 &5500000000000000003
 MonoBehaviour:
@@ -13934,89 +14078,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2933236848387426941}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &4365126164185621750
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 3967865621824164543}
-    m_Modifications:
-    - target: {fileID: 4959673387738588304, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_Name
-      value: Arc 1 Region
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d7e4974bc0c6ca3439c416b61cccc96c, type: 3}
---- !u!4 &8665004527353708632 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4959673387738588334, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-    type: 3}
-  m_PrefabInstance: {fileID: 4365126164185621750}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8665004527353708633 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4959673387738588335, guid: d7e4974bc0c6ca3439c416b61cccc96c,
-    type: 3}
-  m_PrefabInstance: {fileID: 4365126164185621750}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b3b0c906f884918937c3bdfb1962023, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
