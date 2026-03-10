@@ -42,7 +42,7 @@ namespace MoreMountains.TopDownEngine
         private readonly CharacterStat _attackSpeed   = new CharacterStat();       // base 100
         private readonly CharacterStat _movementSpeed = new CharacterStat();       // base 100
         private readonly CharacterStat _maxHealth     = new CharacterStat();       // base 100
-        private readonly CharacterStat _critChance    = new CharacterStat(0f);     // base 0%
+        private readonly CharacterStat _critChance    = new CharacterStat(5f);     // base 5%
         private readonly CharacterStat _critDamage    = new CharacterStat(150f);   // base 150% = 1.5x
         private readonly CharacterStat _dodgeChance   = new CharacterStat(0f);     // base 0%
 
@@ -64,7 +64,7 @@ namespace MoreMountains.TopDownEngine
 
         [Header("Combat Stats (read-only)")]
         [Tooltip("Current CritChance. Direct percentage: 25 = 25% chance to crit.")]
-        [MMReadOnly] [SerializeField] private float _critChanceDisplay    = 0f;
+        [MMReadOnly] [SerializeField] private float _critChanceDisplay    = 5f;
 
         [Tooltip("Current CritDamage. 150 = 1.5x damage on crit, 200 = 2x.")]
         [MMReadOnly] [SerializeField] private float _critDamageDisplay    = 150f;
