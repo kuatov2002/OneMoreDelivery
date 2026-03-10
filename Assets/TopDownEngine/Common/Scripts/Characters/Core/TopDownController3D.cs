@@ -359,7 +359,18 @@ namespace MoreMountains.TopDownEngine
 		{
 			GroundNormal.x = GroundNormal.y = GroundNormal.z = 0f;
 
-			_collisionFlags = _characterController.Move(_motion); 
+			float yBefore = _transform.position.y;
+			_collisionFlags = _characterController.Move(_motion);
+
+			// Prevent CC collision resolution from launching grounded characters into the air.
+			// When grounded, _motion.y is always negative (stickyOffset + gravity pulls down).
+			// Any Y increase beyond a tiny tolerance is from CC overlap resolution.
+			if (Grounded && _motion.y <= 0f && (_transform.position.y - yBefore) > 0.01f)
+			{
+				Vector3 pos = _transform.position;
+				pos.y = yBefore;
+				_transform.position = pos;
+			}
 
 			_lastHitPoint = _hitPoint;
 			_lastGroundNormal = GroundNormal;
@@ -796,9 +807,18 @@ namespace MoreMountains.TopDownEngine
 		/// </summary>
 		protected virtual void ApplyImpact()
 		{
+			_impact.y = 0f;
 			if (_impact.magnitude > 0.2f)
 			{
+				float yBefore = _transform.position.y;
 				_characterController.Move(_impact * Time.deltaTime);
+				// Prevent CC collision resolution from pushing grounded characters upward
+				if (Grounded && _transform.position.y > yBefore + 0.01f)
+				{
+					Vector3 pos = _transform.position;
+					pos.y = yBefore;
+					_transform.position = pos;
+				}
 			}
 			_impact = Vector3.Lerp(_impact, Vector3.zero, ImpactFalloff * Time.deltaTime);
 		}
@@ -819,9 +839,9 @@ namespace MoreMountains.TopDownEngine
 		/// <param name="force"></param>
 		public override void Impact(Vector3 direction, float force)
 		{
+			direction.y = 0f;
 			direction = direction.normalized;
-			if (direction.y < 0) { direction.y = -direction.y; }
-			_impact += direction.normalized * force;
+			_impact += direction * force;
 		}
 
 		/// <summary>

@@ -12064,6 +12064,9 @@ MonoBehaviour:
   _attackSpeedDisplay: 100
   _movementSpeedDisplay: 100
   _maxHealthDisplay: 100
+  _critChanceDisplay: 5
+  _critDamageDisplay: 150
+  _dodgeChanceDisplay: 0
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 114096976402940132}
   - component: {fileID: 114049947547974234}
   - component: {fileID: 2463841059975174656}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: KnightSword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -388,7 +388,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5651512927017269546}
   - component: {fileID: 1492783363290899349}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: HitFeedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}

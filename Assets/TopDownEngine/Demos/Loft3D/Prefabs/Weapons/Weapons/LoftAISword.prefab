@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4565189611861034}
   - component: {fileID: 114594623923584052}
   - component: {fileID: 2463841059975174656}
-  m_Layer: 13
+  m_Layer: 3
   m_Name: LoftAISword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
