@@ -651,6 +651,20 @@ namespace MoreMountains.TopDownEngine
 				float randomDamage =
 					UnityEngine.Random.Range(MinDamageCaused, Mathf.Max(MaxDamageCaused, MinDamageCaused));
 
+				// ── Crit Processing ──────────────────────────────────────
+				if (Owner != null)
+				{
+					var ownerCharacter = Owner.MMGetComponentNoAlloc<Character>();
+					if (ownerCharacter != null)
+					{
+						var ownerStats = ownerCharacter.FindAbility<CharacterStats>();
+						if (ownerStats != null)
+						{
+							randomDamage = ownerStats.ProcessCrit(randomDamage, out _);
+						}
+					}
+				}
+
 				ApplyKnockback(randomDamage, TypedDamages);
 
 				DetermineDamageDirection();

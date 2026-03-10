@@ -5,20 +5,18 @@ using UnityEngine;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Represents a single character statistic with a fixed base value of 100
-    /// (meaning 100%). Modifiers are additive percentage-point deltas stacked
-    /// on top of that base, so a +25 modifier raises the effective value to 125%.
+    /// Represents a single character statistic with a configurable base value.
+    /// Multiplier-style stats use base 100 (100%); direct-percentage stats
+    /// (like CritChance, DodgeChance) use base 0.
+    ///
+    /// Modifiers are additive percentage-point deltas stacked on top of the base,
+    /// so a +25 modifier on a base-100 stat yields 125 (125%).
     ///
     /// Thread-safety: all mutations must occur on the main Unity thread.
     /// </summary>
     [Serializable]
     public class CharacterStat
     {
-        // ── Constants ─────────────────────────────────────────────────────────
-
-        /// <summary>Base percentage value for every stat. Fixed at 100.</summary>
-        public const float BaseValue = 100f;
-
         // ── Events ────────────────────────────────────────────────────────────
 
         /// <summary>
@@ -29,12 +27,32 @@ namespace MoreMountains.TopDownEngine
 
         // ── State ─────────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Base value for this stat instance.
+        /// Multiplier stats default to 100 (100%); probability stats use 0.
+        /// </summary>
+        public readonly float BaseValue;
+
         // Ordered list so iteration is deterministic and cache-friendly.
         private readonly List<StatModifier> _modifiers = new List<StatModifier>(4);
 
         // Cached result; recomputed only when the modifier list changes.
-        private float _cachedValue = BaseValue;
-        private bool  _isDirty     = false;
+        private float _cachedValue;
+        private bool  _isDirty = false;
+
+        // ── Constructor ───────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Creates a stat with the given base value.
+        /// Default is 100 (100%) for backward-compatible multiplier stats.
+        /// Use 0 for probability stats (CritChance, DodgeChance) or
+        /// 150 for CritDamage (150% = 1.5x base crit multiplier).
+        /// </summary>
+        public CharacterStat(float baseValue = 100f)
+        {
+            BaseValue    = baseValue;
+            _cachedValue = baseValue;
+        }
 
         // ── Public API ────────────────────────────────────────────────────────
 
@@ -52,8 +70,10 @@ namespace MoreMountains.TopDownEngine
         }
 
         /// <summary>
-        /// The stat expressed as a 0–∞ multiplier.
+        /// The stat expressed as a 0-inf multiplier.
         /// A CurrentValue of 100 yields 1.0; 150 yields 1.5; 50 yields 0.5.
+        /// Meaningful only for multiplier-style stats (base 100).
+        /// For probability stats (base 0), use <see cref="CurrentValue"/> directly.
         /// </summary>
         public float Multiplier => CurrentValue / 100f;
 

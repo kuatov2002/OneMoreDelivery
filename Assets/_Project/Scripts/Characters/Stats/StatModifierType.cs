@@ -1,15 +1,20 @@
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// The four modifiable character statistics.
-    /// All stats operate on a 100-point base (100 = 100%).
+    /// Modifiable character statistics.
+    /// Multiplier stats operate on a 100-point base (100 = 100%).
+    /// Probability stats (CritChance, DodgeChance) use base 0 and represent
+    /// direct percentages (25 = 25% chance).
     /// </summary>
     public enum StatType
     {
         AttackPower,
         AttackSpeed,
         MovementSpeed,
-        MaxHealth
+        MaxHealth,
+        CritChance,
+        CritDamage,
+        DodgeChance
     }
 
     /// <summary>

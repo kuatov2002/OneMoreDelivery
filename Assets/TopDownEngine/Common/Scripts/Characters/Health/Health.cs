@@ -193,6 +193,7 @@ namespace MoreMountains.TopDownEngine
 		protected int _initialLayer;
 		protected MaterialPropertyBlock _propertyBlock;
 		protected bool _hasColorProperty = false;
+		protected CharacterStats _characterStats;
 
 		protected const string _deathAnimatorParameterName = "Death";
 		protected const string _healthAnimatorParameterName = "Health";
@@ -248,13 +249,14 @@ namespace MoreMountains.TopDownEngine
 			if (_character != null)
 			{
 				_characterMovement = _character.FindAbility<CharacterMovement>();
+				_characterStats = _character.FindAbility<CharacterStats>();
 				if (_character.CharacterModel != null)
 				{
 					if (_character.CharacterModel.GetComponentInChildren<Renderer> ()!= null)
 					{
-						_renderer = _character.CharacterModel.GetComponentInChildren<Renderer> ();	
+						_renderer = _character.CharacterModel.GetComponentInChildren<Renderer> ();
 					}
-				}	
+				}
 			}
 			if (_renderer != null)
 			{
@@ -439,6 +441,12 @@ namespace MoreMountains.TopDownEngine
 		public virtual void Damage(float damage, GameObject instigator, float flickerDuration, float invincibilityDuration, Vector3 damageDirection, List<TypedDamage> typedDamages = null)
 		{
 			if (!CanTakeDamageThisFrame())
+			{
+				return;
+			}
+
+			// ── Dodge Check ──────────────────────────────────────────
+			if (_characterStats != null && _characterStats.RollDodge())
 			{
 				return;
 			}
