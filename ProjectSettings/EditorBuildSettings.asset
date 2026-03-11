@@ -6,8 +6,43 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    path: Assets/TopDownEngine/Demos/LevelSelection/LevelSelection.unity
+    guid: f991cbe75cb701b43baec351a60a630a
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/1Scene.unity
+    guid: e980f08e3c8316d4c860bdd22dd7a4d9
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossArcher.unity
+    guid: 8202cafe6552d7d41a10f028dca5d417
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossArcherDialogue.unity
+    guid: 836715091953adf459c8350ad3d89923
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/2Scene.unity
+    guid: 3cfef4f8715ef7b4b9179d2469390023
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossMage.unity
+    guid: b0b9c68163d80b94cb895f980a06fe6d
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossMageDialogue.unity
+    guid: c9dfdbde86d10de478942606e2009659
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTrickster.unity
+    guid: 4de2ace2f00bcc649b8433f9a7d9d248
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTricksterCut.unity
+    guid: dee73b89364fcae449f39d36b056409d
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTrickster1.unity
+    guid: 1c052d9e76c094e4ab7bbf2add70040a
+  - enabled: 1
+    path: Assets/_Project/Scenes/GameScenes/BossTrickster1Cut.unity
+    guid: 26c3438f509b3814ea9c8ced96a2fbed
+  - enabled: 1
+    path: Assets/TopDownEngine/Demos/StartScreen/StartScreen.unity
+    guid: 52360e1567e3fee418407abdfd132d73
+  - enabled: 1
+    path: Assets/TopDownEngine/ThirdParty/MoreMountains/MMTools/Core/MMSceneLoading/LoadingScreens/LoadingScreen.unity
+    guid: 888394d52616e5e42b3b54c3f2bbd3eb
+  m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
