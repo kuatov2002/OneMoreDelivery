@@ -695,14 +695,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3213580268474559891}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.83694386, y: -0.5387577, z: -0.036146306, w: -0.08921164}
-  m_LocalPosition: {x: -0.038637415, y: 0.08664964, z: 0.018566951}
+  m_LocalRotation: {x: 0.013163504, y: -0.31489047, z: -0.043132115, w: -0.9480561}
+  m_LocalPosition: {x: 0.006, y: 0.068, z: 0.044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2928550597936080393}
   m_Father: {fileID: 1538026140134920828}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -177.012, y: -143.363, z: 184.22}
 --- !u!1 &3369782722563470189
 GameObject:
   m_ObjectHideFlags: 0
@@ -1937,8 +1937,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphGlow
   _glowMaterial: {fileID: 2100000, guid: e1a411ddaa042104baada1270d5b9520, type: 2}
-  _minScale: 0.05
-  _maxScale: 0.35
+  _minScale: 0.2
+  _maxScale: 0.7
   _lightColor: {r: 1, g: 0.25, b: 0.05, a: 1}
   _maxLightIntensity: 3
   _maxLightRange: 4
@@ -13132,7 +13132,7 @@ MonoBehaviour:
   Label: 
   _telegraphCircle: {fileID: 3066008717770615549}
   _telegraphGlow: {fileID: 1505604880390723839}
-  _telegraphDuration: 0.7
+  _telegraphDuration: 1
 --- !u!114 &5500000000000000003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13227,7 +13227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Label: 
-  TimeThreshold: 0.7
+  TimeThreshold: 1
 --- !u!114 &5500000000000000009
 MonoBehaviour:
   m_ObjectHideFlags: 0
