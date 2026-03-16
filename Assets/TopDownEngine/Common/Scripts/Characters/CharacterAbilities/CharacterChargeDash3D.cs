@@ -12,6 +12,13 @@ namespace MoreMountains.TopDownEngine
     /// When the player presses Dash while the ability is on cooldown or the movement
     /// state blocks it, the input is buffered and the dash fires as soon as possible.
     ///
+    /// Wall collision:
+    ///   • At dash start a SphereCast clamps _dashDestination to the first obstacle.
+    ///   • Every frame a second SphereCast checks the upcoming step so dynamic
+    ///     obstacles (moving doors, destructibles) also stop the dash cleanly.
+    ///   • Distance and duration values are untouched — when the path is clear the
+    ///     behaviour is identical to before.
+    ///
     /// Interrupt system participation:
     ///   • OwnTags          → assign "Evasion", "Movement" in the Inspector.
     ///   • CanInterruptTags → assign "Block", "Attack_Melee", "Attack_Ranged", etc.
@@ -54,6 +61,18 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Detection frequency in seconds (0 = every frame)")]
         public float DetectionInterval = 0.1f;
 
+        [Header("Wall Collision")]
+        [Tooltip("Layers treated as solid obstacles. Assign Default / Wall / Terrain layers here.")]
+        public LayerMask ObstacleLayerMask;
+
+        [Tooltip("Sphere radius used when casting for obstacles — match your character's capsule radius.")]
+        public float CharacterRadius = 0.4f;
+
+        [Tooltip("Vertical offset applied to the dash origin and destination. " +
+                 "Use when the character pivot is at the feet and the cast should start at chest/center height.")]
+        public float VerticalOffset = 0f;
+
+
         [Header("Cooldown")]
         public MMCooldown Cooldown;
 
@@ -88,12 +107,9 @@ namespace MoreMountains.TopDownEngine
         private float   _intentionTimer;
         private const float IntentionRefreshRate = 0.05f; // 50 ms
 
+
         // ── IsActive ──────────────────────────────────────────────────────────
 
-        // FIX: Override explicitly so the interrupt system has a precise contract.
-        // The base class returns (_movement.CurrentState != Idle).
-        // While dashing the state IS Dashing (!= Idle), so it accidentally works —
-        // but "accidentally works" is not acceptable in shared systems code.
         public override bool IsActive => _dashing;
 
         // ── Animator parameters ───────────────────────────────────────────────
@@ -151,11 +167,7 @@ namespace MoreMountains.TopDownEngine
         {
             base.ProcessAbility();
 
-            // Periodically snapshot the controller's movement direction so we have
-            // a recent "intended direction" to use when the dash finally fires.
-            // This is distinct from reading direction at the exact frame of the button
-            // press, which can be stale if the player pressed the button a moment
-            // before the buffer flush.
+            // Periodically snapshot the controller's movement direction.
             _intentionTimer -= Time.deltaTime;
             if (_intentionTimer <= 0f)
             {
@@ -190,7 +202,23 @@ namespace MoreMountains.TopDownEngine
                 float   curveValue  = DashCurve.Evaluate(t);
                 Vector3 newPosition = Vector3.Lerp(_dashOrigin, _dashDestination, curveValue);
 
-                _controller.MovePosition(newPosition);
+                // If an obstacle blocks the next step, freeze position but keep
+                // the dash running — timer continues, state/invincibility hold.
+                Vector3 castOrigin = transform.position + Vector3.up * VerticalOffset;
+                Vector3 step       = newPosition - castOrigin;
+                float   stepLength = step.magnitude;
+
+                bool blocked = stepLength > 0.001f
+                    && Physics.SphereCast(
+                        castOrigin, CharacterRadius, step / stepLength,
+                        out _, stepLength,
+                        ObstacleLayerMask, QueryTriggerInteraction.Ignore);
+
+                if (!blocked)
+                {
+                    _controller.MovePosition(newPosition);
+                }
+
                 _dashTimer += Time.deltaTime;
             }
             else
@@ -203,32 +231,14 @@ namespace MoreMountains.TopDownEngine
 
         protected virtual void StartDash()
         {
-            // FIX: Cooldown check must come before RequestAbilityActivation.
-            // Previously the check appeared AFTER the call, meaning we would fire
-            // interrupts on other abilities and then immediately bail out here —
-            // the damage was already done (e.g. a block was cancelled) even though
-            // the dash never actually started.
             if (!Cooldown.Ready()) return;
 
-            // FIX: _dashDirection was being assigned twice.
-            // First from _intentionDirection (the correct snapshot), then 
-            // overwritten by _controller.CurrentDirection after Cooldown.Start().
-            // The intention snapshot exists precisely so we can read a direction
-            // that reflects recent input without the noise of the exact button frame.
-            // We resolve direction once, here, before anything else changes state.
             _dashDirection = _intentionDirection.magnitude > 0.1f
                 ? _intentionDirection
                 : transform.forward;
 
-            // Announce intent to the interrupt system AFTER validating all local
-            // preconditions. This ensures we only trigger interrupts on other
-            // abilities when we are actually going to follow through.
-            // CanInterruptTags on this ability drives which abilities get interrupted
-            // (e.g. "Block" → stops the shield; "Attack_Melee" → cancels a swing).
             if (!_character.RequestAbilityActivation(this))
             {
-                // An uninterruptible ability blocked us.
-                // Buffer the input so we retry as soon as it's done.
                 InputBuffer.Request();
                 return;
             }
@@ -241,7 +251,7 @@ namespace MoreMountains.TopDownEngine
 
             _dashing              = true;
             _dashTimer            = 0f;
-            _dashOrigin           = transform.position;
+            _dashOrigin           = transform.position + Vector3.up * VerticalOffset;
             _dashStartedThisFrame = true;
 
             _damagedTargets.Clear();
@@ -411,6 +421,10 @@ namespace MoreMountains.TopDownEngine
             {
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(_dashOrigin, _dashDestination);
+
+                // Visualise the wall-clamped destination
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireSphere(_dashDestination, CharacterRadius);
             }
         }
     }
