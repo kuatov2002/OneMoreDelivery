@@ -3,7 +3,7 @@ using UnityEngine;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Ground-projected attack telegraph indicator (sector/circle).
+    /// Ground-projected attack telegraph indicator (star shape).
     /// Attach to a child GameObject with a quad mesh.
     /// Drives a Custom/AttackTelegraph shader to show a filling danger zone.
     /// </summary>
@@ -14,8 +14,8 @@ namespace MoreMountains.TopDownEngine
         [SerializeField] private Material _telegraphMaterial;
 
         [Header("Colors")]
-        [SerializeField] private Color _edgeColor = new Color(1f, 0.2f, 0.1f, 0.35f);
-        [SerializeField] private Color _fillColor = new Color(1f, 0.1f, 0.0f, 0.55f);
+        [SerializeField] private Color _edgeColor = new Color(0.8f, 0.05f, 0.02f, 0.45f);
+        [SerializeField] private Color _fillColor = new Color(0.6f, 0.02f, 0.0f, 0.3f);
 
         [Header("Settings")]
         [SerializeField] private float _groundOffset = 0.05f;
@@ -25,8 +25,6 @@ namespace MoreMountains.TopDownEngine
         private MeshFilter _meshFilter;
 
         private static readonly int PropFillProgress = Shader.PropertyToID("_FillProgress");
-        private static readonly int PropArc = Shader.PropertyToID("_Arc");
-        private static readonly int PropDirection = Shader.PropertyToID("_Direction");
         private static readonly int PropColor = Shader.PropertyToID("_Color");
         private static readonly int PropFillColor = Shader.PropertyToID("_FillColor");
 
@@ -42,32 +40,6 @@ namespace MoreMountains.TopDownEngine
             }
         }
         private float _fillProgress;
-
-        /// <summary>Arc angle in degrees</summary>
-        public float Arc
-        {
-            get => _arc;
-            set
-            {
-                _arc = value;
-                if (_instanceMat != null)
-                    _instanceMat.SetFloat(PropArc, _arc);
-            }
-        }
-        private float _arc = 60f;
-
-        /// <summary>Direction angle in degrees (world Y rotation)</summary>
-        public float Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value;
-                if (_instanceMat != null)
-                    _instanceMat.SetFloat(PropDirection, _direction);
-            }
-        }
-        private float _direction;
 
         /// <summary>Attack range — sets quad scale</summary>
         public float Radius
@@ -96,12 +68,8 @@ namespace MoreMountains.TopDownEngine
             EnsureComponents();
             gameObject.SetActive(true);
 
-            Arc = arcAngle;
             Radius = radius;
             FillProgress = 0f;
-
-            // Convert world direction to angle
-            Direction = Mathf.Atan2(worldDirection.x, worldDirection.z) * Mathf.Rad2Deg;
 
             // Position flat on the ground under the enemy
             Transform parent = transform.parent;

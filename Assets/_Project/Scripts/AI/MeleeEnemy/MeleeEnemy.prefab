@@ -920,8 +920,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphCircle
   _telegraphMaterial: {fileID: 2100000, guid: f3ff1db36b3eecf418142752b2567fe2, type: 2}
-  _edgeColor: {r: 1, g: 0.2, b: 0.1, a: 0.35}
-  _fillColor: {r: 1, g: 0.1, b: 0, a: 0.55}
+  _edgeColor: {r: 0.8, g: 0.05, b: 0.02, a: 0.45}
+  _fillColor: {r: 0.6, g: 0.02, b: 0, a: 0.3}
   _groundOffset: 0.05
 --- !u!1 &3930468476053323020
 GameObject:
@@ -1936,13 +1936,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 748d42bffded13d49a607b99a7d8be4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphGlow
-  _glowMaterial: {fileID: 2100000, guid: e1a411ddaa042104baada1270d5b9520, type: 2}
-  _minScale: 0.2
-  _maxScale: 0.7
-  _lightColor: {r: 1, g: 0.25, b: 0.05, a: 1}
+  _starMaterial: {fileID: 2100000, guid: f3ff1db36b3eecf418142752b2567fe2, type: 2}
+  _minSize: 0.4
+  _maxSize: 2.0
+  _lightColor: {r: 1, g: 0.45, b: 0.05, a: 1}
   _maxLightIntensity: 3
-  _maxLightRange: 4
-  _sparkColor: {r: 1, g: 0.4, b: 0.1, a: 1}
+  _maxLightRange: 5
+  _sparkColor: {r: 1, g: 0.5, b: 0.1, a: 1}
   _maxParticles: 20
   _intensityCurve:
     serializedVersion: 2
@@ -13130,7 +13130,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InitializationMode: 0
   Label: 
-  _telegraphCircle: {fileID: 3066008717770615549}
   _telegraphGlow: {fileID: 1505604880390723839}
   _telegraphDuration: 1
 --- !u!114 &5500000000000000003
@@ -14590,6 +14589,11 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 06bc155156d4ea9479bd33baf24b5d6a, type: 2}
+    - target: {fileID: 64247553254033570, guid: ca8d427b471a77745835639d65f3c276,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

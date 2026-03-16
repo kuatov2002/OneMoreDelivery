@@ -5,30 +5,25 @@ namespace MoreMountains.TopDownEngine
 {
     /// <summary>
     /// Telegraph action: stops movement, locks facing direction toward target,
-    /// plays windup animation. Shows a ground circle telegraph indicator
-    /// and a glowing sphere on the hand so the player can read the attack.
+    /// plays windup animation. Shows a glowing star effect on the hand
+    /// (CotDG-style) so the player can read the attack.
     /// Direction stays locked for the subsequent Attack state.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Telegraph")]
     public class AIActionTelegraph : AIAction
     {
-        [Header("Ground Indicator")]
-        [Tooltip("Reference to the AttackTelegraphCircle (child of this enemy)")]
-        [SerializeField] private AttackTelegraphCircle _telegraphCircle;
-
         [Header("Hand Glow")]
         [Tooltip("Reference to the AttackTelegraphGlow placed on a hand bone")]
         [SerializeField] private AttackTelegraphGlow _telegraphGlow;
 
         [Header("Timing")]
-        [Tooltip("Duration of the telegraph phase in seconds (should match the state transition threshold)")]
+        [Tooltip("Duration of the telegraph phase in seconds")]
         [SerializeField] private float _telegraphDuration = 0.7f;
 
         protected CharacterMovement _characterMovement;
         protected CharacterOrientation3D _orientation;
         protected Animator _animator;
 
-        private AIActionMeleeAttackCone _attackCone;
         private float _enterTime;
 
         public override void Initialization()
@@ -40,8 +35,6 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _orientation = character?.FindAbility<CharacterOrientation3D>();
             _animator = character?.CharacterAnimator;
-
-            _attackCone = GetComponent<AIActionMeleeAttackCone>();
         }
 
         public override void OnEnterState()
@@ -64,7 +57,9 @@ namespace MoreMountains.TopDownEngine
             if (_animator != null)
                 _animator.SetTrigger("Telegraph");
 
-            ShowTelegraph();
+            if (_telegraphGlow != null)
+                _telegraphGlow.Show();
+
             _enterTime = Time.time;
         }
 
@@ -79,10 +74,6 @@ namespace MoreMountains.TopDownEngine
                 progress = Mathf.Clamp01(elapsed / _telegraphDuration);
             }
 
-            // Drive both effects with the same progress
-            if (_telegraphCircle != null)
-                _telegraphCircle.FillProgress = progress;
-
             if (_telegraphGlow != null)
                 _telegraphGlow.Progress = progress;
         }
@@ -91,31 +82,8 @@ namespace MoreMountains.TopDownEngine
         {
             base.OnExitState();
 
-            if (_telegraphCircle != null)
-                _telegraphCircle.Hide();
-
             if (_telegraphGlow != null)
                 _telegraphGlow.Hide();
-        }
-
-        private void ShowTelegraph()
-        {
-            // Ground circle
-            if (_telegraphCircle != null)
-            {
-                float arc = _attackCone != null ? _attackCone.ConeAngle : 60f;
-                float radius = _attackCone != null ? _attackCone.AttackRange : 2.5f;
-
-                Vector3 dir = _orientation != null
-                    ? _orientation.ForcedRotationDirection
-                    : transform.forward;
-
-                _telegraphCircle.Show(arc, radius, dir);
-            }
-
-            // Hand glow
-            if (_telegraphGlow != null)
-                _telegraphGlow.Show();
         }
     }
 }
