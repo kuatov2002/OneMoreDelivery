@@ -5,7 +5,6 @@ namespace MoreMountains.TopDownEngine
 {
     /// <summary>
     /// Stagger action: applies knockback, freezes movement for the duration.
-    /// Unlocks forced rotation in case stagger interrupts a state that locked it.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Stagger")]
     public class AIActionStagger : AIAction
@@ -14,7 +13,6 @@ namespace MoreMountains.TopDownEngine
         public float KnockbackForce = 5f;
 
         protected CharacterMovement _characterMovement;
-        protected CharacterOrientation3D _orientation;
         protected TopDownController _controller;
         protected Health _health;
         protected Animator _animator;
@@ -26,7 +24,6 @@ namespace MoreMountains.TopDownEngine
 
             var character = gameObject.GetComponentInParent<Character>();
             _characterMovement = character?.FindAbility<CharacterMovement>();
-            _orientation = character?.FindAbility<CharacterOrientation3D>();
             _controller = gameObject.GetComponentInParent<TopDownController>();
             _health = character?.CharacterHealth;
             _animator = character?.CharacterAnimator;
@@ -37,11 +34,6 @@ namespace MoreMountains.TopDownEngine
             base.OnEnterState();
 
             _characterMovement?.SetMovement(Vector2.zero);
-
-            if (_orientation != null)
-            {
-                _orientation.ForcedRotation = false;
-            }
 
             if (_controller != null && _health != null)
             {

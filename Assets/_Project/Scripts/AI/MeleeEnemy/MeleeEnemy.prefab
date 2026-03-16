@@ -1938,7 +1938,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphGlow
   _starMaterial: {fileID: 2100000, guid: f3ff1db36b3eecf418142752b2567fe2, type: 2}
   _minSize: 0.4
-  _maxSize: 2.0
+  _maxSize: 2
   _lightColor: {r: 1, g: 0.45, b: 0.05, a: 1}
   _maxLightIntensity: 3
   _maxLightRange: 5
@@ -12414,14 +12414,12 @@ GameObject:
   - component: {fileID: 262912126585696846}
   - component: {fileID: 1062104724715927521}
   - component: {fileID: 2128048018886853528}
-  - component: {fileID: 1347806073481263155}
   - component: {fileID: 4963758819961024031}
   - component: {fileID: 3504876610521730920}
   - component: {fileID: 4515729623545326854}
   - component: {fileID: 9167354037108304173}
   - component: {fileID: 8545942363544322565}
   - component: {fileID: 2148778931786118099}
-  - component: {fileID: 238350717109558247}
   - component: {fileID: 5500000000000000001}
   - component: {fileID: 5500000000000000002}
   - component: {fileID: 5500000000000000003}
@@ -12438,6 +12436,7 @@ GameObject:
   - component: {fileID: 6577133559395143116}
   - component: {fileID: 6795814714251939123}
   - component: {fileID: 7147998562183640594}
+  - component: {fileID: 5567663670726653961}
   - component: {fileID: 8639442905325222108}
   m_Layer: 13
   m_Name: MeleeEnemy
@@ -12619,49 +12618,6 @@ MonoBehaviour:
   AdditionalAbilityNodes: []
   CharacterBrain: {fileID: 0}
   OptimizeForMobile: 1
---- !u!114 &1347806073481263155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f2dd01ffdd1cc045a614bd354672723, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AbilityStartSfx: {fileID: 0}
-  AbilityInProgressSfx: {fileID: 0}
-  AbilityStopSfx: {fileID: 0}
-  AbilityStartFeedbacks: {fileID: 0}
-  AbilityStopFeedbacks: {fileID: 0}
-  OwnTags: []
-  CanInterruptTags: []
-  InterruptibleByTags: []
-  AbilityPermitted: 1
-  BlockingMovementStates: 
-  BlockingConditionStates: 
-  BlockingWeaponStates: 
-  RotationMode: 3
-  CharacterRotationAuthorized: 1
-  ShouldRotateToFaceMovementDirection: 1
-  MovementRotationSpeed: 1
-  MovementRotatingModel: {fileID: 0}
-  RotateToFaceMovementDirectionSpeed: 10
-  AbsoluteThresholdMovement: 0.5
-  ModelDirection: {x: 0, y: 0, z: 0}
-  ModelAngles: {x: 0, y: 0, z: 0}
-  ShouldRotateToFaceWeaponDirection: 1
-  WeaponRotationSpeed: 0
-  WeaponRotatingModel: {fileID: 0}
-  RotateToFaceWeaponDirectionSpeed: 10
-  AbsoluteThresholdWeapon: 0.5
-  LockVerticalRotation: 1
-  RotationSpeedResetSpeed: 2
-  RotationOffsetSmoothSpeed: 1
-  ForcedRotation: 0
-  ForcedRotationDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &4963758819961024031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12988,7 +12944,7 @@ MonoBehaviour:
   - StateName: Chase
     Actions:
       array:
-      - {fileID: 238350717109558247}
+      - {fileID: 5567663670726653961}
       - {fileID: 7147998562183640594}
     Transitions:
       array:
@@ -13086,21 +13042,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InitializationMode: 0
   Label: 
---- !u!114 &238350717109558247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7448775784021882958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97230edd623230e4ea486ef91a6d23e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIActionMoveTowardsTarget3D
-  InitializationMode: 0
-  Label: 
-  MinimumDistance: 0
 --- !u!114 &5500000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13132,6 +13073,8 @@ MonoBehaviour:
   Label: 
   _telegraphGlow: {fileID: 1505604880390723839}
   _telegraphDuration: 1
+  _trackingRatio: 0.65
+  _trackingRotationSpeed: 360
 --- !u!114 &5500000000000000003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13199,6 +13142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Label: 
   AttackRange: 4
+  ConeAngle: 60
 --- !u!114 &5500000000000000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13386,6 +13330,22 @@ MonoBehaviour:
   InitializationMode: 0
   Label: 
   OnlyIfTargetIsNull: 0
+--- !u!114 &5567663670726653961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 192a81f81c380bf4ba5de3e8ce2d687c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AIActionChaseTarget3D
+  InitializationMode: 0
+  Label: 
+  MinimumDistance: 0
+  RotationSpeed: 360
 --- !u!114 &8639442905325222108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14594,7 +14554,8 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 64247553254033570, guid: ca8d427b471a77745835639d65f3c276, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

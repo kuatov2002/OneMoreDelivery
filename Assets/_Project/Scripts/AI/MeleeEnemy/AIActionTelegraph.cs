@@ -4,10 +4,10 @@ using UnityEngine;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Telegraph action: stops movement, locks facing direction toward target,
-    /// plays windup animation. Shows a glowing star effect on the hand
-    /// (CotDG-style) so the player can read the attack.
-    /// Direction stays locked for the subsequent Attack state.
+    /// Telegraph action: stops movement, tracks the target during the first
+    /// portion of the windup (Dark Souls-style), then locks the direction
+    /// for the rest — giving the player a dodge window.
+    /// Rotates the character root transform directly, no CharacterOrientation3D needed.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Telegraph")]
     public class AIActionTelegraph : AIAction
@@ -20,11 +20,26 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Duration of the telegraph phase in seconds")]
         [SerializeField] private float _telegraphDuration = 0.7f;
 
-        protected CharacterMovement _characterMovement;
-        protected CharacterOrientation3D _orientation;
-        protected Animator _animator;
+        [Header("Tracking (Dark Souls-style)")]
+        [Tooltip("Fraction of telegraph duration during which the enemy tracks the player (0-1). After this the direction is locked.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _trackingRatio = 0.65f;
 
+        [Tooltip("How fast the enemy rotates toward the player during tracking (degrees/sec)")]
+        [SerializeField] private float _trackingRotationSpeed = 360f;
+
+        protected CharacterMovement _characterMovement;
+        protected Animator _animator;
+        protected Transform _characterRoot;
+
+        private Vector3 _lockedDirection;
         private float _enterTime;
+        private bool _directionLocked;
+
+        /// <summary>
+        /// The attack direction locked at the end of tracking. Used by AIActionMeleeAttackCone.
+        /// </summary>
+        public Vector3 LockedDirection => _lockedDirection;
 
         public override void Initialization()
         {
@@ -33,8 +48,8 @@ namespace MoreMountains.TopDownEngine
 
             var character = gameObject.GetComponentInParent<Character>();
             _characterMovement = character?.FindAbility<CharacterMovement>();
-            _orientation = character?.FindAbility<CharacterOrientation3D>();
             _animator = character?.CharacterAnimator;
+            _characterRoot = character != null ? character.transform : transform;
         }
 
         public override void OnEnterState()
@@ -42,15 +57,16 @@ namespace MoreMountains.TopDownEngine
             base.OnEnterState();
 
             _characterMovement?.SetMovement(Vector2.zero);
+            _directionLocked = false;
 
-            if (_brain.Target != null && _orientation != null)
+            if (_brain.Target != null)
             {
-                Vector3 dirToTarget = _brain.Target.position - transform.position;
+                Vector3 dirToTarget = _brain.Target.position - _characterRoot.position;
                 dirToTarget.y = 0f;
                 if (dirToTarget.sqrMagnitude > 0.001f)
                 {
-                    _orientation.ForcedRotation = true;
-                    _orientation.ForcedRotationDirection = dirToTarget.normalized;
+                    _lockedDirection = dirToTarget.normalized;
+                    _characterRoot.rotation = Quaternion.LookRotation(_lockedDirection);
                 }
             }
 
@@ -72,6 +88,31 @@ namespace MoreMountains.TopDownEngine
             {
                 float elapsed = Time.time - _enterTime;
                 progress = Mathf.Clamp01(elapsed / _telegraphDuration);
+            }
+
+            // Track the player during the first portion of the telegraph
+            if (!_directionLocked && _brain.Target != null)
+            {
+                if (progress < _trackingRatio)
+                {
+                    Vector3 dirToTarget = _brain.Target.position - _characterRoot.position;
+                    dirToTarget.y = 0f;
+
+                    if (dirToTarget.sqrMagnitude > 0.001f)
+                    {
+                        Vector3 desiredDir = dirToTarget.normalized;
+
+                        float maxStep = _trackingRotationSpeed * Time.deltaTime;
+                        _lockedDirection = Vector3.RotateTowards(_lockedDirection, desiredDir, maxStep * Mathf.Deg2Rad, 0f);
+
+                        _characterRoot.rotation = Quaternion.LookRotation(_lockedDirection);
+                    }
+                }
+                else
+                {
+                    // Lock direction — dodge window starts here
+                    _directionLocked = true;
+                }
             }
 
             if (_telegraphGlow != null)
