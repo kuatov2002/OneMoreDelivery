@@ -12,14 +12,15 @@ namespace MoreMountains.TopDownEngine
     public class AIActionChaseTarget3D : AIAction
     {
         [Tooltip("Minimum distance from the target this character can reach")]
-        public float MinimumDistance = 1f;
+        public float MinimumDistance = 0.5f;
 
         [Tooltip("How fast the character rotates to face movement direction (degrees/sec)")]
-        public float RotationSpeed = 720f;
+        public float RotationSpeed = 540f;
 
         protected CharacterMovement _characterMovement;
         protected Transform _characterRoot;
         protected LegsAnimator _legsAnimator;
+        protected MeleeEnemyProceduralBody _proceduralBody;
         protected Vector2 _movementVector;
 
         public override void Initialization()
@@ -31,12 +32,14 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _characterRoot = character != null ? character.transform : transform;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+            _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
 
         public override void OnEnterState()
         {
             base.OnEnterState();
             _legsAnimator?.User_SetIsMoving(true);
+            _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Idle);
         }
 
         public override void PerformAction()

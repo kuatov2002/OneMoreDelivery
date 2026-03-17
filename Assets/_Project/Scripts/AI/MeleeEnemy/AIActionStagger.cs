@@ -11,19 +11,20 @@ namespace MoreMountains.TopDownEngine
     public class AIActionStagger : AIAction
     {
         [Tooltip("Knockback force applied on stagger")]
-        public float KnockbackForce = 5f;
+        public float KnockbackForce = 7f;
 
         [Header("Legs Animator")]
         [Tooltip("Hips impulse power on stagger hit")]
-        [SerializeField] private float _legsImpulsePower = 0.5f;
+        [SerializeField] private float _legsImpulsePower = 0.7f;
         [Tooltip("Hips impulse duration on stagger hit")]
-        [SerializeField] private float _legsImpulseDuration = 0.4f;
+        [SerializeField] private float _legsImpulseDuration = 0.35f;
 
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
         protected Health _health;
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
+        protected MeleeEnemyProceduralBody _proceduralBody;
 
         public override void Initialization()
         {
@@ -36,6 +37,7 @@ namespace MoreMountains.TopDownEngine
             _health = character?.CharacterHealth;
             _animator = character?.CharacterAnimator;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+            _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
 
         public override void OnEnterState()
@@ -43,6 +45,7 @@ namespace MoreMountains.TopDownEngine
             base.OnEnterState();
 
             _characterMovement?.SetMovement(Vector2.zero);
+            _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Stagger);
 
             Vector3 knockbackDir = Vector3.zero;
             if (_controller != null && _health != null)

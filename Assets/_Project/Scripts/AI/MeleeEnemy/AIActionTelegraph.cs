@@ -19,24 +19,25 @@ namespace MoreMountains.TopDownEngine
 
         [Header("Timing")]
         [Tooltip("Duration of the telegraph phase in seconds")]
-        [SerializeField] private float _telegraphDuration = 0.7f;
+        [SerializeField] private float _telegraphDuration = 0.85f;
 
         [Header("Tracking (Dark Souls-style)")]
         [Tooltip("Fraction of telegraph duration during which the enemy tracks the player (0-1). After this the direction is locked.")]
         [Range(0f, 1f)]
-        [SerializeField] private float _trackingRatio = 0.65f;
+        [SerializeField] private float _trackingRatio = 0.7f;
 
         [Tooltip("How fast the enemy rotates toward the player during tracking (degrees/sec)")]
-        [SerializeField] private float _trackingRotationSpeed = 360f;
+        [SerializeField] private float _trackingRotationSpeed = 480f;
 
         [Header("Legs Animator")]
         [Tooltip("Fade out duration for legs procedural animation during telegraph")]
-        [SerializeField] private float _legsFadeOutDuration = 0.15f;
+        [SerializeField] private float _legsFadeOutDuration = 0.2f;
 
         protected CharacterMovement _characterMovement;
         protected Animator _animator;
         protected Transform _characterRoot;
         protected LegsAnimator _legsAnimator;
+        protected MeleeEnemyProceduralBody _proceduralBody;
 
         private Vector3 _lockedDirection;
         private float _enterTime;
@@ -57,6 +58,7 @@ namespace MoreMountains.TopDownEngine
             _animator = character?.CharacterAnimator;
             _characterRoot = character != null ? character.transform : transform;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+            _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
 
         public override void OnEnterState()
@@ -65,6 +67,7 @@ namespace MoreMountains.TopDownEngine
 
             _characterMovement?.SetMovement(Vector2.zero);
             _directionLocked = false;
+            _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Telegraph);
 
             if (_brain.Target != null)
             {

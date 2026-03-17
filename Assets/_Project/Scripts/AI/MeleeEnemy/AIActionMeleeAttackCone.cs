@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
@@ -6,46 +7,65 @@ namespace MoreMountains.TopDownEngine
 {
     /// <summary>
     /// Executes a cone-shaped melee attack in the locked direction.
-    /// Hitbox activates only during a specific time window (active frames).
-    /// Gets attack direction from AIActionTelegraph.LockedDirection or character forward.
+    /// Hitbox checks every frame during the active window, tracking already-hit
+    /// targets so each is only damaged once. Synced with the lunge movement.
     /// </summary>
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Melee Attack Cone")]
     public class AIActionMeleeAttackCone : AIAction
     {
         [Header("Cone Settings")]
         [Tooltip("Arc angle in degrees")]
-        public float ConeAngle = 60f;
+        public float ConeAngle = 70f;
 
         [Tooltip("Attack reach")]
         public float AttackRange = 2.5f;
 
         [Header("Damage")]
-        public int Damage = 20;
-        public float KnockbackForce = 8f;
-        public float InvincibilityDuration = 0.2f;
+        public int Damage = 25;
+        public float KnockbackForce = 10f;
+        public float InvincibilityDuration = 0.25f;
         public LayerMask TargetLayers;
 
-        [Header("Active Window")]
-        [Tooltip("Seconds after state entry before hitbox activates")]
-        public float ActiveStartTime = 0.1f;
+        [Header("Active Window (synced with lunge)")]
+        [Tooltip("Seconds after state entry before hitbox activates. Should match early lunge phase.")]
+        public float ActiveStartTime = 0.04f;
 
-        [Tooltip("How long the hitbox stays active")]
-        public float ActiveDuration = 0.1f;
+        [Tooltip("How long the hitbox stays active. Covers the full lunge so moving into targets works.")]
+        public float ActiveDuration = 0.26f;
+
+        [Header("Lunge")]
+        [Tooltip("Total distance the enemy lunges forward during attack")]
+        public float LungeDistance = 3f;
+
+        [Tooltip("Duration of the lunge in seconds")]
+        public float LungeDuration = 0.28f;
+
+        [Tooltip("Speed curve over the lunge (X: 0-1 time, Y: speed multiplier). Explosive burst → heavy deceleration.")]
+        public AnimationCurve LungeCurve = new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 6f),
+            new Keyframe(0.2f, 1f, 0f, 0f),
+            new Keyframe(0.6f, 0.3f, -1f, -0.5f),
+            new Keyframe(1f, 0f, -0.3f, 0f)
+        );
 
         [Header("Legs Animator")]
         [Tooltip("Forward impulse power when swinging")]
-        [SerializeField] private float _attackImpulsePower = 0.4f;
+        [SerializeField] private float _attackImpulsePower = 0.6f;
         [Tooltip("Fade out duration for legs procedural animation during attack")]
-        [SerializeField] private float _legsFadeOutDuration = 0.1f;
+        [SerializeField] private float _legsFadeOutDuration = 0.08f;
 
         protected CharacterMovement _characterMovement;
+        protected TopDownController _controller;
         protected Transform _characterRoot;
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
+        protected MeleeEnemyProceduralBody _proceduralBody;
         protected Vector3 _attackDirection;
         protected float _enterTime;
-        protected bool _hasHit;
         protected Collider[] _hits = new Collider[16];
+
+        // Track which targets were already hit this swing so each is only damaged once
+        protected HashSet<GameObject> _hitTargets = new HashSet<GameObject>();
 
         public override void Initialization()
         {
@@ -54,9 +74,11 @@ namespace MoreMountains.TopDownEngine
 
             var character = gameObject.GetComponentInParent<Character>();
             _characterMovement = character?.FindAbility<CharacterMovement>();
+            _controller = gameObject.GetComponentInParent<TopDownController>();
             _animator = character?.CharacterAnimator;
             _characterRoot = character != null ? character.transform : transform;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+            _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
 
         public override void OnEnterState()
@@ -64,6 +86,7 @@ namespace MoreMountains.TopDownEngine
             base.OnEnterState();
 
             _characterMovement?.SetMovement(Vector2.zero);
+            _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Attack);
 
             // Use character's actual forward — matches the visual rotation set by Telegraph
             _attackDirection = _characterRoot.forward;
@@ -71,7 +94,7 @@ namespace MoreMountains.TopDownEngine
             _attackDirection.Normalize();
 
             _enterTime = Time.time;
-            _hasHit = false;
+            _hitTargets.Clear();
 
             if (_animator != null)
             {
@@ -96,13 +119,21 @@ namespace MoreMountains.TopDownEngine
         {
             _characterMovement?.SetMovement(Vector2.zero);
 
-            if (_hasHit) return;
-
             float elapsed = Time.time - _enterTime;
+
+            // Lunge forward using AnimationCurve
+            if (_controller != null && LungeDuration > 0f && elapsed <= LungeDuration)
+            {
+                float t = elapsed / LungeDuration;
+                float speed = LungeCurve.Evaluate(t) * (LungeDistance / LungeDuration);
+                _controller.AddForce(_attackDirection * speed);
+            }
+
+            // Check hitbox every frame during the active window.
+            // Already-hit targets are tracked and skipped.
             if (elapsed >= ActiveStartTime && elapsed <= ActiveStartTime + ActiveDuration)
             {
                 PerformConeHit();
-                _hasHit = true;
             }
         }
 
@@ -116,6 +147,9 @@ namespace MoreMountains.TopDownEngine
                 if (_hits[i] == null) continue;
                 if (_hits[i].gameObject == _brain.Owner) continue;
 
+                // Skip already-hit targets this swing
+                if (_hitTargets.Contains(_hits[i].gameObject)) continue;
+
                 Vector3 dirToTarget = _hits[i].transform.position - _characterRoot.position;
                 dirToTarget.y = 0f;
 
@@ -126,6 +160,7 @@ namespace MoreMountains.TopDownEngine
 
                 Vector3 knockbackDir = dirToTarget.normalized;
                 health.Damage(Damage, _brain.Owner, 0.1f, InvincibilityDuration, knockbackDir * KnockbackForce);
+                _hitTargets.Add(_hits[i].gameObject);
             }
         }
 

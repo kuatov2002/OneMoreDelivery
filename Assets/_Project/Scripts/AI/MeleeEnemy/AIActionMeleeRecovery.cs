@@ -13,12 +13,13 @@ namespace MoreMountains.TopDownEngine
     {
         [Header("Legs Animator")]
         [Tooltip("How fast legs procedural animation fades back in during recovery")]
-        [SerializeField] private float _legsFadeInDuration = 0.3f;
+        [SerializeField] private float _legsFadeInDuration = 0.4f;
 
         protected CharacterMovement _characterMovement;
         protected MeleeAttackCooldown _cooldown;
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
+        protected MeleeEnemyProceduralBody _proceduralBody;
 
         public override void Initialization()
         {
@@ -30,12 +31,14 @@ namespace MoreMountains.TopDownEngine
             _animator = character?.CharacterAnimator;
             _cooldown = gameObject.GetComponentInParent<MeleeAttackCooldown>();
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+            _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
 
         public override void OnEnterState()
         {
             base.OnEnterState();
             _characterMovement?.SetMovement(Vector2.zero);
+            _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Recovery);
 
             if (_animator != null)
             {
