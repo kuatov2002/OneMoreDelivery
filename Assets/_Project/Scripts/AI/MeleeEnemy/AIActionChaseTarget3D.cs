@@ -1,3 +1,4 @@
+using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace MoreMountains.TopDownEngine
 
         protected CharacterMovement _characterMovement;
         protected Transform _characterRoot;
+        protected LegsAnimator _legsAnimator;
         protected Vector2 _movementVector;
 
         public override void Initialization()
@@ -28,6 +30,13 @@ namespace MoreMountains.TopDownEngine
             var character = gameObject.GetComponentInParent<Character>();
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _characterRoot = character != null ? character.transform : transform;
+            _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
+        }
+
+        public override void OnEnterState()
+        {
+            base.OnEnterState();
+            _legsAnimator?.User_SetIsMoving(true);
         }
 
         public override void PerformAction()
@@ -55,6 +64,11 @@ namespace MoreMountains.TopDownEngine
                 float maxStep = RotationSpeed * Time.deltaTime;
                 _characterRoot.rotation = Quaternion.RotateTowards(_characterRoot.rotation, targetRot, maxStep);
             }
+
+            if (_legsAnimator != null)
+            {
+                _legsAnimator.User_SetDesiredMovementDirection(dirToTarget.normalized);
+            }
         }
 
         public override void OnExitState()
@@ -63,6 +77,12 @@ namespace MoreMountains.TopDownEngine
 
             _characterMovement?.SetHorizontalMovement(0f);
             _characterMovement?.SetVerticalMovement(0f);
+
+            if (_legsAnimator != null)
+            {
+                _legsAnimator.User_SetIsMoving(false);
+                _legsAnimator.User_SetDesiredMovementDirectionOff();
+            }
         }
     }
 }

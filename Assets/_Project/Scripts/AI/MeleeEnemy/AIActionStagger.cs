@@ -1,3 +1,4 @@
+using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -12,10 +13,17 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Knockback force applied on stagger")]
         public float KnockbackForce = 5f;
 
+        [Header("Legs Animator")]
+        [Tooltip("Hips impulse power on stagger hit")]
+        [SerializeField] private float _legsImpulsePower = 0.5f;
+        [Tooltip("Hips impulse duration on stagger hit")]
+        [SerializeField] private float _legsImpulseDuration = 0.4f;
+
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
         protected Health _health;
         protected Animator _animator;
+        protected LegsAnimator _legsAnimator;
 
         public override void Initialization()
         {
@@ -27,6 +35,7 @@ namespace MoreMountains.TopDownEngine
             _controller = gameObject.GetComponentInParent<TopDownController>();
             _health = character?.CharacterHealth;
             _animator = character?.CharacterAnimator;
+            _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
         }
 
         public override void OnEnterState()
@@ -35,9 +44,10 @@ namespace MoreMountains.TopDownEngine
 
             _characterMovement?.SetMovement(Vector2.zero);
 
+            Vector3 knockbackDir = Vector3.zero;
             if (_controller != null && _health != null)
             {
-                Vector3 knockbackDir = _health.LastDamageDirection.normalized;
+                knockbackDir = _health.LastDamageDirection.normalized;
                 if (knockbackDir.sqrMagnitude < 0.001f && _brain.Target != null)
                 {
                     knockbackDir = (transform.position - _brain.Target.position).normalized;
@@ -48,6 +58,18 @@ namespace MoreMountains.TopDownEngine
             if (_animator != null)
             {
                 _animator.SetTrigger("Stagger");
+            }
+
+            if (_legsAnimator != null)
+            {
+                var impulse = new LegsAnimator.ImpulseExecutor(
+                    new Vector3(0f, -1f, 0f),
+                    _legsImpulseDuration,
+                    0.7f
+                );
+                impulse.PowerMultiplier = _legsImpulsePower;
+                impulse.WorldTranslation = knockbackDir * 0.3f;
+                _legsAnimator.User_AddImpulse(impulse);
             }
         }
 

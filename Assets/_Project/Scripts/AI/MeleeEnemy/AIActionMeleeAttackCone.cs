@@ -1,3 +1,4 @@
+using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -31,9 +32,16 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("How long the hitbox stays active")]
         public float ActiveDuration = 0.1f;
 
+        [Header("Legs Animator")]
+        [Tooltip("Forward impulse power when swinging")]
+        [SerializeField] private float _attackImpulsePower = 0.4f;
+        [Tooltip("Fade out duration for legs procedural animation during attack")]
+        [SerializeField] private float _legsFadeOutDuration = 0.1f;
+
         protected CharacterMovement _characterMovement;
         protected Transform _characterRoot;
         protected Animator _animator;
+        protected LegsAnimator _legsAnimator;
         protected Vector3 _attackDirection;
         protected float _enterTime;
         protected bool _hasHit;
@@ -48,6 +56,7 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _animator = character?.CharacterAnimator;
             _characterRoot = character != null ? character.transform : transform;
+            _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
         }
 
         public override void OnEnterState()
@@ -67,6 +76,19 @@ namespace MoreMountains.TopDownEngine
             if (_animator != null)
             {
                 _animator.SetTrigger("Attack");
+            }
+
+            if (_legsAnimator != null)
+            {
+                _legsAnimator.User_FadeToDisabled(_legsFadeOutDuration);
+
+                var impulse = new LegsAnimator.ImpulseExecutor(
+                    new Vector3(0f, -0.5f, 1f),
+                    0.3f,
+                    0.5f
+                );
+                impulse.PowerMultiplier = _attackImpulsePower;
+                _legsAnimator.User_AddImpulse(impulse);
             }
         }
 
@@ -110,6 +132,7 @@ namespace MoreMountains.TopDownEngine
         public override void OnExitState()
         {
             base.OnExitState();
+            _legsAnimator?.User_FadeEnabled(0.2f);
         }
 
         protected virtual void OnDrawGizmosSelected()

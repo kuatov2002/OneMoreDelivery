@@ -1,3 +1,4 @@
+using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -28,9 +29,14 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("How fast the enemy rotates toward the player during tracking (degrees/sec)")]
         [SerializeField] private float _trackingRotationSpeed = 360f;
 
+        [Header("Legs Animator")]
+        [Tooltip("Fade out duration for legs procedural animation during telegraph")]
+        [SerializeField] private float _legsFadeOutDuration = 0.15f;
+
         protected CharacterMovement _characterMovement;
         protected Animator _animator;
         protected Transform _characterRoot;
+        protected LegsAnimator _legsAnimator;
 
         private Vector3 _lockedDirection;
         private float _enterTime;
@@ -50,6 +56,7 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _animator = character?.CharacterAnimator;
             _characterRoot = character != null ? character.transform : transform;
+            _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
         }
 
         public override void OnEnterState()
@@ -75,6 +82,8 @@ namespace MoreMountains.TopDownEngine
 
             if (_telegraphGlow != null)
                 _telegraphGlow.Show();
+
+            _legsAnimator?.User_FadeToDisabled(_legsFadeOutDuration);
 
             _enterTime = Time.time;
         }

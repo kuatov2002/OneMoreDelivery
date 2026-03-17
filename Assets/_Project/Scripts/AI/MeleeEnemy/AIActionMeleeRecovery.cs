@@ -1,3 +1,4 @@
+using FIMSpace.FProceduralAnimation;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -10,9 +11,14 @@ namespace MoreMountains.TopDownEngine
     [AddComponentMenu("TopDown Engine/Character/AI/Actions/AI Action Melee Recovery")]
     public class AIActionMeleeRecovery : AIAction
     {
+        [Header("Legs Animator")]
+        [Tooltip("How fast legs procedural animation fades back in during recovery")]
+        [SerializeField] private float _legsFadeInDuration = 0.3f;
+
         protected CharacterMovement _characterMovement;
         protected MeleeAttackCooldown _cooldown;
         protected Animator _animator;
+        protected LegsAnimator _legsAnimator;
 
         public override void Initialization()
         {
@@ -23,6 +29,7 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _animator = character?.CharacterAnimator;
             _cooldown = gameObject.GetComponentInParent<MeleeAttackCooldown>();
+            _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
         }
 
         public override void OnEnterState()
@@ -34,6 +41,8 @@ namespace MoreMountains.TopDownEngine
             {
                 _animator.SetTrigger("Recovery");
             }
+
+            _legsAnimator?.User_FadeEnabled(_legsFadeInDuration);
         }
 
         public override void PerformAction()

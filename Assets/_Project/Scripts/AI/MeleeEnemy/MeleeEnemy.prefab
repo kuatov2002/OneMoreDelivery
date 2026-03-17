@@ -13401,7 +13401,7 @@ MonoBehaviour:
     variables:
     - VariableName: Rotation Power
       Tooltip: 
-      _value: {x: 0.4, y: 0, z: 0, w: 0}
+      _value: {x: 0.55, y: 0, z: 0, w: 0}
       _string: 
       _curve:
         serializedVersion: 2
@@ -13488,7 +13488,7 @@ MonoBehaviour:
   StabilizeCenterOfMass: 0.45
   AnimationIsStablePose: 0.75
   StabilizingSpeed: 0.375
-  PushHipsOnLegMove: 0.1
+  PushHipsOnLegMove: 0.25
   NormalizePush: 0
   PushReactionSpeed: 0.3
   PushYBlend: 1
@@ -13561,7 +13561,7 @@ MonoBehaviour:
     Side: 1
     OppositeLegIndex: 1
     RaycastPrecision: 0
-    UseFeet: 0
+    UseFeet: 1
     BoneFeet: {fileID: 0}
     FeetSensitivity: 0.5
     InverseHint: 0
@@ -13592,7 +13592,7 @@ MonoBehaviour:
     Side: 2
     OppositeLegIndex: 0
     RaycastPrecision: 0
-    UseFeet: 0
+    UseFeet: 1
     BoneFeet: {fileID: 0}
     FeetSensitivity: 0.5
     InverseHint: 0
@@ -13605,7 +13605,7 @@ MonoBehaviour:
     AnkleYawCorrection: 0
     _FinalIKPos: {x: 0, y: 0, z: 0}
   BaseLegAnimating:
-    StepMoveDuration: 0.35
+    StepMoveDuration: 0.3
     MoveToGoalCurve:
       serializedVersion: 2
       m_Curve:
@@ -13672,9 +13672,9 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    SpherizePower: 0.4
-    MinFootRaise: 0.1
-    MaxFootRaise: 0.4
+    SpherizePower: 0.5
+    MinFootRaise: 0.15
+    MaxFootRaise: 0.5
     RaiseYAxisCurve:
       serializedVersion: 2
       m_Curve:
@@ -13810,10 +13810,10 @@ MonoBehaviour:
   AllowGlueBelowFoot: 0.2
   GlueFadeOutSpeed: 0.5
   UnglueOn: 30
-  AllowGlueDrag: 0.6
+  AllowGlueDrag: 0.4
   GlueMode: 2
   OnlyLocalAnimation: 0
-  SmoothSuddenSteps: 0.5
+  SmoothSuddenSteps: 0.65
   LegElevateBlend: 0.6
   LegElevateHeightLimit: 0.6
   FootRotationBlend: 1
