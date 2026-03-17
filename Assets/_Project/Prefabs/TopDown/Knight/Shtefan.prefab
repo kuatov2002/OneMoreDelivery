@@ -11879,6 +11879,11 @@ MonoBehaviour:
   DamageOncePerTarget: 1
   DetectionRadius: 1.5
   DetectionInterval: 0
+  ObstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 769
+  CharacterRadius: 0.4
+  VerticalOffset: 0
   Cooldown:
     Unlimited: 0
     ConsumptionDuration: 0.5
