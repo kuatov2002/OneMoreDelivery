@@ -11521,11 +11521,12 @@ GameObject:
   - component: {fileID: 2348573645841796937}
   - component: {fileID: 4595623248223329937}
   - component: {fileID: 7879121618115080182}
-  - component: {fileID: -2792219103307999124}
   - component: {fileID: 2162761560393666071}
   - component: {fileID: -1401794074617665211}
   - component: {fileID: 4973470317262525608}
   - component: {fileID: 7929217264002753757}
+  - component: {fileID: -3323733267116926742}
+  - component: {fileID: -7715308901287514088}
   m_Layer: 10
   m_Name: Shtefan
   m_TagString: Player
@@ -11819,86 +11820,6 @@ MonoBehaviour:
   SlidingSpeed: 15
   SlidingSpeedControl: 0.4
   SlidingDirectionControl: 1
---- !u!114 &-2792219103307999124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3838246324168178313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad9a0e697247f444a8855eca1cd50336, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.CharacterChargeDash3D
-  AbilityStartSfx: {fileID: 0}
-  AbilityInProgressSfx: {fileID: 0}
-  AbilityStopSfx: {fileID: 0}
-  AbilityStartFeedbacks: {fileID: 0}
-  AbilityStopFeedbacks: {fileID: 0}
-  OwnTags:
-  - {fileID: 11400000, guid: 52728816ba3465145ab8cf13be18214d, type: 2}
-  CanInterruptTags:
-  - {fileID: 11400000, guid: 6c4cbd3205708f84b985dcff214f9d9c, type: 2}
-  - {fileID: 11400000, guid: 615a550234e92554bbbe0acde2f15b94, type: 2}
-  InterruptibleByTags: []
-  AbilityPermitted: 1
-  BlockingMovementStates: 
-  BlockingConditionStates: 
-  BlockingWeaponStates: 
-  DashDistance: 10
-  DashDuration: 0.5
-  DashCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  Damage: 1
-  DamageableLayerMask:
-    serializedVersion: 2
-    m_Bits: 8192
-  DamageOncePerTarget: 1
-  DetectionRadius: 1.5
-  DetectionInterval: 0
-  ObstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 769
-  CharacterRadius: 0.4
-  VerticalOffset: 0
-  Cooldown:
-    Unlimited: 0
-    ConsumptionDuration: 0.5
-    PauseOnEmptyDuration: 0
-    RefillDuration: 1
-    CanInterruptRefill: 0
-    CooldownState: 0
-    CurrentDurationLeft: 0
-  InvincibleWhileDashing: 1
-  InputBuffer:
-    Enabled: 1
-    BufferDuration: 0.3
-  DashStartFeedback: {fileID: 0}
-  DashStopFeedback: {fileID: 0}
-  HitFeedback: {fileID: 0}
 --- !u!114 &2162761560393666071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12072,6 +11993,106 @@ MonoBehaviour:
   _critChanceDisplay: 5
   _critDamageDisplay: 150
   _dodgeChanceDisplay: 0
+--- !u!114 &-3323733267116926742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3838246324168178313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 989fa8eba0af18345b8f9db870afa013, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.ShtefanChargeDash
+  AbilityStartSfx: {fileID: 0}
+  AbilityInProgressSfx: {fileID: 0}
+  AbilityStopSfx: {fileID: 0}
+  AbilityStartFeedbacks: {fileID: 0}
+  AbilityStopFeedbacks: {fileID: 0}
+  OwnTags:
+  - {fileID: 11400000, guid: 52728816ba3465145ab8cf13be18214d, type: 2}
+  CanInterruptTags:
+  - {fileID: 11400000, guid: 615a550234e92554bbbe0acde2f15b94, type: 2}
+  - {fileID: 11400000, guid: 6c4cbd3205708f84b985dcff214f9d9c, type: 2}
+  InterruptibleByTags: []
+  AbilityPermitted: 1
+  BlockingMovementStates: 
+  BlockingConditionStates: 
+  BlockingWeaponStates: 
+  DashDistance: 7
+  DashDuration: 0.4
+  DashCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  Damage: 2
+  DamageableLayerMask:
+    serializedVersion: 2
+    m_Bits: 8192
+  DamageOncePerTarget: 1
+  DetectionRadius: 1.5
+  DetectionInterval: 0
+  ObstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 769
+  CharacterRadius: 0.4
+  VerticalOffset: 0
+  Cooldown:
+    Unlimited: 0
+    ConsumptionDuration: 2
+    PauseOnEmptyDuration: 1
+    RefillDuration: 1
+    CanInterruptRefill: 1
+    CooldownState: 0
+    CurrentDurationLeft: 0
+  InvincibleWhileDashing: 1
+  InputBuffer:
+    Enabled: 1
+    BufferDuration: 0.3
+  DashStartFeedback: {fileID: 0}
+  DashStopFeedback: {fileID: 0}
+  HitFeedback: {fileID: 0}
+  MaxCharges: 3
+  ChargeRecoveryTime: 3
+--- !u!114 &-7715308901287514088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3838246324168178313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de59dba79e896f44095366bacebc3350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.DashChargeIndicator
+  DashAbility: {fileID: -3323733267116926742}
+  Offset: {x: 0, y: 2.2, z: 0}
+  CircleSize: 0.18
+  Spacing: 0.18
+  AvailableColor: {r: 1, g: 1, b: 1, a: 1}
+  BackgroundColor: {r: 0, g: 0, b: 0, a: 0.7}
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0
