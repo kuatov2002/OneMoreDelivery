@@ -60,6 +60,7 @@ namespace MoreMountains.TopDownEngine
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
+        protected Health _health;
         protected Vector3 _attackDirection;
         protected float _enterTime;
         protected Collider[] _hits = new Collider[16];
@@ -79,6 +80,7 @@ namespace MoreMountains.TopDownEngine
             _characterRoot = character != null ? character.transform : transform;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
             _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
+            _health = gameObject.GetComponentInParent<Health>();
         }
 
         public override void OnEnterState()
@@ -168,6 +170,10 @@ namespace MoreMountains.TopDownEngine
         {
             base.OnExitState();
             _legsAnimator?.User_FadeEnabled(0.2f);
+
+            // Remove super armor — enemy can be knocked back again after attack finishes
+            if (_health != null)
+                _health.ImmuneToKnockback = false;
         }
 
         protected virtual void OnDrawGizmosSelected()

@@ -38,6 +38,7 @@ namespace MoreMountains.TopDownEngine
         protected Transform _characterRoot;
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
+        protected Health _health;
 
         private Vector3 _lockedDirection;
         private float _enterTime;
@@ -59,6 +60,7 @@ namespace MoreMountains.TopDownEngine
             _characterRoot = character != null ? character.transform : transform;
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
             _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
+            _health = gameObject.GetComponentInParent<Health>();
         }
 
         public override void OnEnterState()
@@ -87,6 +89,10 @@ namespace MoreMountains.TopDownEngine
                 _telegraphGlow.Show();
 
             _legsAnimator?.User_FadeToDisabled(_legsFadeOutDuration);
+
+            // Super armor — prevent knockback during telegraph (Dark Souls-style)
+            if (_health != null)
+                _health.ImmuneToKnockback = true;
 
             _enterTime = Time.time;
         }
@@ -137,6 +143,9 @@ namespace MoreMountains.TopDownEngine
 
             if (_telegraphGlow != null)
                 _telegraphGlow.Hide();
+
+            // Don't restore knockback here — Attack state continues super armor.
+            // It will be restored in AIActionMeleeAttackCone.OnExitState or Recovery.
         }
     }
 }
