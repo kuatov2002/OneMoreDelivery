@@ -72,13 +72,12 @@ namespace MoreMountains.TopDownEngine
         protected override void StartDash()
         {
             if (CurrentCharges <= 0) return;
+            if (_dashing) return; // don't restart mid-dash
 
-            bool wasDashing = _dashing;
             base.StartDash();
 
             // Only consume a charge if the dash actually started
-            // (RequestAbilityActivation in base may deny it)
-            if (!wasDashing && _dashing)
+            if (_dashing)
             {
                 ConsumeCharge();
             }

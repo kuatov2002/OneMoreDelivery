@@ -4,9 +4,9 @@ using UnityEngine.UI;
 namespace MoreMountains.TopDownEngine
 {
     /// <summary>
-    /// Displays dash charges as circles in world space above the character's head.
-    /// Each circle shows a radial fill when the charge is recovering.
-    /// Attach to the same GameObject that has ShtefanChargeDash.
+    /// Displays dash charges as shader-driven circles in world space above the character.
+    /// Each circle has a thick outline that makes charge state immediately obvious.
+    /// Glow and outline appear 0.05s before the charge is actually ready.
     /// </summary>
     public class DashChargeIndicator : MonoBehaviour
     {
@@ -18,20 +18,50 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Offset above the character pivot")]
         public Vector3 Offset = new Vector3(0f, 2.2f, 0f);
 
-        [Tooltip("Diameter of each circle in world units")]
-        public float CircleSize = 0.12f;
+        [Tooltip("Size of each circle in world units")]
+        public float CircleSize = 0.18f;
 
         [Tooltip("Spacing between circle centers in world units")]
-        public float Spacing = 0.18f;
+        public float Spacing = 0.24f;
 
-        [Header("Colors")]
-        public Color AvailableColor = Color.white;
-        public Color BackgroundColor = new Color(0.2f, 0.2f, 0.2f, 0.7f);
+        [Header("Shader Settings")]
+        public Color OutlineColor = new Color(0.85f, 0.92f, 1f, 1f);
+        public Color FillColor = new Color(0.7f, 0.85f, 1f, 0.85f);
+        public Color EmptyFillColor = new Color(0.1f, 0.1f, 0.12f, 0.45f);
+
+        [Range(0.01f, 0.2f)]
+        public float OutlineWidth = 0.07f;
+
+        [Range(0f, 0.2f)]
+        public float GlowWidth = 0.1f;
+
+        [Range(0f, 5f)]
+        public float GlowIntensity = 2.5f;
+
+        [Range(0f, 10f)]
+        public float PulseSpeed = 3f;
+
+        [Range(0f, 0.5f)]
+        public float PulseAmount = 0.2f;
+
+        [Header("Timing")]
+        [Tooltip("Glow/outline appears this many seconds before charge is ready")]
+        public float GlowAnticipation = 0.05f;
 
         private Canvas _canvas;
-        private Image[] _bgImages;
-        private Image[] _fillImages;
-        private Sprite _circleSprite;
+        private Material[] _materials;
+        private Shader _shader;
+
+        private static readonly int FillAmountID = Shader.PropertyToID("_FillAmount");
+        private static readonly int ChargedID = Shader.PropertyToID("_Charged");
+        private static readonly int OutlineColorID = Shader.PropertyToID("_OutlineColor");
+        private static readonly int FillColorID = Shader.PropertyToID("_FillColor");
+        private static readonly int EmptyFillColorID = Shader.PropertyToID("_EmptyFillColor");
+        private static readonly int OutlineWidthID = Shader.PropertyToID("_OutlineWidth");
+        private static readonly int GlowWidthID = Shader.PropertyToID("_GlowWidth");
+        private static readonly int GlowIntensityID = Shader.PropertyToID("_GlowIntensity");
+        private static readonly int PulseSpeedID = Shader.PropertyToID("_PulseSpeed");
+        private static readonly int PulseAmountID = Shader.PropertyToID("_PulseAmount");
 
         void Start()
         {
@@ -45,52 +75,68 @@ namespace MoreMountains.TopDownEngine
                 return;
             }
 
-            _circleSprite = CreateCircleSprite(64);
+            _shader = Shader.Find("UI/DashCharge");
+            if (_shader == null)
+            {
+                Debug.LogError("DashChargeIndicator: shader 'UI/DashCharge' not found!", this);
+                enabled = false;
+                return;
+            }
+
             CreateUI(DashAbility.MaxCharges);
         }
 
         void LateUpdate()
         {
-            if (DashAbility == null) return;
+            if (DashAbility == null || _materials == null) return;
 
-            // Billboard toward camera
             Camera cam = Camera.main;
             if (cam != null)
             {
                 _canvas.transform.rotation = cam.transform.rotation;
             }
 
-            // Update circles based on sequential recovery
             int available = DashAbility.CurrentCharges;
-            int maxCharges = DashAbility.MaxCharges;
             float recoveryTimer = DashAbility.CurrentRecoveryTimer;
             float recoveryTime = DashAbility.ChargeRecoveryTime;
 
-            for (int i = 0; i < _fillImages.Length; i++)
+            for (int i = 0; i < _materials.Length; i++)
             {
+                Material mat = _materials[i];
+
                 if (i < available)
                 {
-                    // Charge is available — full circle
-                    _fillImages[i].fillAmount = 1f;
+                    mat.SetFloat(FillAmountID, 1f);
+                    mat.SetFloat(ChargedID, 1f);
                 }
                 else if (i == available && recoveryTimer > 0f)
                 {
-                    // This is the charge currently recovering — show progress
-                    _fillImages[i].fillAmount = 1f - recoveryTimer / recoveryTime;
+                    float progress = 1f - recoveryTimer / recoveryTime;
+                    mat.SetFloat(FillAmountID, progress);
+                    // Glow/outline snap on 0.05s before ready
+                    mat.SetFloat(ChargedID, recoveryTimer <= GlowAnticipation ? 1f : 0f);
                 }
                 else
                 {
-                    // Queued for recovery — empty
-                    _fillImages[i].fillAmount = 0f;
+                    mat.SetFloat(FillAmountID, 0f);
+                    mat.SetFloat(ChargedID, 0f);
                 }
             }
         }
 
-        // ── UI Construction ─────────────────────────────────────────────────
+        void OnDestroy()
+        {
+            if (_materials != null)
+            {
+                foreach (var mat in _materials)
+                {
+                    if (mat != null) Destroy(mat);
+                }
+            }
+        }
 
         private void CreateUI(int chargeCount)
         {
-            // World-space canvas
             var canvasObj = new GameObject("DashChargeCanvas");
             canvasObj.transform.SetParent(transform, false);
             canvasObj.transform.localPosition = Offset;
@@ -99,93 +145,49 @@ namespace MoreMountains.TopDownEngine
             _canvas.renderMode = RenderMode.WorldSpace;
             _canvas.sortingOrder = 100;
 
-            var canvasScaler = canvasObj.AddComponent<CanvasScaler>();
-            canvasScaler.dynamicPixelsPerUnit = 100f;
+            canvasObj.AddComponent<CanvasScaler>();
 
             var rt = canvasObj.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(200f, 50f);
             rt.localScale = Vector3.one * 0.005f;
 
-            _bgImages = new Image[chargeCount];
-            _fillImages = new Image[chargeCount];
+            _materials = new Material[chargeCount];
 
-            float totalWidth = (chargeCount - 1) * Spacing / 0.005f; // in canvas units
+            float canvasScale = 0.005f;
+            float totalWidth = (chargeCount - 1) * Spacing / canvasScale;
             float startX = -totalWidth / 2f;
-            float sizeInCanvas = CircleSize / 0.005f; // circle size in canvas units
+            float sizeInCanvas = CircleSize / canvasScale;
+
+            float glowPadding = GlowWidth / canvasScale * 2f;
+            float quadSize = sizeInCanvas + glowPadding;
 
             for (int i = 0; i < chargeCount; i++)
             {
-                // Background circle
-                var bgObj = new GameObject($"Charge_BG_{i}");
-                bgObj.transform.SetParent(canvasObj.transform, false);
+                var circleObj = new GameObject($"Charge_{i}");
+                circleObj.transform.SetParent(canvasObj.transform, false);
 
-                var bgImage = bgObj.AddComponent<Image>();
-                bgImage.sprite = _circleSprite;
-                bgImage.color = BackgroundColor;
+                var mat = new Material(_shader);
+                mat.SetColor(OutlineColorID, OutlineColor);
+                mat.SetColor(FillColorID, FillColor);
+                mat.SetColor(EmptyFillColorID, EmptyFillColor);
+                mat.SetFloat(OutlineWidthID, OutlineWidth);
+                mat.SetFloat(GlowWidthID, GlowWidth);
+                mat.SetFloat(GlowIntensityID, GlowIntensity);
+                mat.SetFloat(PulseSpeedID, PulseSpeed);
+                mat.SetFloat(PulseAmountID, PulseAmount);
+                mat.SetFloat(FillAmountID, 1f);
+                mat.SetFloat(ChargedID, 1f);
 
-                var bgRt = bgObj.GetComponent<RectTransform>();
-                bgRt.anchoredPosition = new Vector2(startX + i * (Spacing / 0.005f), 0f);
-                bgRt.sizeDelta = Vector2.one * sizeInCanvas;
+                _materials[i] = mat;
 
-                _bgImages[i] = bgImage;
+                var rawImage = circleObj.AddComponent<RawImage>();
+                rawImage.material = mat;
+                rawImage.color = Color.white;
 
-                // Fill circle (child, radial fill)
-                var fillObj = new GameObject($"Charge_Fill_{i}");
-                fillObj.transform.SetParent(bgObj.transform, false);
-
-                var fillImage = fillObj.AddComponent<Image>();
-                fillImage.sprite = _circleSprite;
-                fillImage.color = AvailableColor;
-                fillImage.type = Image.Type.Filled;
-                fillImage.fillMethod = Image.FillMethod.Radial360;
-                fillImage.fillOrigin = (int)Image.Origin360.Top;
-                fillImage.fillClockwise = true;
-                fillImage.fillAmount = 1f;
-
-                var fillRt = fillObj.GetComponent<RectTransform>();
-                fillRt.anchorMin = Vector2.zero;
-                fillRt.anchorMax = Vector2.one;
-                fillRt.offsetMin = Vector2.zero;
-                fillRt.offsetMax = Vector2.zero;
-
-                _fillImages[i] = fillImage;
+                var circleRt = circleObj.GetComponent<RectTransform>();
+                circleRt.anchoredPosition = new Vector2(startX + i * (Spacing / canvasScale), 0f);
+                circleRt.sizeDelta = Vector2.one * quadSize;
             }
-        }
-
-        // ── Circle sprite generation ────────────────────────────────────────
-
-        private static Sprite CreateCircleSprite(int resolution)
-        {
-            var tex = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Bilinear;
-
-            float center = resolution * 0.5f;
-            float radius = center - 1f;
-
-            for (int y = 0; y < resolution; y++)
-            {
-                for (int x = 0; x < resolution; x++)
-                {
-                    float dist = Vector2.Distance(
-                        new Vector2(x + 0.5f, y + 0.5f),
-                        new Vector2(center, center));
-
-                    if (dist <= radius)
-                        tex.SetPixel(x, y, Color.white);
-                    else if (dist <= radius + 1f)
-                        tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(radius + 1f - dist)));
-                    else
-                        tex.SetPixel(x, y, Color.clear);
-                }
-            }
-
-            tex.Apply();
-
-            return Sprite.Create(
-                tex,
-                new Rect(0, 0, resolution, resolution),
-                new Vector2(0.5f, 0.5f),
-                resolution);
         }
     }
 }

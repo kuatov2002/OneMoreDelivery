@@ -12089,10 +12089,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.DashChargeIndicator
   DashAbility: {fileID: -3323733267116926742}
   Offset: {x: 0, y: 2.2, z: 0}
-  CircleSize: 0.18
-  Spacing: 0.18
-  AvailableColor: {r: 1, g: 1, b: 1, a: 1}
-  BackgroundColor: {r: 0, g: 0, b: 0, a: 0.7}
+  CircleSize: 0.12
+  Spacing: 0.25
+  OutlineColor: {r: 0.85, g: 0.92, b: 1, a: 1}
+  FillColor: {r: 0.7, g: 0.85, b: 1, a: 0.85}
+  EmptyFillColor: {r: 0.1, g: 0.1, b: 0.12, a: 0.45}
+  OutlineWidth: 0.07
+  GlowWidth: 0.1
+  GlowIntensity: 2.5
+  PulseSpeed: 3
+  PulseAmount: 0.3
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0
