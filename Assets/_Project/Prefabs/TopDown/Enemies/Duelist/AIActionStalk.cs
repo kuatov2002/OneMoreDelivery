@@ -64,6 +64,13 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Max pause duration")]
         public float PauseDurationMax = 0.6f;
 
+        [Header("Enemy Separation")]
+        [Tooltip("How far enemies push each other apart")]
+        public float SeparationRadius = 3f;
+
+        [Tooltip("Strength of the repulsion force between enemies")]
+        public float SeparationStrength = 1.5f;
+
         [Header("Momentum")]
         [Tooltip("How fast the movement direction blends (lower = heavier feel)")]
         public float DirectionSmoothing = 4f;
@@ -79,6 +86,9 @@ namespace MoreMountains.TopDownEngine
         protected Transform _characterRoot;
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
+
+        // cached nearby enemies for separation
+        private static readonly Collider[] _overlapBuffer = new Collider[16];
 
         private int _orbitDir;                  // +1 or -1
         private float _nextFlipTime;
@@ -175,7 +185,10 @@ namespace MoreMountains.TopDownEngine
             float radialWeight = Mathf.Clamp01(Mathf.Abs(distError) / PreferredDistance) * DistanceCorrectionStrength;
             Vector3 radialPush = dirToTarget * Mathf.Sign(distError) * radialWeight;
 
-            Vector3 desiredDir = (arcDir + radialPush).normalized;
+            // --- separation from other enemies ---
+            Vector3 separation = ComputeSeparation();
+
+            Vector3 desiredDir = (arcDir + radialPush + separation).normalized;
 
             // --- speed variation ---
             float speedNoise = Mathf.PerlinNoise(
@@ -235,6 +248,34 @@ namespace MoreMountains.TopDownEngine
             Quaternion targetRot = Quaternion.LookRotation(direction);
             float maxStep = speed * Time.deltaTime;
             _characterRoot.rotation = Quaternion.RotateTowards(_characterRoot.rotation, targetRot, maxStep);
+        }
+
+        private Vector3 ComputeSeparation()
+        {
+            Vector3 push = Vector3.zero;
+            int count = Physics.OverlapSphereNonAlloc(
+                _characterRoot.position, SeparationRadius, _overlapBuffer);
+
+            for (int i = 0; i < count; i++)
+            {
+                // skip self
+                if (_overlapBuffer[i].transform.root == _characterRoot.root) continue;
+
+                // only repel other enemies (they have AIBrain)
+                if (_overlapBuffer[i].GetComponentInParent<MoreMountains.Tools.AIBrain>() == null) continue;
+
+                Vector3 away = _characterRoot.position - _overlapBuffer[i].transform.position;
+                away.y = 0f;
+                float dist = away.magnitude;
+
+                if (dist < 0.01f) continue;
+
+                // stronger push the closer they are
+                float strength = 1f - Mathf.Clamp01(dist / SeparationRadius);
+                push += (away / dist) * strength * SeparationStrength;
+            }
+
+            return push;
         }
 
         private void Flip()
