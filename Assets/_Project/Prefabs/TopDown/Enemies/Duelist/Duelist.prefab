@@ -12439,8 +12439,10 @@ GameObject:
   - component: {fileID: 5567663670726653961}
   - component: {fileID: 8639442905325222108}
   - component: {fileID: 326596568251292053}
+  - component: {fileID: -34507145779348340}
+  - component: {fileID: 3333022543220503706}
   m_Layer: 13
-  m_Name: MeleeEnemy
+  m_Name: Duelist
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12955,6 +12957,24 @@ MonoBehaviour:
       - Decision: {fileID: 5500000000000000007}
         TrueState: Staggered
         FalseState: 
+      - Decision: {fileID: 3333022543220503706}
+        TrueState: Stalk
+        FalseState: 
+  - StateName: Stalk
+    Actions:
+      array:
+      - {fileID: -34507145779348340}
+    Transitions:
+      array:
+      - Decision: {fileID: 5500000000000000006}
+        TrueState: Telegraph
+        FalseState: 
+      - Decision: {fileID: 3333022543220503706}
+        TrueState: 
+        FalseState: Chase
+      - Decision: {fileID: 5500000000000000007}
+        TrueState: Staggered
+        FalseState: 
   - StateName: Telegraph
     Actions:
       array:
@@ -13191,9 +13211,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a748862fe7faa24cbdac50da0a7ed9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label:
+  Label: 
   AttackRange: 4.5
-  ConeAngle: 70
+  RequiredTimeInRange: 0.3
 --- !u!114 &5500000000000000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13220,7 +13240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label:
+  Label: 
   TimeThreshold: 0.85
 --- !u!114 &5500000000000000009
 MonoBehaviour:
@@ -13234,7 +13254,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label:
+  Label: 
   TimeThreshold: 0.35
 --- !u!114 &5500000000000000010
 MonoBehaviour:
@@ -13248,7 +13268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label:
+  Label: 
   TimeThreshold: 0.9
 --- !u!114 &5500000000000000011
 MonoBehaviour:
@@ -13262,7 +13282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a0570e20a414bac821a5ab8445df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label:
+  Label: 
   TimeThreshold: 0.5
 --- !u!114 &1465773550364837945
 MonoBehaviour:
@@ -13943,35 +13963,111 @@ MonoBehaviour:
   _leftForeArm: {fileID: 3944805627596808403}
   _blend: 1
   _breathFrequency: 1.2
-  _breathAmplitude: 2
-  _idleSwayAmplitude: 1
+  _breathSpineX: 2.5
+  _breathChestX: 1.5
+  _breathShoulderY: 1.2
+  _swayFrequency: 0.45
+  _swaySpineY: 1.8
+  _swaySpineZ: 0.8
+  _swayHeadX: 0.6
   _telegraphSpine: {x: 15, y: 0, z: 0}
   _telegraphChest: {x: 5, y: 10, z: 0}
+  _telegraphWeaponShoulder: {x: -8, y: -12, z: 0}
   _telegraphWeaponArm: {x: -30, y: 0, z: -15}
+  _telegraphWeaponForeArm: {x: -20, y: 0, z: 0}
+  _telegraphOffShoulder: {x: 5, y: 8, z: 0}
   _telegraphOffArm: {x: 10, y: 0, z: 10}
+  _telegraphOffForeArm: {x: 10, y: 0, z: 0}
+  _telegraphNeck: {x: 5, y: 15, z: 3}
+  _telegraphHead: {x: 3, y: 12, z: 0}
+  _telegraphBuildUpTime: 0.6
+  _telegraphEasePower: 2.2
   _attackSpine: {x: 25, y: -15, z: 0}
   _attackChest: {x: 10, y: -20, z: 0}
+  _attackWeaponShoulder: {x: 10, y: 15, z: 0}
   _attackWeaponArm: {x: 60, y: 0, z: 20}
+  _attackWeaponForeArm: {x: 25, y: 0, z: 10}
+  _attackOffShoulder: {x: -5, y: -8, z: 0}
   _attackOffArm: {x: -5, y: 0, z: -5}
+  _attackOffForeArm: {x: -5, y: 0, z: 0}
+  _attackNeck: {x: 5, y: 8, z: 0}
+  _attackHead: {x: 3, y: 5, z: 0}
+  _recoverySpine: {x: 10, y: 12, z: 0}
+  _recoveryChest: {x: 5, y: 8, z: 0}
+  _recoveryWeaponArm: {x: 25, y: 0, z: 10}
+  _recoveryHoldTime: 0.25
+  _recoveryFadeTime: 0.6
   _staggerSpine: {x: -20, y: 0, z: 0}
   _staggerChest: {x: -15, y: 0, z: 0}
-  _staggerRandomTilt: 10
+  _staggerNeck: {x: -8, y: 0, z: 0}
+  _staggerHead: {x: -12, y: 0, z: 0}
   _staggerArms: {x: -15, y: 0, z: 20}
+  _staggerRandomTilt: 10
   _idleAcceleration: 800
   _idleAccelLimit: 200
   _idleDamping: 12
+  _idleBrakePower: 0.3
   _telegraphAcceleration: 3000
   _telegraphAccelLimit: 800
   _telegraphDamping: 10
+  _telegraphBrakePower: 0.15
   _attackAcceleration: 8000
   _attackAccelLimit: 3000
   _attackDamping: 6
+  _attackBrakePower: 0.1
   _recoveryAcceleration: 2000
   _recoveryAccelLimit: 600
   _recoveryDamping: 14
+  _recoveryBrakePower: 0.35
   _staggerAcceleration: 6000
   _staggerAccelLimit: 2000
   _staggerDamping: 8
+  _staggerBrakePower: 0.2
+--- !u!114 &-34507145779348340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 706f7ba8e3f5f7540bcf73275596d18c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.AIActionStalk
+  InitializationMode: 0
+  Label: stalk
+  PreferredDistance: 3.5
+  DistanceCorrectionStrength: 2.5
+  BaseSpeedFactor: 0.45
+  AngleNoiseSpeed: 0.4
+  AngleNoiseAmplitude: 65
+  RadialNoiseSpeed: 0.55
+  RadialNoiseAmplitude: 1.5
+  SpeedNoiseSpeed: 0.7
+  SpeedNoiseMin: 0.6
+  FlipIntervalMin: 2
+  FlipIntervalMax: 5
+  PauseChance: 0.25
+  PauseDurationMin: 0.3
+  PauseDurationMax: 0.7
+  DirectionSmoothing: 4
+  RotationSpeed: 360
+  PauseRotationSpeed: 180
+--- !u!114 &3333022543220503706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3289233822ddb5f4e953e215648e5cef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.AIDecisionInStalkRange
+  Label: DecisionStalk
+  StalkRange: 5
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0
