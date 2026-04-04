@@ -39,6 +39,7 @@ namespace MoreMountains.TopDownEngine
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
         protected Health _health;
+        protected CombatTokenHolder _tokenHolder;
 
         private Vector3 _lockedDirection;
         private float _enterTime;
@@ -61,6 +62,7 @@ namespace MoreMountains.TopDownEngine
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
             _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
             _health = gameObject.GetComponentInParent<Health>();
+            _tokenHolder = gameObject.GetComponentInParent<CombatTokenHolder>();
         }
 
         public override void OnEnterState()
@@ -93,6 +95,8 @@ namespace MoreMountains.TopDownEngine
             // Super armor — prevent knockback during telegraph (Dark Souls-style)
             if (_health != null)
                 _health.ImmuneToKnockback = true;
+
+            _tokenHolder?.TryAcquire();
 
             _enterTime = Time.time;
         }

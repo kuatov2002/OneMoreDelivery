@@ -18,6 +18,7 @@ namespace MoreMountains.TopDownEngine
         public float RequiredTimeInRange = 0.3f;
 
         protected MeleeAttackCooldown _cooldown;
+        protected CombatTokenHolder _tokenHolder;
         protected Transform _characterRoot;
         protected float _inRangeSince;
         protected bool _wasInRange;
@@ -25,6 +26,7 @@ namespace MoreMountains.TopDownEngine
         public override void Initialization()
         {
             _cooldown = gameObject.GetComponentInParent<MeleeAttackCooldown>();
+            _tokenHolder = gameObject.GetComponentInParent<CombatTokenHolder>();
             var character = gameObject.GetComponentInParent<Character>();
             _characterRoot = character != null ? character.transform : transform;
         }
@@ -39,6 +41,13 @@ namespace MoreMountains.TopDownEngine
             bool inRange = dirToTarget.sqrMagnitude <= AttackRange * AttackRange;
 
             if (!inRange || _cooldown == null || !_cooldown.IsReady)
+            {
+                _wasInRange = false;
+                return false;
+            }
+
+            // check if a combat token is available (room aggression limit)
+            if (_tokenHolder != null && !_tokenHolder.CanAttack)
             {
                 _wasInRange = false;
                 return false;

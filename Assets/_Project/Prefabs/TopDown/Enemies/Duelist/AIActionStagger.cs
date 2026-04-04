@@ -22,6 +22,7 @@ namespace MoreMountains.TopDownEngine
         protected CharacterMovement _characterMovement;
         protected TopDownController _controller;
         protected Health _health;
+        protected CombatTokenHolder _tokenHolder;
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
@@ -36,6 +37,7 @@ namespace MoreMountains.TopDownEngine
             _controller = gameObject.GetComponentInParent<TopDownController>();
             _health = character?.CharacterHealth;
             _animator = character?.CharacterAnimator;
+            _tokenHolder = gameObject.GetComponentInParent<CombatTokenHolder>();
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
             _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
@@ -43,6 +45,9 @@ namespace MoreMountains.TopDownEngine
         public override void OnEnterState()
         {
             base.OnEnterState();
+
+            // release attack token if enemy was interrupted mid-attack
+            _tokenHolder?.Release();
 
             _characterMovement?.SetMovement(Vector2.zero);
             _proceduralBody?.SetState(MeleeEnemyProceduralBody.BodyState.Stagger);

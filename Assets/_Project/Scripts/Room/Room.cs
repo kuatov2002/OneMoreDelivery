@@ -35,7 +35,8 @@ public class Room : MonoBehaviour
     {
         _aliveEnemyCount = _enemies.Length;
         SubscribeToAllEnemies();
-        
+        AssignCombatTokenManager();
+
         OpenDoors(_enterDoors);
         CloseDoors(_exitDoors);
     }
@@ -66,6 +67,22 @@ public class Room : MonoBehaviour
         CloseDoors(_exitDoors);
 
         OnRoomEntered?.Invoke();
+    }
+
+    // ── Combat token assignment ────────────────────────────────────────────────
+
+    private void AssignCombatTokenManager()
+    {
+        var tokenManager = GetComponent<CombatTokenManager>();
+        if (tokenManager == null) return;
+
+        foreach (Health enemy in _enemies)
+        {
+            if (enemy == null) continue;
+            var holder = enemy.GetComponent<CombatTokenHolder>();
+            if (holder != null)
+                holder.SetManager(tokenManager);
+        }
     }
 
     // ── Enemy tracking ───────────────────────────────────────────────────────

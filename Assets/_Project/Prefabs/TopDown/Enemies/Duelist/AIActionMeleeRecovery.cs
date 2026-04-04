@@ -17,6 +17,7 @@ namespace MoreMountains.TopDownEngine
 
         protected CharacterMovement _characterMovement;
         protected MeleeAttackCooldown _cooldown;
+        protected CombatTokenHolder _tokenHolder;
         protected Animator _animator;
         protected LegsAnimator _legsAnimator;
         protected MeleeEnemyProceduralBody _proceduralBody;
@@ -30,6 +31,7 @@ namespace MoreMountains.TopDownEngine
             _characterMovement = character?.FindAbility<CharacterMovement>();
             _animator = character?.CharacterAnimator;
             _cooldown = gameObject.GetComponentInParent<MeleeAttackCooldown>();
+            _tokenHolder = gameObject.GetComponentInParent<CombatTokenHolder>();
             _legsAnimator = gameObject.GetComponentInParent<LegsAnimator>();
             _proceduralBody = gameObject.GetComponentInParent<MeleeEnemyProceduralBody>();
         }
@@ -58,9 +60,9 @@ namespace MoreMountains.TopDownEngine
             base.OnExitState();
 
             if (_cooldown != null)
-            {
                 _cooldown.LastAttackEndTime = Time.time;
-            }
+
+            _tokenHolder?.Release();
         }
     }
 }

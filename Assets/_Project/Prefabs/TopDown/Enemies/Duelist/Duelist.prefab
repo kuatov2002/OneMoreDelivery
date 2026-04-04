@@ -12441,6 +12441,7 @@ GameObject:
   - component: {fileID: 326596568251292053}
   - component: {fileID: -34507145779348340}
   - component: {fileID: 3333022543220503706}
+  - component: {fileID: -810626435431633976}
   m_Layer: 13
   m_Name: Duelist
   m_TagString: Untagged
@@ -14068,6 +14069,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoreMountains.TopDownEngine.AIDecisionInStalkRange
   Label: DecisionStalk
   StalkRange: 5
+--- !u!114 &-810626435431633976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 452e34251c41b3f458aa2722d2c7a1b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.TopDownEngine::CombatTokenHolder
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0
