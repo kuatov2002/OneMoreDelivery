@@ -11528,7 +11528,7 @@ GameObject:
   - component: {fileID: -3323733267116926742}
   - component: {fileID: -7715308901287514088}
   m_Layer: 10
-  m_Name: Shtefan
+  m_Name: BeoWolf
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
