@@ -910,7 +910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4be97d72cace333499b31e831d0651bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.AttackTelegraphCircle
-  _telegraphMaterial: {fileID: 2100000, guid: f3ff1db36b3eecf418142752b2567fe2, type: 2}
+  _telegraphMaterial: {fileID: 2100000, guid: 942159f67c9def445a5093444533f02b, type: 2}
   _edgeColor: {r: 0.8, g: 0.05, b: 0.02, a: 0.45}
   _fillColor: {r: 0.6, g: 0.02, b: 0, a: 0.3}
   _groundOffset: 0.05
@@ -13054,7 +13054,9 @@ MonoBehaviour:
   InitializationMode: 0
   Label: 
   _telegraphGlow: {fileID: 1505604880390723839}
-  _telegraphDuration: 0.85
+  _telegraphCircle: {fileID: 3066008717770615549}
+  _circleRadius: 2.5
+  _telegraphDuration: 1
   _trackingRatio: 0.7
   _trackingRotationSpeed: 480
   _legsFadeOutDuration: 0.2

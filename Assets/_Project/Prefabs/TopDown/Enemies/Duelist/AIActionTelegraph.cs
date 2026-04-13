@@ -17,6 +17,13 @@ namespace MoreMountains.TopDownEngine
         [Tooltip("Reference to the AttackTelegraphGlow placed on a hand bone")]
         [SerializeField] private AttackTelegraphGlow _telegraphGlow;
 
+        [Header("Ground Circle (optional)")]
+        [Tooltip("Reference to the AttackTelegraphCircle on a child object. Shows attack zone on the ground.")]
+        [SerializeField] private AttackTelegraphCircle _telegraphCircle;
+
+        [Tooltip("Attack range passed to the ground circle (meters)")]
+        [SerializeField] private float _circleRadius = 2.5f;
+
         [Header("Timing")]
         [Tooltip("Duration of the telegraph phase in seconds")]
         [SerializeField] private float _telegraphDuration = 0.85f;
@@ -90,6 +97,9 @@ namespace MoreMountains.TopDownEngine
             if (_telegraphGlow != null)
                 _telegraphGlow.Show();
 
+            if (_telegraphCircle != null)
+                _telegraphCircle.Show(180f, _circleRadius, _lockedDirection);
+
             _legsAnimator?.User_FadeToDisabled(_legsFadeOutDuration);
 
             // Super armor — prevent knockback during telegraph (Dark Souls-style)
@@ -139,6 +149,9 @@ namespace MoreMountains.TopDownEngine
 
             if (_telegraphGlow != null)
                 _telegraphGlow.Progress = progress;
+
+            if (_telegraphCircle != null)
+                _telegraphCircle.FillProgress = progress;
         }
 
         public override void OnExitState()
@@ -147,6 +160,9 @@ namespace MoreMountains.TopDownEngine
 
             if (_telegraphGlow != null)
                 _telegraphGlow.Hide();
+
+            if (_telegraphCircle != null)
+                _telegraphCircle.Hide();
 
             // Don't restore knockback here — Attack state continues super armor.
             // It will be restored in AIActionMeleeAttackCone.OnExitState or Recovery.
