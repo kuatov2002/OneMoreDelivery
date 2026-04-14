@@ -11210,11 +11210,10 @@ GameObject:
   - component: {fileID: 7879121618115080182}
   - component: {fileID: 2162761560393666071}
   - component: {fileID: -1401794074617665211}
-  - component: {fileID: 4973470317262525608}
   - component: {fileID: 7929217264002753757}
   - component: {fileID: -3323733267116926742}
-  - component: {fileID: -7715308901287514088}
   - component: {fileID: 3101425284754751688}
+  - component: {fileID: 4337914988408520260}
   m_Layer: 10
   m_Name: VanHelsing
   m_TagString: Player
@@ -11624,51 +11623,6 @@ MonoBehaviour:
   OuterInputBuffer:
     Enabled: 1
     BufferDuration: 0.3
---- !u!114 &4973470317262525608
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3838246324168178313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dc0060be830a714998bb74a6b05217c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.ShtefanHealth
-  Model: {fileID: 3838246324168178313}
-  CurrentHealth: 0
-  Invulnerable: 0
-  InitialHealth: 240
-  MaximumHealth: 240
-  ResetHealthOnEnable: 1
-  ImmuneToDamage: 0
-  DamageMMFeedbacks: {fileID: 6098394822155108195}
-  FeedbackIsProportionalToDamage: 0
-  PreventTakeSelfDamage: 0
-  ImmuneToKnockback: 0
-  ImmuneToKnockbackIfZeroDamage: 0
-  KnockbackForceMultiplier: 1
-  DestroyOnDeath: 1
-  DelayBeforeDestruction: 0
-  PointsWhenDestroyed: 0
-  RespawnAtInitialLocation: 0
-  DisableControllerOnDeath: 1
-  DisableModelOnDeath: 1
-  DisableCollisionsOnDeath: 1
-  DisableChildCollisionsOnDeath: 0
-  ChangeLayerOnDeath: 0
-  ChangeLayersRecursivelyOnDeath: 0
-  LayerOnDeath:
-    _layerIndex: 0
-  DeathMMFeedbacks: {fileID: 0}
-  ResetColorOnRevive: 1
-  ColorMaterialPropertyName: _Color
-  UseMaterialPropertyBlocks: 0
-  MasterHealth: {fileID: 0}
-  TargetDamageResistanceProcessor: {fileID: 0}
-  TargetAnimator: {fileID: 3752571547916384151}
-  DisableAnimatorLogs: 1
 --- !u!114 &7929217264002753757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11782,6 +11736,7 @@ MonoBehaviour:
   HitFeedback: {fileID: 0}
   MaxCharges: 1
   ChargeRecoveryTime: 1.2
+  IFramesDuration: 0.15
   LandingAoERadius: 2.5
   LandingAoEDamage: 40
   LandingFlickerDuration: 0.1
@@ -11793,31 +11748,6 @@ MonoBehaviour:
   AfterimageCount: 5
   AfterimageLifetime: 0.35
   AfterimageColor: {r: 0.35, g: 0.65, b: 1, a: 0.55}
---- !u!114 &-7715308901287514088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3838246324168178313}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de59dba79e896f44095366bacebc3350, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.TopDownEngine::MoreMountains.TopDownEngine.DashChargeIndicator
-  DashAbility: {fileID: -3323733267116926742}
-  Offset: {x: 0, y: 2.2, z: 0}
-  CircleSize: 0.12
-  Spacing: 0.25
-  OutlineColor: {r: 0.85, g: 0.92, b: 1, a: 1}
-  FillColor: {r: 0.7, g: 0.85, b: 1, a: 0.85}
-  EmptyFillColor: {r: 0.1, g: 0.1, b: 0.12, a: 0.45}
-  OutlineWidth: 0.07
-  GlowWidth: 0.1
-  GlowIntensity: 2.5
-  PulseSpeed: 3
-  PulseAmount: 0.3
-  GlowAnticipation: 0.05
 --- !u!114 &3101425284754751688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11834,6 +11764,51 @@ MonoBehaviour:
   WeaponHandler: {fileID: 0}
   AnimationRootSpeed: 1.86
   SpeedSmoothTime: 0.1
+--- !u!114 &4337914988408520260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3838246324168178313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01754710d9f92ec4d9a21b81f5682667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Model: {fileID: 0}
+  CurrentHealth: 0
+  Invulnerable: 0
+  InitialHealth: 240
+  MaximumHealth: 240
+  ResetHealthOnEnable: 1
+  ImmuneToDamage: 0
+  DamageMMFeedbacks: {fileID: 0}
+  FeedbackIsProportionalToDamage: 0
+  PreventTakeSelfDamage: 0
+  ImmuneToKnockback: 0
+  ImmuneToKnockbackIfZeroDamage: 0
+  KnockbackForceMultiplier: 1
+  DestroyOnDeath: 1
+  DelayBeforeDestruction: 0
+  PointsWhenDestroyed: 0
+  RespawnAtInitialLocation: 0
+  DisableControllerOnDeath: 1
+  DisableModelOnDeath: 1
+  DisableCollisionsOnDeath: 1
+  DisableChildCollisionsOnDeath: 0
+  ChangeLayerOnDeath: 0
+  ChangeLayersRecursivelyOnDeath: 0
+  LayerOnDeath:
+    _layerIndex: 0
+  DeathMMFeedbacks: {fileID: 0}
+  ResetColorOnRevive: 1
+  ColorMaterialPropertyName: _Color
+  UseMaterialPropertyBlocks: 0
+  MasterHealth: {fileID: 0}
+  TargetDamageResistanceProcessor: {fileID: 0}
+  TargetAnimator: {fileID: 0}
+  DisableAnimatorLogs: 1
 --- !u!1 &3838246941657121151
 GameObject:
   m_ObjectHideFlags: 0
@@ -72915,7 +72890,7 @@ MonoBehaviour:
         PositionMode: 1
         TargetTransform: {fileID: 0}
         Direction: {x: 0, y: 0, z: 0}
-        TargetHealth: {fileID: 4973470317262525608}
+        TargetHealth: {fileID: 0}
         Formatting: 
         DamageDirectionImpactsTextDirection: 1
         DamageDirectionMultiplier: 0.5

@@ -12426,6 +12426,8 @@ GameObject:
   - component: {fileID: 4234858633188397046}
   - component: {fileID: 7856939400122493779}
   - component: {fileID: 4408889041735361045}
+  - component: {fileID: 4502021146994704422}
+  - component: {fileID: 4824446161003009946}
   m_Layer: 13
   m_Name: Duelist
   m_TagString: Untagged
@@ -14184,6 +14186,33 @@ MonoBehaviour:
   _desperateEmission: {r: 0.9, g: 0.05, b: 0.02, a: 1}
   _pulseFrequency: 2
   _pulsePeak: 2.5
+--- !u!114 &4502021146994704422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00efddd201177274eae4ffd3fe291d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GoldMin: 8
+  GoldMax: 20
+--- !u!114 &4824446161003009946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 482f95361ed16ba4896803179c3aa5b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoulsAmount: 0
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0

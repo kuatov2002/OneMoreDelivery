@@ -12419,6 +12419,8 @@ GameObject:
   - component: {fileID: 8639442905325222108}
   - component: {fileID: 326596568251292053}
   - component: {fileID: -810626435431633976}
+  - component: {fileID: 522046803455921023}
+  - component: {fileID: 6334262812342673041}
   m_Layer: 13
   m_Name: Zombie
   m_TagString: Untagged
@@ -13933,6 +13935,13 @@ MonoBehaviour:
   _swaySpineY: 1.8
   _swaySpineZ: 0.8
   _swayHeadX: 0.6
+  _alertSpine: {x: 6, y: 0, z: 0}
+  _alertChest: {x: 4, y: 0, z: 0}
+  _alertNeck: {x: -3, y: 0, z: 0}
+  _alertHead: {x: -6, y: 0, z: 0}
+  _alertWeaponShoulder: {x: -4, y: -4, z: 0}
+  _alertWeaponArm: {x: -12, y: 0, z: -8}
+  _alertWeaponForeArm: {x: -6, y: 0, z: 0}
   _telegraphSpine: {x: 15, y: 0, z: 0}
   _telegraphChest: {x: 5, y: 10, z: 0}
   _telegraphWeaponShoulder: {x: -8, y: -12, z: 0}
@@ -13970,6 +13979,10 @@ MonoBehaviour:
   _idleAccelLimit: 200
   _idleDamping: 12
   _idleBrakePower: 0.3
+  _alertAcceleration: 3500
+  _alertAccelLimit: 1200
+  _alertDamping: 10
+  _alertBrakePower: 0.2
   _telegraphAcceleration: 3000
   _telegraphAccelLimit: 800
   _telegraphDamping: 10
@@ -13998,6 +14011,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 452e34251c41b3f458aa2722d2c7a1b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::CombatTokenHolder
+--- !u!114 &522046803455921023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00efddd201177274eae4ffd3fe291d96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GoldMin: 5
+  GoldMax: 15
+--- !u!114 &6334262812342673041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 482f95361ed16ba4896803179c3aa5b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoulsAmount: 0
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0
