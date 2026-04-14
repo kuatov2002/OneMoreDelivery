@@ -78,16 +78,23 @@ public class RoomGiftManager : MonoBehaviour
         if (choice == null)
         {
             Debug.LogWarning("[RoomGiftManager] No gift was selected.");
+            RoomSequencer.Instance?.OnRoomCleared();
             return;
         }
 
         if (choice is not StatGiftChoice gift)
         {
             Debug.LogError("[RoomGiftManager] Selected choice is not a StatGiftChoice.");
+            RoomSequencer.Instance?.OnRoomCleared();
             return;
         }
 
         ApplyGift(gift);
+
+        // Notify RoomSequencer now that the gift is applied and the game is unpaused.
+        // This is intentionally deferred from Room.OnRoomCleared to avoid loading the
+        // next scene before the player has finished selecting.
+        RoomSequencer.Instance?.OnRoomCleared();
     }
 
     private void ApplyGift(StatGiftChoice gift)
@@ -103,8 +110,13 @@ public class RoomGiftManager : MonoBehaviour
         // Generate a unique modifier ID so gifts don't overwrite each other.
         _giftCounter++;
         string modifierID = $"gift_{gift.statType}_{_giftCounter}";
+        var modifier = new StatModifier(modifierID, gift.value);
 
-        stats.AddModifier(gift.statType, new StatModifier(modifierID, gift.value));
+        stats.AddModifier(gift.statType, modifier);
+
+        // Persist the modifier in RunState so CharacterStats can reapply it after a scene load.
+        if (RunState.Instance != null && RunState.Instance.IsRunActive)
+            RunState.Instance.AddRunModifier(gift.statType, modifier);
 
         Debug.Log($"[RoomGiftManager] Applied gift: {gift.displayName} " +
                   $"({gift.statType} +{gift.value}), ID={modifierID}");

@@ -192,6 +192,19 @@ namespace MoreMountains.TopDownEngine
             if (_handleWeaponAbilities != null)
                 foreach (CharacterHandleWeapon hwp in _handleWeaponAbilities)
                     hwp.OnWeaponChange += OnWeaponChanged;
+
+            // Reapply any stat modifiers accumulated this run (e.g. after a scene transition).
+            // RunState.Awake() is guaranteed to complete before CharacterAbility.Start()
+            // calls this method, so Instance is always valid here if RunState exists.
+            ReapplyRunModifiers();
+        }
+
+        private void ReapplyRunModifiers()
+        {
+            if (RunState.Instance == null || !RunState.Instance.IsRunActive) return;
+
+            foreach (RunModifierEntry entry in RunState.Instance.GetRunModifiers())
+                GetStat(entry.StatType).AddModifier(entry.Modifier);
         }
 
         // ── Stat Change Handlers ───────────────────────────────────────────────

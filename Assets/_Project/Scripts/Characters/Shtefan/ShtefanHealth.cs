@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 namespace MoreMountains.TopDownEngine
@@ -11,11 +12,39 @@ namespace MoreMountains.TopDownEngine
     [AddComponentMenu("TopDown Engine/Character/Core/Shtefan Health")]
     public class ShtefanHealth : Health
     {
+        [Header("Death / Run End")]
+        [Tooltip("Scene to load when the player dies. Must match the exact name in Build Settings.")]
+        [SerializeField] private string HubSceneName = "Hub";
+
         /// <summary>
         /// Cached shield block ability reference — looked up once during
         /// Initialization, not on every Damage() call.
         /// </summary>
         protected CharacterShieldBlock _shieldBlock;
+
+        // ── Lifecycle ────────────────────────────────────────────────────────────
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            OnDeath += HandleDeath;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            OnDeath -= HandleDeath;
+        }
+
+        private void HandleDeath()
+        {
+            if (RunState.Instance == null || !RunState.Instance.IsRunActive) return;
+
+            RunState.Instance.EndRun(false);
+            SceneManager.LoadScene(HubSceneName);
+        }
+
+        // ── Initialization ───────────────────────────────────────────────────────
 
         /// <summary>
         /// On initialization we cache the shield block ability.

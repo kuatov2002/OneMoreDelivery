@@ -126,11 +126,33 @@ namespace MoreMountains.TopDownEngine
 
         private void Recompute()
         {
-            float sum = BaseValue;
-            for (int i = 0; i < _modifiers.Count; i++)
-                sum += _modifiers[i].Value;       // Flat addition only for now.
+            // Step 1: BaseValue + sum of all Flat modifiers.
+            float flat           = BaseValue;
+            float percentAddSum  = 0f;
+            float multiplicative = 1f;
 
-            _cachedValue = Mathf.Max(0f, sum);
+            for (int i = 0; i < _modifiers.Count; i++)
+            {
+                StatModifier m = _modifiers[i];
+                switch (m.ModifierType)
+                {
+                    case StatModifierType.Flat:
+                        flat += m.Value;
+                        break;
+                    case StatModifierType.PercentAdd:
+                        percentAddSum += m.Value;   // e.g. 0.2 for +20%
+                        break;
+                    case StatModifierType.Multiplicative:
+                        multiplicative *= m.Value;  // e.g. 1.5 for ×1.5; compound
+                        break;
+                }
+            }
+
+            // Step 2: × (1 + sum of PercentAdd). Additive, not compound.
+            // Step 3: × product of Multiplicative. Compound.
+            float result = flat * (1f + percentAddSum) * multiplicative;
+
+            _cachedValue = Mathf.Max(0f, result);
             _isDirty     = false;
 
             OnValueChanged?.Invoke(_cachedValue);

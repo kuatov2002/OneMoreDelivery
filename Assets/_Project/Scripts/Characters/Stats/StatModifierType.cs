@@ -19,10 +19,17 @@ namespace MoreMountains.TopDownEngine
 
     /// <summary>
     /// How a modifier affects its target stat.
-    /// Flat  : adds or subtracts raw percentage points (e.g. +25 → stat becomes 125).
+    /// Flat         : adds or subtracts raw percentage points (e.g. +25 → stat becomes 125).
+    /// PercentAdd   : adds a fraction of the base-after-flat total (e.g. 0.2 = +20%).
+    ///                Multiple PercentAdd modifiers are summed before multiplying, so two
+    ///                +20% modifiers yield ×1.4, not ×1.44 (additive, not compound).
+    /// Multiplicative: multiplies the result after all additive passes (e.g. 1.5 = ×1.5).
+    ///                Multiple Multiplicative modifiers compound (×1.5 × ×1.2 = ×1.8).
     /// </summary>
     public enum StatModifierType
     {
-        Flat
+        Flat,
+        PercentAdd,
+        Multiplicative
     }
 }

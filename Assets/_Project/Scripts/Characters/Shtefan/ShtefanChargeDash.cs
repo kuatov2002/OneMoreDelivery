@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using MoreMountains.Tools;
 
@@ -17,6 +18,12 @@ namespace MoreMountains.TopDownEngine
 
         [Tooltip("Time in seconds for each charge to recover")]
         public float ChargeRecoveryTime = 3f;
+
+        [Header("I-Frames")]
+        [Tooltip("Duration of invincibility at the start of each dash (seconds)")]
+        public float IFramesDuration = 0.15f;
+
+        private Coroutine _iFramesCoroutine;
 
         /// <summary>
         /// Number of charges currently available.
@@ -39,6 +46,7 @@ namespace MoreMountains.TopDownEngine
         protected override void Initialization()
         {
             Cooldown.Unlimited = true; // bypass built-in single cooldown
+            InvincibleWhileDashing = false; // i-frames are timed, not full-dash; managed below
             base.Initialization();
 
             CurrentCharges = MaxCharges;
@@ -76,11 +84,35 @@ namespace MoreMountains.TopDownEngine
 
             base.StartDash();
 
-            // Only consume a charge if the dash actually started
+            // Only consume a charge and grant i-frames if the dash actually started
             if (_dashing)
             {
                 ConsumeCharge();
+
+                if (_iFramesCoroutine != null)
+                    StopCoroutine(_iFramesCoroutine);
+                _iFramesCoroutine = StartCoroutine(IFramesRoutine());
             }
+        }
+
+        protected override void StopDash()
+        {
+            // If the dash ends before the i-frame window expires, cancel and re-enable damage
+            if (_iFramesCoroutine != null)
+            {
+                StopCoroutine(_iFramesCoroutine);
+                _iFramesCoroutine = null;
+                _health?.DamageEnabled();
+            }
+            base.StopDash();
+        }
+
+        private IEnumerator IFramesRoutine()
+        {
+            _health?.DamageDisabled();
+            yield return new WaitForSeconds(IFramesDuration);
+            _health?.DamageEnabled();
+            _iFramesCoroutine = null;
         }
 
         // ── Process ─────────────────────────────────────────────────────────
