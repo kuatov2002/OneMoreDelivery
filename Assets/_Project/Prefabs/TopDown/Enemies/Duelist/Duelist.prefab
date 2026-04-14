@@ -518,8 +518,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -541,7 +539,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -617,8 +614,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -640,7 +635,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -819,8 +813,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -842,7 +834,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -1842,8 +1833,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -1865,7 +1854,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -7229,8 +7217,6 @@ ParticleSystemRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -7253,7 +7239,6 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -12241,8 +12226,6 @@ ParticleSystemRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -12265,7 +12248,6 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -12353,8 +12335,6 @@ SkinnedMeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -12376,7 +12356,6 @@ SkinnedMeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -12442,6 +12421,11 @@ GameObject:
   - component: {fileID: -34507145779348340}
   - component: {fileID: 3333022543220503706}
   - component: {fileID: -810626435431633976}
+  - component: {fileID: 797510273229120432}
+  - component: {fileID: 3666173830634603257}
+  - component: {fileID: 4234858633188397046}
+  - component: {fileID: 7856939400122493779}
+  - component: {fileID: 4408889041735361045}
   m_Layer: 13
   m_Name: Duelist
   m_TagString: Untagged
@@ -12500,10 +12484,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7448775784021882958}
-  serializedVersion: 5
+  serializedVersion: 4
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -12940,10 +12924,19 @@ MonoBehaviour:
     Transitions:
       array:
       - Decision: {fileID: 8545942363544322565}
-        TrueState: Chase
+        TrueState: Alerted
         FalseState: 
       - Decision: {fileID: 5500000000000000007}
         TrueState: Staggered
+        FalseState: 
+  - StateName: Alerted
+    Actions:
+      array:
+      - {fileID: 797510273229120432}
+    Transitions:
+      array:
+      - Decision: {fileID: 4234858633188397046}
+        TrueState: Chase
         FalseState: 
   - StateName: Chase
     Actions:
@@ -13013,7 +13006,16 @@ MonoBehaviour:
     Transitions:
       array:
       - Decision: {fileID: 5500000000000000011}
-        TrueState: Chase
+        TrueState: Backstep
+        FalseState: 
+  - StateName: Backstep
+    Actions:
+      array:
+      - {fileID: 3666173830634603257}
+    Transitions:
+      array:
+      - Decision: {fileID: 7856939400122493779}
+        TrueState: Stalk
         FalseState: 
   TimeInThisState: 0
   Target: {fileID: 0}
@@ -13094,6 +13096,8 @@ MonoBehaviour:
   InitializationMode: 0
   Label: 
   _telegraphGlow: {fileID: 1505604880390723839}
+  _telegraphCircle: {fileID: 0}
+  _circleRadius: 2.5
   _telegraphDuration: 0.85
   _trackingRatio: 0.7
   _trackingRotationSpeed: 480
@@ -13553,22 +13557,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     AlignWithDesiredMoveDirection: 0
-  UseHips: 1
-  HipsHeightStepBlend: 1
-  HipsHeightStepSpeed: 0.7
-  HipsAdjustStyle: 0
-  StabilizeCenterOfMass: 0.45
-  AnimationIsStablePose: 0.75
-  StabilizingSpeed: 0.375
-  PushHipsOnLegMove: 0.25
-  NormalizePush: 0
-  PushReactionSpeed: 0.3
-  PushYBlend: 1
-  HipsStretchPreventer: 0.15
-  StretchPreventerSpeed: 0.8
-  StabilizeOnIsMoving: 0.5
-  _Hips_Modules_ExtraWOffset: {x: 0, y: 0, z: 0}
-  _Hips_Modules_ExtraRotOffset: {x: 0, y: 0, z: 0}
   ExtraHipsHubs: []
   HipsHubsHandling: 1
   HipsHubsBlend: 1
@@ -13613,11 +13601,28 @@ MonoBehaviour:
       Damping: 10
       BrakePower: 0.2
   StabilityAlgorithm: 1
+  UseHips: 1
+  HipsHeightStepBlend: 1
+  HipsHeightStepSpeed: 0.7
+  HipsAdjustStyle: 0
+  StabilizeCenterOfMass: 0.45
+  AnimationIsStablePose: 0.75
+  StabilizingSpeed: 0.375
+  PushHipsOnLegMove: 0.25
+  NormalizePush: 0
+  PushReactionSpeed: 0.3
+  PushYBlend: 1
+  HipsStretchPreventer: 0.15
+  StretchPreventerSpeed: 0.8
+  StabilizeOnIsMoving: 0.5
+  _Hips_Modules_ExtraWOffset: {x: 0, y: 0, z: 0}
+  _Hips_Modules_ExtraRotOffset: {x: 0, y: 0, z: 0}
   Legs:
   - G_CustomForceAttach: 0
     G_CustomForceNOTDetach: 0
     G_CustomForceDetach: 0
     G_CustomForceNOTAttach: 0
+    _FinalIKPos: {x: 0, y: 0, z: 0}
     Owner: {fileID: 8639442905325222108}
     LegBlendWeight: 1
     LegMoveSpeedMultiplier: 1
@@ -13644,11 +13649,11 @@ MonoBehaviour:
     AnkleForward: {x: 0.10210606, y: 0.881373, z: 0.46125495}
     FootMiddlePosition: 0.5
     AnkleYawCorrection: 0
-    _FinalIKPos: {x: 0, y: 0, z: 0}
   - G_CustomForceAttach: 0
     G_CustomForceNOTDetach: 0
     G_CustomForceDetach: 0
     G_CustomForceNOTAttach: 0
+    _FinalIKPos: {x: 0, y: 0, z: 0}
     Owner: {fileID: 8639442905325222108}
     LegBlendWeight: 1
     LegMoveSpeedMultiplier: 1
@@ -13675,7 +13680,6 @@ MonoBehaviour:
     AnkleForward: {x: 0.66765076, y: 0.5654253, z: 0.4842898}
     FootMiddlePosition: 0.5
     AnkleYawCorrection: 0
-    _FinalIKPos: {x: 0, y: 0, z: 0}
   BaseLegAnimating:
     StepMoveDuration: 0.3
     MoveToGoalCurve:
@@ -13971,6 +13975,13 @@ MonoBehaviour:
   _swaySpineY: 1.8
   _swaySpineZ: 0.8
   _swayHeadX: 0.6
+  _alertSpine: {x: 6, y: 0, z: 0}
+  _alertChest: {x: 4, y: 0, z: 0}
+  _alertNeck: {x: -3, y: 0, z: 0}
+  _alertHead: {x: -6, y: 0, z: 0}
+  _alertWeaponShoulder: {x: -4, y: -4, z: 0}
+  _alertWeaponArm: {x: -12, y: 0, z: -8}
+  _alertWeaponForeArm: {x: -6, y: 0, z: 0}
   _telegraphSpine: {x: 15, y: 0, z: 0}
   _telegraphChest: {x: 5, y: 10, z: 0}
   _telegraphWeaponShoulder: {x: -8, y: -12, z: 0}
@@ -14008,6 +14019,10 @@ MonoBehaviour:
   _idleAccelLimit: 200
   _idleDamping: 12
   _idleBrakePower: 0.3
+  _alertAcceleration: 3500
+  _alertAccelLimit: 1200
+  _alertDamping: 10
+  _alertBrakePower: 0.2
   _telegraphAcceleration: 3000
   _telegraphAccelLimit: 800
   _telegraphDamping: 10
@@ -14052,6 +14067,8 @@ MonoBehaviour:
   PauseChance: 0.25
   PauseDurationMin: 0.3
   PauseDurationMax: 0.7
+  SeparationRadius: 3
+  SeparationStrength: 1.5
   DirectionSmoothing: 4
   RotationSpeed: 360
   PauseRotationSpeed: 180
@@ -14081,6 +14098,92 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 452e34251c41b3f458aa2722d2c7a1b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MoreMountains.TopDownEngine::CombatTokenHolder
+--- !u!114 &797510273229120432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3527ba32e12a4704881c47aa580bba89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+  RotationSpeed: 720
+  _alertedFeedback: {fileID: 0}
+--- !u!114 &3666173830634603257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 468cd11ebb8f1094ab5cea29ba30ea37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationMode: 0
+  Label: 
+  SpeedFactor: 0.85
+  DirectionSmoothing: 10
+  RotationSpeed: 540
+--- !u!114 &4234858633188397046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a21818f4def5bf646bec3d25770336cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  AfterTimeMin: 0.3
+  AfterTimeMax: 0.4
+--- !u!114 &7856939400122493779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a21818f4def5bf646bec3d25770336cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Label: 
+  AfterTimeMin: 0.5
+  AfterTimeMax: 0.7
+--- !u!114 &4408889041735361045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448775784021882958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49fdbe5de26bad548b2c393c7c37ead6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HealthThreshold: 0.3
+  CooldownMultiplier: 0.6
+  TelegraphMultiplier: 0.75
+  StalkSpeedMultiplier: 1.15
+  _pulseRenderers:
+  - {fileID: 9015152342178051276}
+  - {fileID: 7023460134302120915}
+  - {fileID: 2683122421992643309}
+  _desperateEmission: {r: 0.9, g: 0.05, b: 0.02, a: 1}
+  _pulseFrequency: 2
+  _pulsePeak: 2.5
 --- !u!1 &7516835745024686746
 GameObject:
   m_ObjectHideFlags: 0

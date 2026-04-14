@@ -12,7 +12,7 @@ namespace MoreMountains.TopDownEngine
     [DefaultExecutionOrder(5)]
     public class MeleeEnemyProceduralBody : MonoBehaviour
     {
-        public enum BodyState { Idle, Telegraph, Attack, Recovery, Stagger }
+        public enum BodyState { Idle, Alert, Telegraph, Attack, Recovery, Stagger }
 
         [Header("Bone References")]
         [SerializeField] private Transform _spine;
@@ -46,6 +46,21 @@ namespace MoreMountains.TopDownEngine
         [SerializeField] private float _swaySpineY = 1.8f;
         [SerializeField] private float _swaySpineZ = 0.8f;
         [SerializeField] private float _swayHeadX = 0.6f;
+
+        // ──────────────────────── Alert ────────────────────────
+        [Header("Alert — \"I see you\" pose (brief, plays on first target detect)")]
+        [Tooltip("Spine tilts slightly forward — readiness, like leaning in to look")]
+        [SerializeField] private Vector3 _alertSpine = new Vector3(6f, 0f, 0f);
+        [SerializeField] private Vector3 _alertChest = new Vector3(4f, 0f, 0f);
+
+        [Header("Alert — Head (snaps toward target)")]
+        [SerializeField] private Vector3 _alertNeck = new Vector3(-3f, 0f, 0f);
+        [SerializeField] private Vector3 _alertHead = new Vector3(-6f, 0f, 0f);
+
+        [Header("Alert — Weapon arm rises slightly (anticipation)")]
+        [SerializeField] private Vector3 _alertWeaponShoulder = new Vector3(-4f, -4f, 0f);
+        [SerializeField] private Vector3 _alertWeaponArm = new Vector3(-12f, 0f, -8f);
+        [SerializeField] private Vector3 _alertWeaponForeArm = new Vector3(-6f, 0f, 0f);
 
         // ──────────────────────── Telegraph ────────────────────────
         [Header("Telegraph — Spine Coil")]
@@ -117,6 +132,12 @@ namespace MoreMountains.TopDownEngine
         [SerializeField] private float _idleAccelLimit = 150f;
         [SerializeField] private float _idleDamping = 14f;
         [SerializeField] private float _idleBrakePower = 0.3f;
+
+        [Header("Spring — Alert (quick snap, light overshoot)")]
+        [SerializeField] private float _alertAcceleration = 3500f;
+        [SerializeField] private float _alertAccelLimit = 1200f;
+        [SerializeField] private float _alertDamping = 10f;
+        [SerializeField] private float _alertBrakePower = 0.2f;
 
         [Header("Spring — Telegraph (builds tension)")]
         [SerializeField] private float _telegraphAcceleration = 2500f;
@@ -225,6 +246,10 @@ namespace MoreMountains.TopDownEngine
                     acc = _idleAcceleration; accLim = _idleAccelLimit;
                     damp = _idleDamping; brake = _idleBrakePower;
                     break;
+                case BodyState.Alert:
+                    acc = _alertAcceleration; accLim = _alertAccelLimit;
+                    damp = _alertDamping; brake = _alertBrakePower;
+                    break;
                 case BodyState.Telegraph:
                     acc = _telegraphAcceleration; accLim = _telegraphAccelLimit;
                     damp = _telegraphDamping; brake = _telegraphBrakePower;
@@ -274,6 +299,11 @@ namespace MoreMountains.TopDownEngine
             {
                 case BodyState.Idle:
                     CalculateIdle(out spine, out chest, out neck, out head,
+                        out rShoulder, out rArm, out rForeArm,
+                        out lShoulder, out lArm, out lForeArm);
+                    break;
+                case BodyState.Alert:
+                    CalculateAlert(out spine, out chest, out neck, out head,
                         out rShoulder, out rArm, out rForeArm,
                         out lShoulder, out lArm, out lForeArm);
                     break;
@@ -364,6 +394,30 @@ namespace MoreMountains.TopDownEngine
             rArm = new Vector3(0f, 0f, swayCycle * 1f);
             rForeArm = Vector3.zero;
             lArm = new Vector3(0f, 0f, -swayCycle * 1f);
+            lForeArm = Vector3.zero;
+        }
+
+        private void CalculateAlert(
+            out Vector3 spine, out Vector3 chest, out Vector3 neck, out Vector3 head,
+            out Vector3 rShoulder, out Vector3 rArm, out Vector3 rForeArm,
+            out Vector3 lShoulder, out Vector3 lArm, out Vector3 lForeArm)
+        {
+            // Instant snap to alert pose — spring provides slight overshoot for
+            // an organic "caught sight of you" flinch. No easing — the state is
+            // short (~0.35s) and the spring handles weight.
+            spine = _alertSpine;
+            chest = _alertChest;
+
+            neck = _alertNeck;
+            head = _alertHead;
+
+            rShoulder = _alertWeaponShoulder;
+            rArm = _alertWeaponArm;
+            rForeArm = _alertWeaponForeArm;
+
+            // Off arm relaxed
+            lShoulder = Vector3.zero;
+            lArm = Vector3.zero;
             lForeArm = Vector3.zero;
         }
 
